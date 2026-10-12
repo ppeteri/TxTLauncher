@@ -275,11 +275,12 @@
 
             <LinearLayout
                 android:id="@+id/buttonsFrame2"
-                android:baselineAligned="false"
-                android:gravity="center"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="10dp"
+                android:baselineAligned="false"
+                android:paddingTop="16dp"
+                android:paddingBottom="10dp"
+                android:gravity="center"
                 android:orientation="horizontal"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"

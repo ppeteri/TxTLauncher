@@ -268,11 +268,18 @@ public class AppListActivity extends AppCompatActivity {
                 if ((selectedL.equals(appName))||(selectedL.equals(appName + " "))) {
                     String pkg = allAppData[i][1];
                     String cls = allAppData[i][2];
-                    Intent intent = new Intent();
-                    intent.setClassName(pkg, cls);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    //Intent intent = new Intent();
                     try {
-                        startActivity(intent);
+                        Intent intent = getPackageManager().getLaunchIntentForPackage(pkg);
+                        if (intent != null) {
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            startActivity(intent);
+                        } else {
+                            Intent intent2 = new Intent();
+                            intent2.setClassName(pkg, cls);
+                            intent2.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            startActivity(intent2);
+                        }
                         startedAndroidApp = true;
                         this.finish();
                     } catch (Exception e) {

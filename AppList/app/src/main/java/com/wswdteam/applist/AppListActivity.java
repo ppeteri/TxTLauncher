@@ -134,6 +134,7 @@ public class AppListActivity extends AppCompatActivity {
     //
     // előkészítés
     //
+    @SuppressLint({"CutPasteId", "UseCompatLoadingForDrawables"})
     public void prepare() {
         // első induláskor betöltés
         generateAppList();
@@ -207,6 +208,7 @@ public class AppListActivity extends AppCompatActivity {
                 return super.getItem(position);
             }
 
+            @SuppressLint("SetTextI18n")
             @NonNull
             @Override
             public View getView(int position, View convertView, @NonNull ViewGroup parent) {
@@ -220,9 +222,8 @@ public class AppListActivity extends AppCompatActivity {
                     } else {
                         if (appN.length() == 1) {
                             tvt.setTextColor(defaultLetterColor);
-                            if (appN.equals(FAVORITE_LETTER)) {
-                                tvt.setText(R.string.app_favorite);
-                            } else {
+                            if (appN.equals(FAVORITE_LETTER)) tvt.setText(R.string.app_favorite);
+                            else {
                                 tvt.setText(appN);
                             }
                             tvt.setCompoundDrawables(null, null, null, null);
@@ -364,11 +365,17 @@ public class AppListActivity extends AppCompatActivity {
                 if ((selectedL.equals(appName))||(selectedL.equals(appName + " "))) {
                     String pkg = allAppData[i][1];
                     String cls = allAppData[i][2];
-                    Intent intent = new Intent();
-                    intent.setClassName(pkg, cls);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     try {
-                        startActivity(intent);
+                        Intent intent = getPackageManager().getLaunchIntentForPackage(pkg);
+                        if (intent != null) {
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            startActivity(intent);
+                        } else {
+                            Intent intent2 = new Intent();
+                            intent2.setClassName(pkg, cls);
+                            intent2.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            startActivity(intent2);
+                        }
                         startedAndroidApp = true;
                     } catch (Exception e) {
                         systemMessage(getString(R.string.error_startapp));

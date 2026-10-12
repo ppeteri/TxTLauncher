@@ -402,6 +402,7 @@ public class MainActivity extends AppCompatActivity {
     //
     // háttér beállítása és mentése
     //
+    @SuppressLint("ThreadConstraint")
     private void setupBackground() {
         if (ContextCompat.checkSelfPermission(this, Manifest.permission.READ_MEDIA_IMAGES) == PackageManager.PERMISSION_DENIED) {
             // jogodultdág kérése csak egyszer
@@ -703,11 +704,17 @@ public class MainActivity extends AppCompatActivity {
                 if (selectedP.equals(appName)) {
                     String pkg = allAppData[i][1];
                     String cls = allAppData[i][2];
-                    Intent intent = new Intent();
-                    intent.setClassName(pkg, cls);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     try {
-                        startActivity(intent);
+                        Intent intent = getPackageManager().getLaunchIntentForPackage(pkg);
+                        if (intent != null) {
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            startActivity(intent);
+                        } else {
+                            Intent intent2 = new Intent();
+                            intent2.setClassName(pkg, cls);
+                            intent2.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            startActivity(intent2);
+                        }
                         startedAndroidApp = true;
                     } catch (Exception e) {
                         systemMessage(getString(R.string.error_startapp));
@@ -725,11 +732,17 @@ public class MainActivity extends AppCompatActivity {
                 if (selectedP.equals(appName)) {
                     String pkg = allAppData[i][1];
                     String cls = allAppData[i][2];
-                    Intent intent = new Intent();
-                    intent.setClassName(pkg, cls);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     try {
-                        startActivity(intent);
+                        Intent intent = getPackageManager().getLaunchIntentForPackage(pkg);
+                        if (intent != null) {
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            startActivity(intent);
+                        } else {
+                            Intent intent2 = new Intent();
+                            intent2.setClassName(pkg, cls);
+                            intent2.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            startActivity(intent2);
+                        }
                         startedAndroidApp = true;
                     } catch (Exception e) {
                         systemMessage(getString(R.string.error_startapp));

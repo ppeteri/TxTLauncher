@@ -10,9 +10,9 @@ android {
 
     defaultConfig {
         applicationId = "com.wswdteam.txtlauncher"
-        minSdk = 35
+        minSdk = 36
+        targetSdk = 37
         //noinspection EditedTargetSdkVersion
-        targetSdk = 36
         versionCode = 1
         versionName = "1.0"
 
