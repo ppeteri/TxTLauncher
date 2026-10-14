@@ -2,6 +2,8 @@ package com.wswdteam.txtlauncher;
 
 import static android.view.View.GONE;
 import static android.view.View.INVISIBLE;
+import static com.wswdteam.txtlauncher.MainActivity.SWIPE_MIN_DISTANCE;
+import static com.wswdteam.txtlauncher.MainActivity.SWIPE_TRESHOLD;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.FAV_APP_NUM;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.SETTINGS_FAV_APP_TAG;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.adaptiveIconColor;
@@ -29,7 +31,9 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.TextUtils;
 import android.util.TypedValue;
+import android.view.GestureDetector;
 import android.view.Gravity;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -52,6 +56,7 @@ import java.util.List;
 //
 public class FavoritesActivity extends AppCompatActivity {
     public static List<String> favAppName = new ArrayList<>();
+    private GestureDetector gestureDetector;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +67,26 @@ public class FavoritesActivity extends AppCompatActivity {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
+        });
+
+        gestureDetector = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
+            @Override
+            public boolean onFling(MotionEvent e1, @NonNull MotionEvent e2, float velocityX, float velocityY) {
+                if (e1 == null) return false;
+                float dx = e2.getX() - e1.getX();
+                float dy = e2.getY() - e1.getY();
+
+                if (Math.abs(dy) > SWIPE_MIN_DISTANCE && Math.abs(dx) < SWIPE_TRESHOLD) {
+                    finish();
+                    return true;
+                }
+
+                if (Math.abs(dx) > SWIPE_MIN_DISTANCE && Math.abs(dy) < SWIPE_TRESHOLD) {
+                    finish();
+                    return true;
+                }
+                return false;
+            }
         });
 
         // teljes háttér színe
@@ -81,6 +106,11 @@ public class FavoritesActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent event) {
+        gestureDetector.onTouchEvent(event);
+        return super.dispatchTouchEvent(event);
+    }
 
     //
     // Kedvenc app lista előkészítés

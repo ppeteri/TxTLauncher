@@ -1,5 +1,7 @@
 package com.wswdteam.txtlauncher;
 
+import static com.wswdteam.txtlauncher.MainActivity.SWIPE_MIN_DISTANCE;
+import static com.wswdteam.txtlauncher.MainActivity.SWIPE_TRESHOLD;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.adaptiveIconColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.allAppData;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.allApplicationsList;
@@ -22,6 +24,8 @@ import android.content.Intent;
 import android.content.pm.ResolveInfo;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
@@ -54,7 +58,7 @@ public class AppListActivity extends AppCompatActivity {
     final ArrayList<String> allappListBackup = new ArrayList<>();
     final ArrayList<String> appListBackup = new ArrayList<>();
     final ArrayList<String> appPackListBackup = new ArrayList<>();
-
+    private GestureDetector gestureDetector;
 
 
     @SuppressLint({"MissingInflatedId", "PrivateResource"})
@@ -69,7 +73,22 @@ public class AppListActivity extends AppCompatActivity {
             return insets;
         });
 
-                // teljes háttér színe
+        gestureDetector = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
+            @Override
+            public boolean onFling(MotionEvent e1, @NonNull MotionEvent e2, float velocityX, float velocityY) {
+                if (e1 == null) return false;
+                float dx = e2.getX() - e1.getX();
+                float dy = e2.getY() - e1.getY();
+
+                if (Math.abs(dx) > SWIPE_MIN_DISTANCE && Math.abs(dy) < SWIPE_TRESHOLD) {
+                    finish();
+                    return true;
+                }
+                return false;
+            }
+        });
+
+        // teljes háttér színe
         getWindow().getDecorView().setBackgroundColor(defaultBackGroundColor);
         // vissza gomb szine
         ImageView imv = findViewById(R.id.quitAllAppListButton);
@@ -87,6 +106,11 @@ public class AppListActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent event) {
+        gestureDetector.onTouchEvent(event);
+        return super.dispatchTouchEvent(event);
+    }
 
     //
     // App lista indítása

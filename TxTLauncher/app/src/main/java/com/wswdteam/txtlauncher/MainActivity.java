@@ -113,6 +113,7 @@ public class MainActivity extends AppCompatActivity {
     public static boolean startedSettingsAct = false;
     public static boolean startedFavAct = false;
     public static boolean startedHelp = false;
+    private GestureDetector gestureDetector;
 
 
     //
@@ -131,24 +132,67 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
-        TextView tv = findViewById(R.id.mainTitle);
-        defaultFontSize = tv.getTextSize();
-        // méretezés: float scaledDensity = configuration.fontScale;
-        // @float defaultTextSize = 14f;
-        // - méretezetten: defaultPlusFontSize = (defaultFontSize * scaledDensity) - defaultFontSize + defaultPlusFontSize;
-        // - méretezetten: defaultPlusFontSizeTitle = (defaultFontSize * scaledDensity) - defaultFontSize + defaultPlusFontSizeTitle;
+        gestureDetector = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
+            @Override
+            public boolean onDoubleTap(@NonNull MotionEvent event) {
+                //syslog("Action double tap: lock");
+                TxTLauncherApp.lockApp(getBaseContext());
+                return super.onDoubleTap(event);
+            }
 
-        tv = findViewById(R.id.digitalClock);
-        tv.setTextSize(tv.getTextSize());
-        tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, defaultFontSize + (2 * defaultPlusFontSizeTitle));
-        tv.setTextColor(defaultTextColor);
-        tv = findViewById(R.id.digitalDate);
-        tv.setTextSize(tv.getTextSize());
-        tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, defaultFontSize + (2 * defaultPlusFontSizeTitle));
-        tv.setTextColor(defaultTextColor);
+            @Override
+            public void onLongPress(@NonNull MotionEvent event) {
+                //syslog("Action long tap: favorite");
+                openFavActivity();
+                super.onLongPress(event);
+            }
+
+            @Override
+            public boolean onFling(MotionEvent e1, @NonNull MotionEvent e2, float velocityX, float velocityY) {
+                if (e1 == null) return false;
+                //float dx = e2.getX() - e1.getX();
+                //float dy = e2.getY() - e1.getY();
+                var x1 = e1.getX();
+                var x2 = e2.getX();
+                var y1 = e1.getY();
+                var y2 = e2.getY();
+                // függőleges
+                if ((Math.abs(y2 - y1) > SWIPE_MIN_DISTANCE) && (Math.abs(x2 - x1) < SWIPE_TRESHOLD)) {
+                    // fel vagy le
+                    if (y2 < y1) {
+                        // fel
+                        if (!startedAppAct) {
+                            openAppListActivity();
+                        }
+                    } else {
+                        // le
+                        if (!startedFavAct) {
+                            openFavActivity();
+                        }
+                    }
+                    return true;
+                }
+                // vízszintes
+                if ((Math.abs(x2 - x1) > SWIPE_MIN_DISTANCE) && (Math.abs(y2 - y1) < SWIPE_TRESHOLD)) {
+                    if (x1 < x2) {
+                        // jobbra
+                        if (!startedWidgetAct) {
+                            openWidgetActivity();
+                        }
+                    } else {
+                        // balra
+                        //openAndroidSystemSettings();
+                        openGoogleDiscovery();
+                    }
+                    return true;
+                }
+                return false;
+            }
+        });
 
         // touch
-        findViewById(R.id.mainView).setOnTouchListener(new View.OnTouchListener() {
+        //findViewById(R.id.mainView).setOnTouchListener(new View.OnTouchListener() {
+        findViewById(R.id.mainTitle).setOnTouchListener(new View.OnTouchListener() {
             private final GestureDetector gestureDetector = new GestureDetector(MainActivity.this, new GestureDetector.SimpleOnGestureListener() {
                 @Override
                 public boolean onDoubleTap(@NonNull MotionEvent event) {
@@ -225,6 +269,22 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        TextView tv = findViewById(R.id.mainTitle);
+        defaultFontSize = tv.getTextSize();
+        // méretezés: float scaledDensity = configuration.fontScale;
+        // @float defaultTextSize = 14f;
+        // - méretezetten: defaultPlusFontSize = (defaultFontSize * scaledDensity) - defaultFontSize + defaultPlusFontSize;
+        // - méretezetten: defaultPlusFontSizeTitle = (defaultFontSize * scaledDensity) - defaultFontSize + defaultPlusFontSizeTitle;
+
+        tv = findViewById(R.id.digitalClock);
+        tv.setTextSize(tv.getTextSize());
+        tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, defaultFontSize + (2 * defaultPlusFontSizeTitle));
+        tv.setTextColor(defaultTextColor);
+        tv = findViewById(R.id.digitalDate);
+        tv.setTextSize(tv.getTextSize());
+        tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, defaultFontSize + (2 * defaultPlusFontSizeTitle));
+        tv.setTextColor(defaultTextColor);
+
         ImageView iv;
         iv = findViewById(R.id.applistButton);
         iv.setOnLongClickListener(v -> {
@@ -280,6 +340,12 @@ public class MainActivity extends AppCompatActivity {
         } else {
             ll.setVisibility(INVISIBLE);
         }
+    }
+
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent event) {
+        gestureDetector.onTouchEvent(event);
+        return super.dispatchTouchEvent(event);
     }
 
 
@@ -499,6 +565,7 @@ public class MainActivity extends AppCompatActivity {
             setIconColor(R.id.applistButton, adaptiveIconColor);
             setIconColor(R.id.browserButton, adaptiveIconColor);
             setIconColor(R.id.cameraButton, adaptiveIconColor);
+            setIconColor(R.id.menuLine, adaptiveIconColor);
         } else {
             setIconColor(R.id.searchButton, defaultIconColor);
             setIconColor(R.id.weatherButton, defaultIconColor);
@@ -514,6 +581,7 @@ public class MainActivity extends AppCompatActivity {
             setIconColor(R.id.applistButton, defaultIconColor);
             setIconColor(R.id.browserButton, defaultIconColor);
             setIconColor(R.id.cameraButton, defaultIconColor);
+            setIconColor(R.id.menuLine, defaultIconColor);
         }
 
         if (textColorMode) {

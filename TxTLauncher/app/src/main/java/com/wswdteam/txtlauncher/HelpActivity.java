@@ -1,6 +1,8 @@
 package com.wswdteam.txtlauncher;
 
 import static android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN;
+import static com.wswdteam.txtlauncher.MainActivity.SWIPE_MIN_DISTANCE;
+import static com.wswdteam.txtlauncher.MainActivity.SWIPE_TRESHOLD;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.TXT_APP_NAME;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.TXT_VERSION;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.TXT_WEB_PAGE;
@@ -14,11 +16,14 @@ import android.annotation.SuppressLint;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.util.TypedValue;
+import android.view.GestureDetector;
 import android.view.Gravity;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -29,6 +34,7 @@ import androidx.core.view.WindowInsetsCompat;
 // Beállítások nézet
 //
 public class HelpActivity extends AppCompatActivity {
+    private GestureDetector gestureDetector;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -39,6 +45,21 @@ public class HelpActivity extends AppCompatActivity {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
+        });
+
+        gestureDetector = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
+            @Override
+            public boolean onFling(MotionEvent e1, @NonNull MotionEvent e2, float velocityX, float velocityY) {
+                if (e1 == null) return false;
+                float dx = e2.getX() - e1.getX();
+                float dy = e2.getY() - e1.getY();
+
+                if (Math.abs(dx) > SWIPE_MIN_DISTANCE && Math.abs(dy) < SWIPE_TRESHOLD) {
+                    finish();
+                    return true;
+                }
+                return false;
+            }
         });
 
         this.getWindow().setSoftInputMode(SOFT_INPUT_ADJUST_PAN);
@@ -72,6 +93,11 @@ public class HelpActivity extends AppCompatActivity {
         tv.setTextColor(defaultTextColor);
     }
 
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent event) {
+        gestureDetector.onTouchEvent(event);
+        return super.dispatchTouchEvent(event);
+    }
 
     //
     // Beállítások indítása

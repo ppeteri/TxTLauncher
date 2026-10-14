@@ -1,5 +1,7 @@
 package com.wswdteam.txtlauncher;
 
+import static com.wswdteam.txtlauncher.MainActivity.SWIPE_MIN_DISTANCE;
+import static com.wswdteam.txtlauncher.MainActivity.SWIPE_TRESHOLD;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.HOME_APP_NUM;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.SETTINGS_APP_TAG;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.adaptiveIconColor;
@@ -23,7 +25,9 @@ import android.annotation.SuppressLint;
 import android.content.pm.ResolveInfo;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle; import android.util.TypedValue;
+import android.view.GestureDetector;
 import android.view.Gravity;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -46,6 +50,7 @@ public class AddAppActivity extends AppCompatActivity {
     final ArrayList<String> appList = new ArrayList<>();
     final ArrayList<String> selApp = new ArrayList<>();
     public int selectedAppNum = 0;
+    private GestureDetector gestureDetector;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -56,6 +61,21 @@ public class AddAppActivity extends AppCompatActivity {
             Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom);
             return insets;
+        });
+
+        gestureDetector = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
+            @Override
+            public boolean onFling(MotionEvent e1, @NonNull MotionEvent e2, float velocityX, float velocityY) {
+                if (e1 == null) return false;
+                float dx = e2.getX() - e1.getX();
+                float dy = e2.getY() - e1.getY();
+
+                if (Math.abs(dx) > SWIPE_MIN_DISTANCE && Math.abs(dy) < SWIPE_TRESHOLD) {
+                    finish();
+                    return true;
+                }
+                return false;
+            }
         });
 
         // teljes háttér színe
@@ -75,6 +95,11 @@ public class AddAppActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent event) {
+        gestureDetector.onTouchEvent(event);
+        return super.dispatchTouchEvent(event);
+    }
 
     //
     // App választás főképernyőre előkészítés
