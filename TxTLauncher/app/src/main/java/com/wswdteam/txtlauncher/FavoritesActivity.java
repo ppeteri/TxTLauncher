@@ -2,15 +2,18 @@ package com.wswdteam.txtlauncher;
 
 import static android.view.View.GONE;
 import static android.view.View.INVISIBLE;
-import static com.wswdteam.txtlauncher.MainActivity.SWIPE_MIN_DISTANCE;
-import static com.wswdteam.txtlauncher.MainActivity.SWIPE_TRESHOLD;
+import static android.view.View.VISIBLE;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.SWIPE_MIN_DISTANCE;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.SWIPE_TRESHOLD;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.FAV_APP_NUM;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.SETTINGS_FAV_APP_TAG;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.adaptiveIcon;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.adaptiveIconColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.allAppData;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.allApplicationsList;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultBackGroundColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultFontSize;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultIconColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultPlusFontSizeTitle;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultTextColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.homeStartAppIcon;
@@ -18,6 +21,7 @@ import static com.wswdteam.txtlauncher.TxTLauncherApp.iconSize;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.onecolFavorites;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.packageMan;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.sharedPreferences;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.showDecor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.syslog;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.systemMessage;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.textColorMode;
@@ -37,6 +41,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -44,6 +50,7 @@ import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
+import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
@@ -70,6 +77,13 @@ public class FavoritesActivity extends AppCompatActivity {
         });
 
         gestureDetector = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
+            @Override
+            public void onLongPress(@NonNull MotionEvent event) {
+                //syslog("Action long tap: favorite");
+                finish();
+                super.onLongPress(event);
+            }
+
             @Override
             public boolean onFling(MotionEvent e1, @NonNull MotionEvent e2, float velocityX, float velocityY) {
                 if (e1 == null) return false;
@@ -103,6 +117,19 @@ public class FavoritesActivity extends AppCompatActivity {
             tv.setCompoundDrawables(appI, null, null, null);
             tv.setGravity(Gravity.CENTER_VERTICAL);
             tv.setCompoundDrawables(appI, null, null, null);
+        }
+
+        LinearLayout ll = findViewById(R.id.lLayoutDecor);
+        if (showDecor) {
+            ll.setVisibility(VISIBLE);
+        } else {
+            ll.setVisibility(INVISIBLE);
+        }
+
+        if (adaptiveIcon || textColorMode) {
+            setIconColorF(R.id.menuIconF, adaptiveIconColor);
+        } else {
+            setIconColorF(R.id.menuIconF, defaultIconColor);
         }
     }
 
@@ -148,6 +175,23 @@ public class FavoritesActivity extends AppCompatActivity {
     @Override
     public void onStop() {
         super.onStop();
+    }
+
+
+
+    //
+    //  Fő nézet: alapértelmezett gombok beállítása
+    //
+    public void setIconColorF(int id, int color) {
+        ImageView btn;
+        Drawable drw;
+        btn = findViewById(id);
+        drw =btn.getDrawable();
+        if(drw !=null) {
+            drw = DrawableCompat.wrap(drw).mutate();
+            DrawableCompat.setTint(drw, color);
+            btn.setImageDrawable(drw);
+        }
     }
 
 
@@ -357,6 +401,16 @@ public class FavoritesActivity extends AppCompatActivity {
             }
         });
     }
+
+
+    //
+    // App indítása
+    //
+    public void startButtonApps(View v) {
+        startActivity(new Intent(this, AppListActivity.class));
+        this.finish();
+    }
+
 
 
     //

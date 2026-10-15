@@ -1,12 +1,13 @@
 package com.wswdteam.txtlauncher;
 
 import static android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN;
-import static com.wswdteam.txtlauncher.MainActivity.SWIPE_MIN_DISTANCE;
-import static com.wswdteam.txtlauncher.MainActivity.SWIPE_TRESHOLD;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.SWIPE_MIN_DISTANCE;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.SWIPE_TRESHOLD;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.SETTINGS_ADAPTIVE_ICON_COLOR_TAG;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.SETTINGS_ADAPTIVE_ICON_TAG;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.SETTINGS_BACKGROUND_IMAGE_TAG;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.SETTINGS_DARK_MODE_TAG;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.SETTINGS_DECOR_TAG;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.SETTINGS_EXTRA_TOOLS;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.SETTINGS_HOME_ICON_TAG;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.SETTINGS_ONE_COLUMN_FAVORITES_TAG;
@@ -79,6 +80,13 @@ public class SettingsActivity extends AppCompatActivity {
 
         gestureDetector = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
             @Override
+            public void onLongPress(@NonNull MotionEvent event) {
+                //syslog("Action long tap: favorite");
+                finish();
+                super.onLongPress(event);
+            }
+
+            @Override
             public boolean onFling(MotionEvent e1, @NonNull MotionEvent e2, float velocityX, float velocityY) {
                 if (e1 == null) return false;
                 float dx = e2.getX() - e1.getX();
@@ -136,6 +144,7 @@ public class SettingsActivity extends AppCompatActivity {
         @SuppressLint("UseSwitchCompatOrMaterialCode") Switch c7 = findViewById(R.id.showArrows);
         @SuppressLint("UseSwitchCompatOrMaterialCode") Switch c8 = findViewById(R.id.showMainIcons);
         @SuppressLint("UseSwitchCompatOrMaterialCode") Switch c9 = findViewById(R.id.extraTools);
+        @SuppressLint("UseSwitchCompatOrMaterialCode") Switch c10 = findViewById(R.id.screenDecor);
 
         val = TxTLauncherApp.sharedPreferences.getString(SETTINGS_SYS_ICON_TAG, "");
         if (!val.isEmpty()) {
@@ -172,6 +181,10 @@ public class SettingsActivity extends AppCompatActivity {
         val = TxTLauncherApp.sharedPreferences.getString(SETTINGS_EXTRA_TOOLS, "");
         if (!val.isEmpty()) {
             c9.setChecked(!val.equals("0"));
+        }
+        val = TxTLauncherApp.sharedPreferences.getString(SETTINGS_DECOR_TAG, "");
+        if (!val.isEmpty()) {
+            c10.setChecked(!val.equals("0"));
         }
 
         c1.setOnCheckedChangeListener((buttonView, isChecked) -> {
@@ -252,6 +265,15 @@ public class SettingsActivity extends AppCompatActivity {
                 settings.putString(SETTINGS_EXTRA_TOOLS, "1");
             } else {
                 settings.putString(SETTINGS_EXTRA_TOOLS, "0");
+            }
+            settings.apply();
+        });
+        c10.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            var settings = TxTLauncherApp.sharedPreferences.edit();
+            if (isChecked) {
+                settings.putString(SETTINGS_DECOR_TAG, "1");
+            } else {
+                settings.putString(SETTINGS_DECOR_TAG, "0");
             }
             settings.apply();
         });

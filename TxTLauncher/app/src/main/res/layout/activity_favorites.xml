@@ -38,6 +38,7 @@
         android:layout_width="wrap_content"
         android:layout_height="0dp"
         android:layout_marginTop="50dp"
+        android:layout_marginBottom="55dp"
         android:baselineAligned="false"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -73,6 +74,33 @@
             android:layout_weight="1">
 
         </ListView>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/lLayoutDecor"
+        android:layout_width="match_parent"
+        android:layout_height="30dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="5dp"
+        android:layout_weight="1"
+        android:baselineAligned="false"
+        android:gravity="center"
+        android:orientation="horizontal"
+        app:layout_constraintTop_toBottomOf="@id/FavAppFrame" >
+
+        <ImageView
+            android:id="@+id/menuIconF"
+            android:layout_width="40dp"
+            android:layout_height="30dp"
+            android:gravity="center"
+            android:background="@android:color/transparent"
+            android:onClick="startButtonApps"
+            android:contentDescription="@string/app_name"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:srcCompat="@drawable/trip"
+            tools:layout_editor_absoluteX="194dp" />
+
     </LinearLayout>
 
 

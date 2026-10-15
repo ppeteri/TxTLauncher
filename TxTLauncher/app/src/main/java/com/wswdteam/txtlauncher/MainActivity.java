@@ -3,6 +3,8 @@ package com.wswdteam.txtlauncher;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.HOME_APP_NUM;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.SWIPE_MIN_DISTANCE;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.SWIPE_TRESHOLD;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.adaptiveIcon;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.adaptiveIconColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.allApplicationsList;
@@ -11,6 +13,7 @@ import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultIcons;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.packageMan;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.savedBackgroundImage;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.showArrows;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.showDecor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.showMainIcons;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.textColorMode;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.darkMode;
@@ -99,10 +102,6 @@ import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
 
-    // gesture mód beállítások
-    public static final int SWIPE_MIN_DISTANCE = 100;
-    public static final int SWIPE_TRESHOLD = 50;
-
     // háttérkép kezelése
     private boolean firstPermissionRequest = true;
     public static String backgroundImageBackup = "";
@@ -119,7 +118,7 @@ public class MainActivity extends AppCompatActivity {
     //
     //  Fő nézet létrehozása
     //
-    @SuppressLint({"PrivateResource", "CutPasteId"})
+    @SuppressLint({"PrivateResource", "CutPasteId", "MissingInflatedId"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -148,6 +147,13 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
+            public boolean onScroll(@Nullable MotionEvent event, @NonNull MotionEvent event2, float distanceX,
+                                    float distanceY) {
+                assert event != null;
+                return true;
+            }
+
+            @Override
             public boolean onFling(MotionEvent e1, @NonNull MotionEvent e2, float velocityX, float velocityY) {
                 if (e1 == null) return false;
                 //float dx = e2.getX() - e1.getX();
@@ -170,7 +176,7 @@ public class MainActivity extends AppCompatActivity {
                             openFavActivity();
                         }
                     }
-                    return true;
+                    return super.onFling(e1, e2, velocityX, velocityY);
                 }
                 // vízszintes
                 if ((Math.abs(x2 - x1) > SWIPE_MIN_DISTANCE) && (Math.abs(y2 - y1) < SWIPE_TRESHOLD)) {
@@ -184,9 +190,9 @@ public class MainActivity extends AppCompatActivity {
                         //openAndroidSystemSettings();
                         openGoogleDiscovery();
                     }
-                    return true;
+                    return super.onFling(e1, e2, velocityX, velocityY);
                 }
-                return false;
+                return super.onFling(e1, e2, velocityX, velocityY);
             }
         });
 
@@ -318,6 +324,7 @@ public class MainActivity extends AppCompatActivity {
         startedAndroidApp = true;
         generateAppList();
         getSettingsMain(this);
+        screenPrepare();
         setColors();
         // első indulás: nincs új háttér
         backgroundImageBackup = backgroundImage;
@@ -326,22 +333,12 @@ public class MainActivity extends AppCompatActivity {
         buttonPrepare();
         setHomaApp();
         backgroundPrepare();
-
-        LinearLayout ll;
-        ll = findViewById(R.id.lLayoutIcons1);
-        if (showArrows) {
-            ll.setVisibility(VISIBLE);
-        } else {
-            ll.setVisibility(INVISIBLE);
-        }
-        ll = findViewById(R.id.lLayoutIcons2);
-        if (showMainIcons) {
-            ll.setVisibility(VISIBLE);
-        } else {
-            ll.setVisibility(INVISIBLE);
-        }
     }
 
+
+    //
+    // egész képernyős érintés kezelésének lezáráaa
+    //
     @Override
     public boolean dispatchTouchEvent(MotionEvent event) {
         gestureDetector.onTouchEvent(event);
@@ -362,24 +359,12 @@ public class MainActivity extends AppCompatActivity {
 
         if (startedSettingsAct) {
             getSettingsMain(this);
+            screenPrepare();
             setColors();
             saveButtonImages();
             buttonPrepare();
             setHomaApp();
             backgroundPrepare();
-            LinearLayout ll;
-            ll = findViewById(R.id.lLayoutIcons1);
-            if (showArrows) {
-                ll.setVisibility(VISIBLE);
-            } else {
-                ll.setVisibility(INVISIBLE);
-            }
-            ll = findViewById(R.id.lLayoutIcons2);
-            if (showMainIcons) {
-                ll.setVisibility(VISIBLE);
-            } else {
-                ll.setVisibility(INVISIBLE);
-            }
         }
 
         startedAppAct = false;
@@ -430,6 +415,34 @@ public class MainActivity extends AppCompatActivity {
         super.onDestroy();
         timeHandler.removeCallbacks(timeRunnable);
     }
+
+
+
+    //
+    // a jépernyő előkészítése
+    //
+    private void screenPrepare() {
+        LinearLayout ll;
+        ll = findViewById(R.id.lLayoutIcons1);
+        if (showArrows) {
+            ll.setVisibility(VISIBLE);
+        } else {
+            ll.setVisibility(INVISIBLE);
+        }
+        ll = findViewById(R.id.lLayoutIcons2);
+        if (showMainIcons) {
+            ll.setVisibility(VISIBLE);
+        } else {
+            ll.setVisibility(INVISIBLE);
+        }
+        ll = findViewById(R.id.lLayoutDecor);
+        if (showDecor) {
+            ll.setVisibility(VISIBLE);
+        } else {
+            ll.setVisibility(INVISIBLE);
+        }
+    }
+
 
 
     //
@@ -565,7 +578,7 @@ public class MainActivity extends AppCompatActivity {
             setIconColor(R.id.applistButton, adaptiveIconColor);
             setIconColor(R.id.browserButton, adaptiveIconColor);
             setIconColor(R.id.cameraButton, adaptiveIconColor);
-            setIconColor(R.id.menuLine, adaptiveIconColor);
+            setIconColor(R.id.menuIconMain, adaptiveIconColor);
         } else {
             setIconColor(R.id.searchButton, defaultIconColor);
             setIconColor(R.id.weatherButton, defaultIconColor);
@@ -581,7 +594,7 @@ public class MainActivity extends AppCompatActivity {
             setIconColor(R.id.applistButton, defaultIconColor);
             setIconColor(R.id.browserButton, defaultIconColor);
             setIconColor(R.id.cameraButton, defaultIconColor);
-            setIconColor(R.id.menuLine, defaultIconColor);
+            setIconColor(R.id.menuIconMain, defaultIconColor);
         }
 
         if (textColorMode) {
@@ -615,7 +628,6 @@ public class MainActivity extends AppCompatActivity {
         ivone = findViewById(R.id.cameraButton);
         defaultIcons.add(ivone.getDrawable());
     }
-
 
 
 

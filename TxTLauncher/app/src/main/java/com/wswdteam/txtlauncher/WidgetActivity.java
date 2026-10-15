@@ -2,8 +2,8 @@ package com.wswdteam.txtlauncher;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
-import static com.wswdteam.txtlauncher.MainActivity.SWIPE_MIN_DISTANCE;
-import static com.wswdteam.txtlauncher.MainActivity.SWIPE_TRESHOLD;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.SWIPE_MIN_DISTANCE;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.SWIPE_TRESHOLD;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.SETTINGS_NOTE_TAG;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.SETTINGS_URL_SEARCH_TAG;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.adaptiveIcon;
@@ -83,6 +83,13 @@ public class WidgetActivity extends AppCompatActivity {
         });
 
         gestureDetector = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
+            @Override
+            public void onLongPress(@NonNull MotionEvent event) {
+                //syslog("Action long tap: favorite");
+                finish();
+                super.onLongPress(event);
+            }
+
             @Override
             public boolean onFling(MotionEvent e1, @NonNull MotionEvent e2, float velocityX, float velocityY) {
                 if (e1 == null) return false;

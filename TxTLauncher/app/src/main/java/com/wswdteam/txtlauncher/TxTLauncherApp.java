@@ -41,11 +41,14 @@ public class TxTLauncherApp extends android.app.Application {
     public static final String SETTINGS_VERSION_TAG = "TxTVersion";
 
     // debug jelölő a log-ba
-    public static String DEBUG_TAG = "TxTLauncher_App";
+    public static final String DEBUG_TAG = "TxTLauncher_App";
 
     // általános constansok
     public static final int HOME_APP_NUM = 10;
     public static final int FAV_APP_NUM = 20;
+    // gesture mód beállítások
+    public static final int SWIPE_MIN_DISTANCE = 100;
+    public static final int SWIPE_TRESHOLD = 50;
 
     // beállítások mentése jelölők
     public static String PRIVATE_SETTINGS_TAG = "TxTLauncher_App";
@@ -66,6 +69,7 @@ public class TxTLauncherApp extends android.app.Application {
     public static String SETTINGS_WEATHER_URL_TAG = "Weather";
     public static String SETTINGS_BACKGROUND_IMAGE_TAG = "BackgroundImage";
     public static String SETTINGS_NOTE_TAG = "AppNote";
+    public static String SETTINGS_DECOR_TAG = "Decor";
 
     // beállítások alapértelmezett tartalma
     public static String privateAIUrl = "https://duckduckgo.com/?q=DuckDuckGo+AI+Chat&ia=chat&duckai=1";
@@ -94,6 +98,7 @@ public class TxTLauncherApp extends android.app.Application {
     public static boolean darkMode = true;
     public static boolean showArrows = false;
     public static boolean showMainIcons = true;
+    public static boolean showDecor = true;
     public static int adaptiveIconColor = 0;
     public static int defaultIconColor = 0;
 
@@ -307,6 +312,11 @@ public class TxTLauncherApp extends android.app.Application {
             extraTools = !val.equals("0");
         }
 
+        val = sharedPreferences.getString(SETTINGS_DECOR_TAG, "");
+        if (!val.isEmpty()) {
+            showDecor = !val.equals("0");
+        }
+
         val = sharedPreferences.getString(SETTINGS_URL_PRIVATEAI_TAG, "");
         if (!val.isEmpty()) {
             privateAIUrl = val;
@@ -403,6 +413,7 @@ public class TxTLauncherApp extends android.app.Application {
         settings.putString(SETTINGS_SHOW_ARROWS_TAG, "0");
         settings.putString(SETTINGS_SHOW_MAIN_CONTROL_ICONS, "0");
         settings.putString(SETTINGS_EXTRA_TOOLS, "0");
+        settings.putString(SETTINGS_DECOR_TAG, "0");
         if (darkMode) {
             settings.putString(SETTINGS_DARK_MODE_TAG, "1");
         } else {
