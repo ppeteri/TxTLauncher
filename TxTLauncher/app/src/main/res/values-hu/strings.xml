@@ -96,4 +96,5 @@
     <string name="settings_extra_tools">Különleges eszközök (több erőforrást igényel)</string>
     <string name="wbutt_weather">Időjárás</string>
     <string name="settings_decor">Egyéb vizuális elemek</string>
+    <string name="settings_experimental">Kísérleti eszközök</string>
 </resources>

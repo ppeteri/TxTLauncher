@@ -10,11 +10,14 @@ import static com.wswdteam.txtlauncher.TxTLauncherApp.adaptiveIconColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.allApplicationsList;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultBackGroundColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultIcons;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.experimantalToola;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.packageMan;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.privateAIUrl;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.savedBackgroundImage;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.showArrows;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.showDecor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.showMainIcons;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.startNewTaskActivity;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.textColorMode;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.darkMode;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.homeStartAppIcon;
@@ -131,6 +134,7 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
+        // globális érintés figyelés
         gestureDetector = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
             @Override
             public boolean onDoubleTap(@NonNull MotionEvent event) {
@@ -140,24 +144,17 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onLongPress(@NonNull MotionEvent event) {
-                //syslog("Action long tap: favorite");
-                openFavActivity();
-                super.onLongPress(event);
-            }
-
-            @Override
-            public boolean onScroll(@Nullable MotionEvent event, @NonNull MotionEvent event2, float distanceX,
-                                    float distanceY) {
-                assert event != null;
-                return true;
+            public boolean onScroll(MotionEvent e1, @NonNull MotionEvent e2, float distanceX, float distanceY) {
+                // - if (e1 == null) return false;
+                // - return true;
+                return e1 != null;
             }
 
             @Override
             public boolean onFling(MotionEvent e1, @NonNull MotionEvent e2, float velocityX, float velocityY) {
                 if (e1 == null) return false;
-                //float dx = e2.getX() - e1.getX();
-                //float dy = e2.getY() - e1.getY();
+                // - float dx = e2.getX() - e1.getX();
+                // - float dy = e2.getY() - e1.getY();
                 var x1 = e1.getX();
                 var x2 = e2.getX();
                 var y1 = e1.getY();
@@ -197,9 +194,8 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // touch
-        //findViewById(R.id.mainView).setOnTouchListener(new View.OnTouchListener() {
-        findViewById(R.id.mainTitle).setOnTouchListener(new View.OnTouchListener() {
-            private final GestureDetector gestureDetector = new GestureDetector(MainActivity.this, new GestureDetector.SimpleOnGestureListener() {
+        findViewById(R.id.menuIconMain).setOnTouchListener(new View.OnTouchListener() {
+            private final GestureDetector gestureDetectorIcon = new GestureDetector(MainActivity.this, new GestureDetector.SimpleOnGestureListener() {
                 @Override
                 public boolean onDoubleTap(@NonNull MotionEvent event) {
                     //syslog("Action double tap: lock");
@@ -210,20 +206,19 @@ public class MainActivity extends AppCompatActivity {
                 @Override
                 public void onLongPress(@NonNull MotionEvent event) {
                     //syslog("Action long tap: favorite");
-                    openFavActivity();
+                    TxTLauncherApp.lockApp(getBaseContext());
                     super.onLongPress(event);
                 }
 
                 @Override
-                public boolean onScroll(@Nullable MotionEvent event, @NonNull MotionEvent event2, float distanceX,
-                                        float distanceY) {
-                    assert event != null;
-                    var x1 = event.getX();
-                    var x2 = event2.getX();
-                    var y1 = event.getY();
-                    var y2 = event2.getY();
+                public boolean onFling(@Nullable MotionEvent e1, @NonNull MotionEvent e2, float distanceX, float distanceY) {
+                    assert e1 != null;
+                    var x1 = e1.getX();
+                    var x2 = e2.getX();
+                    var y1 = e1.getY();
+                    var y2 = e2.getY();
                     // függőleges
-                    if ((Math.abs(y2 - y1) > SWIPE_MIN_DISTANCE) && (Math.abs(x2 - x1) < SWIPE_TRESHOLD)) {
+                    if ((Math.abs(y2 - y1) > Math.abs(SWIPE_MIN_DISTANCE / 2)) && (Math.abs(x2 - x1) < SWIPE_TRESHOLD)) {
                         // fel vagy le
                         if (y2 < y1) {
                             // fel
@@ -238,7 +233,7 @@ public class MainActivity extends AppCompatActivity {
                         }
                     }
                     // vízszintes
-                    if ((Math.abs(x2 - x1) > SWIPE_MIN_DISTANCE) && (Math.abs(y2 - y1) < SWIPE_TRESHOLD)) {
+                    if ((Math.abs(x2 - x1) > Math.abs(SWIPE_MIN_DISTANCE / 2)) && (Math.abs(y2 - y1) < SWIPE_TRESHOLD)) {
                         if (x1 < x2) {
                             // jobbra
                             if (!startedWidgetAct) {
@@ -250,7 +245,7 @@ public class MainActivity extends AppCompatActivity {
                             openGoogleDiscovery();
                         }
                     }
-                    return super.onScroll(event, event2, distanceX, distanceY);
+                    return super.onFling(e1, e2, distanceX, distanceY);
                 }
 
                 //@Override public boolean onScroll(@Nullable MotionEvent event, @NonNull MotionEvent event2, float distanceX, float distanceY) {
@@ -270,7 +265,7 @@ public class MainActivity extends AppCompatActivity {
             @SuppressLint("ClickableViewAccessibility")
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                gestureDetector.onTouchEvent(event);
+                gestureDetectorIcon.onTouchEvent(event);
                 return true;
             }
         });
@@ -320,6 +315,13 @@ public class MainActivity extends AppCompatActivity {
             return true;
         });
 
+        LinearLayout ll = findViewById(R.id.AppFrame);
+        ll.setOnLongClickListener(v -> {
+            //syslog("Action long tap: open internet search");
+            openFavActivity();
+            return true;
+        });
+
         // első indulás
         startedAndroidApp = true;
         generateAppList();
@@ -333,17 +335,36 @@ public class MainActivity extends AppCompatActivity {
         buttonPrepare();
         setHomaApp();
         backgroundPrepare();
+
+        if (experimantalToola) {
+            setIconColor(R.id.menuIconMain, defaultLetterColor);
+        }
     }
+
 
 
     //
     // egész képernyős érintés kezelésének lezáráaa
     //
     @Override
-    public boolean dispatchTouchEvent(MotionEvent event) {
-        gestureDetector.onTouchEvent(event);
-        return super.dispatchTouchEvent(event);
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        boolean touchOnIcon;
+
+        ImageView micon = findViewById(R.id.menuIconMain);
+        touchOnIcon = isTouchOnView(ev, micon);
+        if (!touchOnIcon) {
+            gestureDetector.onTouchEvent(ev);
+        }
+        return super.dispatchTouchEvent(ev);
     }
+    private boolean isTouchOnView(MotionEvent event, View view) {
+        int[] loc = new int[2];
+        view.getLocationOnScreen(loc);
+        float x = event.getRawX();
+        float y = event.getRawY();
+        return x >= loc[0] && x <= loc[0] + view.getWidth() && y >= loc[1] && y <= loc[1] + view.getHeight();
+    }
+
 
 
     //
@@ -365,6 +386,9 @@ public class MainActivity extends AppCompatActivity {
             buttonPrepare();
             setHomaApp();
             backgroundPrepare();
+            if (experimantalToola) {
+                setIconColor(R.id.menuIconMain, defaultLetterColor);
+            }
         }
 
         startedAppAct = false;
@@ -784,20 +808,8 @@ public class MainActivity extends AppCompatActivity {
                 if (selectedP.equals(appName)) {
                     String pkg = allAppData[i][1];
                     String cls = allAppData[i][2];
-                    try {
-                        Intent intent = getPackageManager().getLaunchIntentForPackage(pkg);
-                        if (intent != null) {
-                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                            startActivity(intent);
-                        } else {
-                            Intent intent2 = new Intent();
-                            intent2.setClassName(pkg, cls);
-                            intent2.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                            startActivity(intent2);
-                        }
+                    if (startNewTaskActivity(this, pkg, cls)) {
                         startedAndroidApp = true;
-                    } catch (Exception e) {
-                        systemMessage(getString(R.string.error_startapp));
                     }
                     i = allAppData.length;
                 }
@@ -812,20 +824,8 @@ public class MainActivity extends AppCompatActivity {
                 if (selectedP.equals(appName)) {
                     String pkg = allAppData[i][1];
                     String cls = allAppData[i][2];
-                    try {
-                        Intent intent = getPackageManager().getLaunchIntentForPackage(pkg);
-                        if (intent != null) {
-                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                            startActivity(intent);
-                        } else {
-                            Intent intent2 = new Intent();
-                            intent2.setClassName(pkg, cls);
-                            intent2.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                            startActivity(intent2);
-                        }
+                    if (startNewTaskActivity(this, pkg, cls)) {
                         startedAndroidApp = true;
-                    } catch (Exception e) {
-                        systemMessage(getString(R.string.error_startapp));
                     }
                     i = allAppData.length;
                 }
@@ -1069,13 +1069,7 @@ public class MainActivity extends AppCompatActivity {
         } else {
             String appp = getString(view);
             if (!appp.isEmpty()) {
-                try {
-                    Intent launchIntent = getPackageManager().getLaunchIntentForPackage(appp);
-                    startActivity(launchIntent);
-                    startedAndroidApp = true;
-                } catch (Exception e) {
-                    systemMessage(getString(R.string.error_startapp));
-                }
+                startNewTaskActivity(this, appp, "");
             }
         }
     }
@@ -1132,9 +1126,9 @@ public class MainActivity extends AppCompatActivity {
     //
     public void startSearch(View view) {
         try {
-            Intent searchintent = new Intent(SearchManager.INTENT_ACTION_GLOBAL_SEARCH);
-            searchintent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(searchintent);
+            Intent cal = new Intent(SearchManager.INTENT_ACTION_GLOBAL_SEARCH);
+            cal.addCategory(Intent.CATEGORY_DEFAULT);
+            startActivity(cal);
             startedAndroidApp = true;
         } catch (Exception e) {
             systemMessage(getString(R.string.error_startapp));
@@ -1147,13 +1141,8 @@ public class MainActivity extends AppCompatActivity {
     //  Fő nézet: google discovery
     //
     public void openGoogleDiscovery() {
-        try {
-            Intent intent = getPackageManager().getLaunchIntentForPackage("com.google.android.googlequicksearchbox");
-            startActivity(intent);
-            startedAndroidApp = true;
-        } catch (Exception e) {
-            systemMessage(getString(R.string.error_startapp));
-        }
+        startNewTaskActivity(this, "com.google.android.googlequicksearchbox", "");
+        startedAndroidApp = true;
         //syslog("Button start: search");
     }
 
@@ -1162,9 +1151,12 @@ public class MainActivity extends AppCompatActivity {
     //  Fő nézet: app lista nézet indítása
     //
     public void openAppListActivity() {
+        try {
+            startActivity(new Intent(this, AppListActivity.class));
+        } catch (Exception e) {
+            systemMessage(getString(R.string.error_startapp));
+        }
         //syslog("Action swipe up: openapplist");
-        startedAppAct = true;
-        startActivity(new Intent(this, AppListActivity.class));
     }
 
 
@@ -1172,12 +1164,12 @@ public class MainActivity extends AppCompatActivity {
     //  Fő nézet: app lista nézet indítása gombról
     //
     public void openAppListButton(View view) {
-        //syslog("Action tap button: openapplist");
         try {
             startActivity(new Intent(this, AppListActivity.class));
         } catch (Exception e) {
             systemMessage(getString(R.string.error_startapp));
         }
+        //syslog("Action tap button: openapplist");
     }
 
 
@@ -1185,10 +1177,14 @@ public class MainActivity extends AppCompatActivity {
     //  Fő nézet: beállítás nézet indítása
     //
     public void openSettingsActivity() {
-        //syslog("Action long tap: open settings");
+        try {
+            startActivity(new Intent(this, SettingsActivity.class));
+        } catch (Exception e) {
+            systemMessage(getString(R.string.error_startapp));
+        }
         startedSettingsAct = true;
         backgroundImageBackup = backgroundImage;
-        startActivity(new Intent(this, SettingsActivity.class));
+        //syslog("Action long tap: open settings");
     }
 
 
@@ -1196,9 +1192,13 @@ public class MainActivity extends AppCompatActivity {
     //  Fő nézet: kedvensek nézet indítása
     //
     public void openFavActivity() {
-        //syslog("Action swipe down: open fav avt");
+        try {
+            startActivity(new Intent(this, FavoritesActivity.class));
+        } catch (Exception e) {
+            systemMessage(getString(R.string.error_startapp));
+        }
         startedFavAct = true;
-        startActivity(new Intent(this, FavoritesActivity.class));
+        //syslog("Action swipe down: open fav avt");
 
     }
 
@@ -1207,9 +1207,13 @@ public class MainActivity extends AppCompatActivity {
     //  Fő nézet: widget nézet indítása
     //
     public void openWidgetActivity() {
-        //syslog("Action swipe right: open widgets");
+        try {
+            startActivity(new Intent(this, WidgetActivity.class));
+        } catch (Exception e) {
+            systemMessage(getString(R.string.error_startapp));
+        }
         startedWidgetAct = true;
-        startActivity(new Intent(this, WidgetActivity.class));
+        //syslog("Action swipe right: open widgets");
     }
 
 
@@ -1218,9 +1222,9 @@ public class MainActivity extends AppCompatActivity {
     //
     public void openClock(View view) {
         try {
-            Intent mClockIntent = new Intent(AlarmClock.ACTION_SHOW_ALARMS);
-            mClockIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(mClockIntent);
+            Intent cal = new Intent(AlarmClock.ACTION_SHOW_ALARMS);
+            cal.addCategory(Intent.CATEGORY_DEFAULT);
+            startActivity(cal);
             startedAndroidApp = true;
         } catch (Exception e) {
             systemMessage(getString(R.string.error_startapp));
@@ -1257,12 +1261,9 @@ public class MainActivity extends AppCompatActivity {
     //
     public void openAndroidSystemSettingsButton(View v) {
         try {
-            // - startActivity(new Intent(android.provider.Settings.ACTION_SETTINGS));
-            // - Intent intent = new Intent(Settings.ACTION_SETTINGS);
-            Intent intent = new Intent(Settings.ACTION_SETTINGS);
-            intent.addCategory(Intent.CATEGORY_DEFAULT);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent);
+            Intent launchIntent = new Intent(Settings.ACTION_SETTINGS);
+            launchIntent.addCategory(Intent.CATEGORY_DEFAULT);
+            startActivity(launchIntent);
             startedAndroidApp = true;
         } catch (Exception e) {
             systemMessage(getString(R.string.error_startapp));
@@ -1315,12 +1316,24 @@ public class MainActivity extends AppCompatActivity {
     //
     public void openAI(View view) {
         try {
-            Intent mapIntent = new Intent(Intent.ACTION_VOICE_COMMAND);
-            startActivity(mapIntent);
-            startedAndroidApp = true;
+            Intent intent;
+            if (privateAIUrl != null && !privateAIUrl.trim().isEmpty()) {
+                String url = privateAIUrl.trim();
+                if (!url.contains("://")) {
+                    url = "https://" + url;
+                }
+                intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+            } else {
+                //intent = new Intent(Intent.ACTION_VOICE_COMMAND);
+                intent = new Intent(Intent.ACTION_ASSIST);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            }
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
         } catch (Exception e) {
             systemMessage(getString(R.string.error_startapp));
         }
+        startedAndroidApp = true;
     }
 
 
@@ -1329,9 +1342,13 @@ public class MainActivity extends AppCompatActivity {
     // App indítása
     //
     public void startButtonAppFav(View v) {
-        // fav
-        startedFavAct = true;
-        startActivity(new Intent(this, FavoritesActivity.class));
+        try {
+            startActivity(new Intent(this, FavoritesActivity.class));
+        } catch (Exception e) {
+            systemMessage(getString(R.string.error_startapp));
+        }
+        startedWidgetAct = true;
+        //syslog("Action swipe right: open widgets");
     }
 
 
@@ -1341,13 +1358,8 @@ public class MainActivity extends AppCompatActivity {
     //
     public void startButtonAppDiscovery(View v) {
         // discovery
-        try {
-            Intent intent = getPackageManager().getLaunchIntentForPackage("com.google.android.googlequicksearchbox");
-            startActivity(intent);
-            this.finish();
-        } catch (Exception e) {
-            systemMessage(getString(R.string.error_startapp));
-        }
+        startNewTaskActivity(this, "com.google.android.googlequicksearchbox", "");
+        startedAndroidApp = true;
     }
 
 
@@ -1357,8 +1369,13 @@ public class MainActivity extends AppCompatActivity {
     //
     public void startButtonAllApp(View v) {
         // all
+        try {
+            startActivity(new Intent(this, AppListActivity.class));
+        } catch (Exception e) {
+            systemMessage(getString(R.string.error_startapp));
+        }
         startedAppAct = true;
-        startActivity(new Intent(this, AppListActivity.class));
+        //syslog("Action swipe down: open all app list");
     }
 
 
@@ -1367,9 +1384,13 @@ public class MainActivity extends AppCompatActivity {
     //  Fő nézet: widget nézet indítása
     //
     public void startButtonWidgetActivity(View v) {
+        try {
+            startActivity(new Intent(this, WidgetActivity.class));
+        } catch (Exception e) {
+            systemMessage(getString(R.string.error_startapp));
+        }
         //syslog("Action swipe right: open widgets");
         startedWidgetAct = true;
-        startActivity(new Intent(this, WidgetActivity.class));
     }
 }
 

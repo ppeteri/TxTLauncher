@@ -14,13 +14,12 @@ import static com.wswdteam.txtlauncher.TxTLauncherApp.hideKeyboard;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.homeStartAppIcon;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.iconSize;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.packageMan;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.startNewTaskActivity;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.syslog;
-import static com.wswdteam.txtlauncher.TxTLauncherApp.systemMessage;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.textColorMode;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.startedAndroidApp;
 
 import android.annotation.SuppressLint;
-import android.content.Intent;
 import android.content.pm.ResolveInfo;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -299,22 +298,9 @@ public class AppListActivity extends AppCompatActivity {
                 if ((selectedL.equals(appName))||(selectedL.equals(appName + " "))) {
                     String pkg = allAppData[i][1];
                     String cls = allAppData[i][2];
-                    //Intent intent = new Intent();
-                    try {
-                        Intent intent = getPackageManager().getLaunchIntentForPackage(pkg);
-                        if (intent != null) {
-                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                            startActivity(intent);
-                        } else {
-                            Intent intent2 = new Intent();
-                            intent2.setClassName(pkg, cls);
-                            intent2.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                            startActivity(intent2);
-                        }
+                    if (startNewTaskActivity(this, pkg, cls)) {
                         startedAndroidApp = true;
                         this.finish();
-                    } catch (Exception e) {
-                        systemMessage(getString(R.string.error_startapp));
                     }
                     i = allAppData.length;
                 }

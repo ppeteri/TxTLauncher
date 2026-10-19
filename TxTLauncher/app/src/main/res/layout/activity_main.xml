@@ -241,26 +241,25 @@
     <LinearLayout
         android:id="@+id/lLayoutDecor"
         android:layout_width="match_parent"
-        android:layout_height="30dp"
-        android:layout_marginTop="30dp"
-        android:layout_marginBottom="5dp"
+        android:layout_height="50dp"
+        android:layout_marginTop="20dp"
         android:layout_weight="1"
         android:baselineAligned="false"
         android:gravity="center"
         android:orientation="horizontal"
         app:layout_constraintTop_toBottomOf="@id/AppFrame" >
 
-        <ImageView
-            android:id="@+id/menuIconMain"
-            android:layout_width="40dp"
-            android:layout_height="30dp"
-            android:gravity="center"
-            android:background="@android:color/transparent"
-            android:contentDescription="@string/app_name"
-            android:onClick="startButtonAppFav"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:srcCompat="@drawable/trip"
-            tools:layout_editor_absoluteX="194dp" />
+            <ImageView
+                android:id="@+id/menuIconMain"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:gravity="center"
+                android:background="@android:color/transparent"
+                android:contentDescription="@string/app_name"
+                android:onClick="startButtonAppFav"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:srcCompat="@drawable/trip"
+                tools:layout_editor_absoluteX="194dp" />
 
     </LinearLayout>
 
@@ -269,7 +268,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="20dp"
-        android:layout_marginTop="5dp"
+        android:layout_marginTop="20dp"
         android:layout_marginBottom="20dp"
         android:orientation="horizontal"
         app:layout_constraintBottom_toBottomOf="parent"

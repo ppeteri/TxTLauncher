@@ -22,8 +22,8 @@ import static com.wswdteam.txtlauncher.TxTLauncherApp.onecolFavorites;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.packageMan;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.sharedPreferences;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.showDecor;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.startNewTaskActivity;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.syslog;
-import static com.wswdteam.txtlauncher.TxTLauncherApp.systemMessage;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.textColorMode;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.startedAndroidApp;
 
@@ -353,21 +353,9 @@ public class FavoritesActivity extends AppCompatActivity {
                 if (selectedP.equals(appName)) {
                     String pkg = allAppData[i][1];
                     String cls = allAppData[i][2];
-                    try {
-                        Intent intent = getPackageManager().getLaunchIntentForPackage(pkg);
-                        if (intent != null) {
-                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                            startActivity(intent);
-                        } else {
-                            Intent intent2 = new Intent();
-                            intent2.setClassName(pkg, cls);
-                            intent2.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                            startActivity(intent2);
-                        }
+                    if (startNewTaskActivity(this, pkg, cls)) {
                         startedAndroidApp = true;
                         this.finish();
-                    } catch (Exception e) {
-                        systemMessage(getString(R.string.error_startapp));
                     }
                     i = allAppData.length;
                 }
@@ -381,20 +369,9 @@ public class FavoritesActivity extends AppCompatActivity {
                 if (selectedP.equals(appName)) {
                     String pkg = allAppData[i][1];
                     String cls = allAppData[i][2];
-                    try {
-                        Intent intent = getPackageManager().getLaunchIntentForPackage(pkg);
-                        if (intent != null) {
-                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                            startActivity(intent);
-                        } else {
-                            Intent intent2 = new Intent();
-                            intent2.setClassName(pkg, cls);
-                            intent2.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                            startActivity(intent2);
-                        }
+                    if (startNewTaskActivity(this, pkg, cls)) {
+                        startedAndroidApp = true;
                         this.finish();
-                    } catch (Exception e) {
-                        systemMessage(getString(R.string.error_startapp));
                     }
                     i = allAppData.length;
                 }

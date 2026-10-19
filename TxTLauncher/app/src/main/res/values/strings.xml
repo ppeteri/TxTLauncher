@@ -96,5 +96,6 @@
     <string name="settings_extra_tools">Special tools (more resource consumption)</string>
     <string name="wbutt_weather">Weather</string>
     <string name="settings_decor">Other visual elements</string>
+    <string name="settings_experimental">Experimental tools</string>
 
 </resources>

@@ -47,7 +47,7 @@ public class TxTLauncherApp extends android.app.Application {
     public static final int HOME_APP_NUM = 10;
     public static final int FAV_APP_NUM = 20;
     // gesture mód beállítások
-    public static final int SWIPE_MIN_DISTANCE = 100;
+    public static final int SWIPE_MIN_DISTANCE = 50;
     public static final int SWIPE_TRESHOLD = 50;
 
     // beállítások mentése jelölők
@@ -70,6 +70,7 @@ public class TxTLauncherApp extends android.app.Application {
     public static String SETTINGS_BACKGROUND_IMAGE_TAG = "BackgroundImage";
     public static String SETTINGS_NOTE_TAG = "AppNote";
     public static String SETTINGS_DECOR_TAG = "Decor";
+    public static String SETTINGS_EXPERIMENTAL_TAG = "Experimental";
 
     // beállítások alapértelmezett tartalma
     public static String privateAIUrl = "https://duckduckgo.com/?q=DuckDuckGo+AI+Chat&ia=chat&duckai=1";
@@ -99,6 +100,7 @@ public class TxTLauncherApp extends android.app.Application {
     public static boolean showArrows = false;
     public static boolean showMainIcons = true;
     public static boolean showDecor = true;
+    public static boolean experimantalToola = false;
     public static int adaptiveIconColor = 0;
     public static int defaultIconColor = 0;
 
@@ -317,6 +319,11 @@ public class TxTLauncherApp extends android.app.Application {
             showDecor = !val.equals("0");
         }
 
+        val = sharedPreferences.getString(SETTINGS_EXPERIMENTAL_TAG, "");
+        if (!val.isEmpty()) {
+            experimantalToola = !val.equals("0");
+        }
+
         val = sharedPreferences.getString(SETTINGS_URL_PRIVATEAI_TAG, "");
         if (!val.isEmpty()) {
             privateAIUrl = val;
@@ -366,6 +373,29 @@ public class TxTLauncherApp extends android.app.Application {
         }
     }
 
+
+    //
+    //
+    //
+    public static boolean startNewTaskActivity(Context cont, String pkg, String cls) {
+        //Intent intent = new Intent();
+        try {
+            Intent intent = cont.getPackageManager().getLaunchIntentForPackage(pkg);
+            if (intent != null) {
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                cont.startActivity(intent);
+            } else {
+                Intent intent2 = new Intent();
+                intent2.setClassName(pkg, cls);
+                intent2.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                cont.startActivity(intent2);
+            }
+        } catch (Exception e) {
+            systemMessage(cont.getString(R.string.error_startapp));
+            return false;
+        }
+        return true;
+    }
 
 
     //

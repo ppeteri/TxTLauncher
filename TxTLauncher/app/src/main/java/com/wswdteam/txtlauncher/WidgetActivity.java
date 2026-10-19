@@ -254,6 +254,20 @@ public class WidgetActivity extends AppCompatActivity {
             this.finish();
             return true;
         });
+
+        iv = findViewById(R.id.waiButton);
+        iv.setOnLongClickListener(v -> {
+            openAI(v);
+            this.finish();
+            return true;
+        });
+
+        iv = findViewById(R.id.wapplistButton);
+        iv.setOnLongClickListener(v -> {
+            startFavApp(v);
+            this.finish();
+            return true;
+        });
     }
 
     @Override
@@ -341,38 +355,6 @@ public class WidgetActivity extends AppCompatActivity {
     //
     public void closeWidgetButton(View view) {
         this.finish();
-    }
-
-
-
-    //
-    // Widget AI indítása
-    //
-    @SuppressLint("SetJavaScriptEnabled")
-    public void startAI(View view) {
-        try {
-            Intent brIn;
-            if (privateAIUrl.contains("://")) {
-                brIn = new Intent(Intent.ACTION_VIEW, Uri.parse(privateAIUrl));
-                brIn.addCategory(Intent.CATEGORY_DEFAULT);
-                brIn = new Intent(Intent.ACTION_VIEW);
-                brIn.setData(Uri.parse(privateAIUrl));
-                brIn.setPackage(TxTLauncherApp.packName.get(2));
-                brIn.addCategory(Intent.CATEGORY_DEFAULT);
-            } else {
-                brIn = new Intent(Intent.ACTION_WEB_SEARCH);
-                brIn.addCategory(Intent.CATEGORY_DEFAULT);
-                brIn.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                brIn.putExtra(SearchManager.QUERY, privateAIUrl + "\n");
-                brIn.setComponent(new ComponentName("com.google.android.googlequicksearchbox", "com.google.android.googlequicksearchbox.SearchActivity"));
-                //searchIntent.setPackage("com.google.android.googlequicksearchbox");
-            }
-            startActivity(brIn);
-            startedAndroidApp = true;
-            this.finish();
-        } catch (Exception e) {
-            systemMessage(getString(R.string.error_startapp));
-        }
     }
 
 
@@ -513,7 +495,52 @@ public class WidgetActivity extends AppCompatActivity {
     //
     public void startButtonAppAI(View v) {
         // ai
-        startAI(v);
+        try {
+            Intent intent;
+            if (privateAIUrl != null && !privateAIUrl.trim().isEmpty()) {
+                String url = privateAIUrl.trim();
+                if (!url.contains("://")) {
+                    url = "https://" + url;
+                }
+                intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+            } else {
+                intent = new Intent(Intent.ACTION_ASSIST);
+            }
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+            this.finish();
+        } catch (Exception e) {
+            systemMessage(getString(R.string.error_startapp));
+        }
+        startedAndroidApp = true;
+    }
+
+
+
+    //
+    // AI mutatása
+    //
+    public void openAI(View view) {
+        try {
+            Intent intent;
+            if (!(privateAIUrl != null && !privateAIUrl.trim().isEmpty())) {
+                assert privateAIUrl != null;
+                String url = privateAIUrl.trim();
+                if (!url.contains("://")) {
+                    url = "https://" + url;
+                }
+                intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+            } else {
+                intent = new Intent(Intent.ACTION_VOICE_COMMAND);
+                //intent = new Intent(Intent.ACTION_ASSIST);
+                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            }
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(intent);
+        } catch (Exception e) {
+            systemMessage(getString(R.string.error_startapp));
+        }
+        startedAndroidApp = true;
     }
 
 
@@ -568,6 +595,16 @@ public class WidgetActivity extends AppCompatActivity {
     //
     public void openHelp(View view) {
         startActivity(new Intent(WidgetActivity.this, HelpActivity.class));
+        this.finish();
+    }
+
+
+
+    //
+    //  Fő nézet: kedvencek
+    //
+    public void startFavApp(View view) {
+        startActivity(new Intent(WidgetActivity.this, FavoritesActivity.class));
         this.finish();
     }
 
