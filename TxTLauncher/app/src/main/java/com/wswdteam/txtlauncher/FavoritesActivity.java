@@ -3,6 +3,7 @@ package com.wswdteam.txtlauncher;
 import static android.view.View.GONE;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.START_ACT_APPLIST;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.SWIPE_MIN_DISTANCE;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.SWIPE_TRESHOLD;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.FAV_APP_NUM;
@@ -22,13 +23,13 @@ import static com.wswdteam.txtlauncher.TxTLauncherApp.onecolFavorites;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.packageMan;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.sharedPreferences;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.showDecor;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.startLocalActivity;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.startNewTaskActivity;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.syslog;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.textColorMode;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.startedAndroidApp;
 
 import android.annotation.SuppressLint;
-import android.content.Intent;
 import android.content.pm.ResolveInfo;
 import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
@@ -384,7 +385,7 @@ public class FavoritesActivity extends AppCompatActivity {
     // App indítása
     //
     public void startButtonApps(View v) {
-        startActivity(new Intent(this, AppListActivity.class));
+        startLocalActivity(this, START_ACT_APPLIST);
         this.finish();
     }
 

@@ -3,6 +3,23 @@ package com.wswdteam.txtlauncher;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.HOME_APP_NUM;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.START_ACT_APPLIST;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.START_ACT_FAVAPP;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.START_ACT_SETTINGS;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.START_ACT_WIDGET;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.START_AI;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.START_AI_LONG;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.START_BROWSER;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.START_CALENDAR;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.START_CAMERA;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.START_CLOCK;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.START_DISCOVERY;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.START_MAIL;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.START_PHONE;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.START_SEARCH;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.START_SEARCH_LONG;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.START_SETTINGS_LONG;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.START_WEATHER;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.SWIPE_MIN_DISTANCE;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.SWIPE_TRESHOLD;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.adaptiveIcon;
@@ -12,11 +29,12 @@ import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultBackGroundColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultIcons;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.experimantalToola;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.packageMan;
-import static com.wswdteam.txtlauncher.TxTLauncherApp.privateAIUrl;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.savedBackgroundImage;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.showArrows;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.showDecor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.showMainIcons;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.startInsideFunctionApp;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.startLocalActivity;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.startNewTaskActivity;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.textColorMode;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.darkMode;
@@ -33,11 +51,8 @@ import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultPlusFontSizeTitle;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultTextColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.homeAppName;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.iconSize;
-import static com.wswdteam.txtlauncher.TxTLauncherApp.packName;
-import static com.wswdteam.txtlauncher.TxTLauncherApp.privateSearchUrl;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.timeHandler;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.timeRunnable;
-import static com.wswdteam.txtlauncher.TxTLauncherApp.weatherUrl;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.startedAndroidApp;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.syslog;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.systemMessage;
@@ -47,7 +62,6 @@ import static java.lang.Math.round;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.app.SearchManager;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -63,9 +77,7 @@ import android.graphics.drawable.LayerDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.provider.AlarmClock;
 import android.provider.MediaStore;
-import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.TypedValue;
 import android.view.GestureDetector;
@@ -78,7 +90,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.content.ComponentName;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -114,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
     public static boolean startedWidgetAct = false;
     public static boolean startedSettingsAct = false;
     public static boolean startedFavAct = false;
-    public static boolean startedHelp = false;
+    public static boolean startedHelpAct = false;
     private GestureDetector gestureDetector;
 
 
@@ -315,6 +326,13 @@ public class MainActivity extends AppCompatActivity {
             return true;
         });
 
+        iv = findViewById(R.id.aiButton);
+        iv.setOnLongClickListener(v -> {
+            //syslog("Action long tap: open internet search");
+            startInsideFunctionApp(this, START_AI_LONG);
+            return true;
+        });
+
         LinearLayout ll = findViewById(R.id.AppFrame);
         ll.setOnLongClickListener(v -> {
             //syslog("Action long tap: open internet search");
@@ -374,7 +392,6 @@ public class MainActivity extends AppCompatActivity {
     public void onStart() {
         overrideActivityTransition(OVERRIDE_TRANSITION_OPEN, R.anim.enter_from_bottom, R.anim.exit_to_top);
         overrideActivityTransition(OVERRIDE_TRANSITION_CLOSE, R.anim.enter_from_top, R.anim.exit_to_bottom);
-        super.onStart();
 
         generateAppList();
 
@@ -382,7 +399,7 @@ public class MainActivity extends AppCompatActivity {
             getSettingsMain(this);
             screenPrepare();
             setColors();
-            saveButtonImages();
+            //saveButtonImages();
             buttonPrepare();
             setHomaApp();
             backgroundPrepare();
@@ -395,10 +412,11 @@ public class MainActivity extends AppCompatActivity {
         startedWidgetAct = false;
         startedSettingsAct = false;
         startedFavAct = false;
-        startedHelp = false;
+        startedHelpAct = false;
         timeInScreen();
 
         syslog(getString(R.string.started_activity) + ": " + this.getClass().getSimpleName());
+        super.onStart();
     }
 
 
@@ -588,6 +606,7 @@ public class MainActivity extends AppCompatActivity {
         getWindow().getDecorView().setBackgroundColor(defaultBackGroundColor);
 
         if (adaptiveIcon || textColorMode) {
+            setIconColor(R.id.applistButton, adaptiveIconColor);
             setIconColor(R.id.searchButton, adaptiveIconColor);
             setIconColor(R.id.weatherButton, adaptiveIconColor);
             setIconColor(R.id.settingsButton, adaptiveIconColor);
@@ -604,6 +623,7 @@ public class MainActivity extends AppCompatActivity {
             setIconColor(R.id.cameraButton, adaptiveIconColor);
             setIconColor(R.id.menuIconMain, adaptiveIconColor);
         } else {
+            setIconColor(R.id.applistButton, defaultIconColor);
             setIconColor(R.id.searchButton, defaultIconColor);
             setIconColor(R.id.weatherButton, defaultIconColor);
             setIconColor(R.id.settingsButton, defaultIconColor);
@@ -936,55 +956,21 @@ public class MainActivity extends AppCompatActivity {
     //
     //  Fő nézet: alapértelmezett gombok előkészítése, alapértelmezett app kéeresése
     //
+    @SuppressLint("UseCompatLoadingForDrawables")
     public void buttonPrepare() {
         // dial
-        Intent dialIn = new Intent(Intent.ACTION_DIAL, null);
-        dialIn.addCategory(Intent.CATEGORY_DEFAULT);
-        List<ResolveInfo> appDL = getPackageManager().queryIntentActivities(dialIn, 0);
-        ResolveInfo appD = appDL.get(0);
-        String packD = appD.activityInfo.packageName;
-        ImageView dialF = findViewById(R.id.dialButton);
-        dialF.clearColorFilter();
-        if (homeSysIcon) {
-            Drawable dialI = appD.loadIcon(packageMan);
-            @SuppressLint("UseCompatLoadingForDrawables")
-            Drawable dialI2 = mainDrawable(dialI, getDrawable(R.drawable.call));
-            if (adaptiveIcon) {
-                dialF.setImageDrawable(dialI2);
-            } else {
-                dialF.setImageDrawable(dialI);
-            }
-        } else {
-            dialF.setImageDrawable(defaultIcons.get(0));
-            if (adaptiveIcon || textColorMode) {
-                dialF.setColorFilter(adaptiveIconColor);
-            } else {
-                dialF.setColorFilter(defaultIconColor);
-            }
-        }
-        packName.add(packD);
+        Intent intent = new Intent(Intent.ACTION_DIAL, null);
+        ImageView iv = findViewById(R.id.dialButton);
+        Drawable dr = getDrawable(R.drawable.call);
+        imageButtonColorize(intent, iv, dr, 0);
+
         // mail
-        Intent mailIn = new Intent(Intent.ACTION_MAIN, null);
-        mailIn.addCategory(Intent.CATEGORY_APP_EMAIL);
-        List<ResolveInfo> mailDL = getPackageManager().queryIntentActivities(mailIn, 0);
-        ResolveInfo mailD = mailDL.get(0);
-        String packI = mailD.activityInfo.packageName;
-        ImageView mailF = findViewById(R.id.mailButton);
-        mailF.clearColorFilter();
-        if (homeSysIcon) {
-            Drawable mailI = mailD.loadIcon(packageMan);
-            @SuppressLint("UseCompatLoadingForDrawables")
-            Drawable mailI2 = mainDrawable(mailI, getDrawable(R.drawable.email));
-            mailF.setImageDrawable(mailI2);
-        } else {
-            mailF.setImageDrawable(defaultIcons.get(1));
-            if (adaptiveIcon || textColorMode) {
-                mailF.setColorFilter(adaptiveIconColor);
-            } else {
-                mailF.setColorFilter(defaultIconColor);
-            }
-        }
-        packName.add(packI);
+        intent = new Intent(Intent.ACTION_MAIN, null);
+        intent.addCategory(Intent.CATEGORY_APP_EMAIL);
+        iv = findViewById(R.id.mailButton);
+        dr = getDrawable(R.drawable.email);
+        imageButtonColorize(intent, iv, dr, 1);
+
         // app list
         ImageView appF = findViewById(R.id.applistButton);
         appF.clearColorFilter();
@@ -999,7 +985,7 @@ public class MainActivity extends AppCompatActivity {
             appF.setBackground(null);
             appF.setPadding(0, 0, 0, 0);
         }
-        appF.setImageDrawable(defaultIcons.get(2));
+        //appF.setImageDrawable(defaultIcons.get(2));
         if (adaptiveIcon) {
             appF.setColorFilter(adaptiveIconColor);
         } else {
@@ -1009,90 +995,74 @@ public class MainActivity extends AppCompatActivity {
                 appF.setColorFilter(defaultIconColor);
             }
         }
-        packName.add("");
+
         // browser
-        // ! Intent broIn = new Intent(Intent.ACTION_MAIN);
-        // ! broIn.addCategory(Intent.CATEGORY_APP_BROWSER);
-        Intent broIn = new Intent(Intent.ACTION_VIEW, Uri.parse("https://"));
-        broIn.addCategory(Intent.CATEGORY_DEFAULT);
-        List<ResolveInfo> broDL = getPackageManager().queryIntentActivities(broIn, 0);
-        ResolveInfo broD = broDL.get(0);
-        String broB = broD.activityInfo.packageName;
-        ImageView broF = findViewById(R.id.browserButton);
-        broF.clearColorFilter();
-        if (homeSysIcon) {
-            Intent bI = new Intent(Intent.ACTION_VIEW, Uri.parse("https://"));
-            ResolveInfo rI = getPackageManager().resolveActivity(bI, PackageManager.MATCH_DEFAULT_ONLY);
-            Drawable broI;
-            broI = Objects.requireNonNullElse(rI, broD).loadIcon(packageMan);
-            @SuppressLint("UseCompatLoadingForDrawables") Drawable broI2 = mainDrawable(broI, getDrawable(R.drawable.internet));
-            broF.setImageDrawable(broI2);
-        } else {
-            broF.setImageDrawable(defaultIcons.get(3));
-            if (adaptiveIcon || textColorMode) {
-                broF.setColorFilter(adaptiveIconColor);
-            } else {
-                broF.setColorFilter(defaultIconColor);
-            }
-        }
-        packName.add(broB);
+        intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://"));
+        iv = findViewById(R.id.browserButton);
+        dr = getDrawable(R.drawable.internet);
+        imageButtonColorize(intent, iv, dr, 3);
+
         // camera
-        Intent camIn = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        camIn.addCategory(Intent.CATEGORY_DEFAULT);
-        List<ResolveInfo> camDL = getPackageManager().queryIntentActivities(camIn, 0);
-        ResolveInfo camD = camDL.get(0);
-        String camC = camD.activityInfo.packageName;
-        ImageView camF = findViewById(R.id.cameraButton);
-        camF.clearColorFilter();
+        intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+        iv = findViewById(R.id.cameraButton);
+        dr = getDrawable(R.drawable.photo);
+        imageButtonColorize(intent, iv, dr, 4);
+    }
+
+
+
+    //
+    // gomb szinezése
+    //
+    public void imageButtonColorize(Intent in, ImageView iv, Drawable dr, int deficon) {
+        List<ResolveInfo> appDL = getPackageManager().queryIntentActivities(in, 0);
+        ResolveInfo appD = appDL.get(0);
+        iv.clearColorFilter();
         if (homeSysIcon) {
-            Drawable camI = camD.loadIcon(packageMan);
-            @SuppressLint("UseCompatLoadingForDrawables") Drawable camI2 = mainDrawable(camI, getDrawable(R.drawable.photo));
-            camF.setImageDrawable(camI2);
-        } else {
-            camF.setImageDrawable(defaultIcons.get(4));
-            if (adaptiveIcon || textColorMode) {
-                camF.setColorFilter(adaptiveIconColor);
+            Drawable appI = appD.loadIcon(packageMan);
+            @SuppressLint("UseCompatLoadingForDrawables")
+            Drawable appI2 = mainDrawable(appI, dr);
+            if (adaptiveIcon) {
+                iv.setImageDrawable(appI2);
             } else {
-                camF.setColorFilter(defaultIconColor);
+                iv.setImageDrawable(appI);
+            }
+        } else {
+            iv.setImageDrawable(defaultIcons.get(deficon));
+            if (adaptiveIcon || textColorMode) {
+                iv.setColorFilter(adaptiveIconColor);
+            } else {
+                iv.setColorFilter(defaultIconColor);
             }
         }
-        packName.add(camC);
     }
+
 
 
     //
     //  Fő nézet: gombok lenyomása, app start
     //
+    @SuppressLint("NonConstantResourceId")
     public void startButtonApp(View view) {
         if (view.getId() == R.id.applistButton) {
             openAppListActivity();
-        } else {
-            String appp = getString(view);
-            if (!appp.isEmpty()) {
-                startNewTaskActivity(this, appp, "");
-            }
+            return;
         }
-    }
-
-    private String getString(View view) {
-        String appp = "";
         if (view.getId() == R.id.dialButton) {
-            appp = packName.get(0);
-            //msg = "Button start: dial";
+            startInsideFunctionApp(this, START_PHONE);
+            return;
         }
         if (view.getId() == R.id.mailButton) {
-            appp = packName.get(1);
-            //msg = "Button start: e-mail";
+            startInsideFunctionApp(this, START_MAIL);
+            return;
         }
         if (view.getId() == R.id.browserButton) {
-            appp = packName.get(3);
-            //msg = "Button start: browser";
+            startInsideFunctionApp(this, START_BROWSER);
+            return;
         }
         if (view.getId() == R.id.cameraButton) {
-            appp = packName.get(4);
-            //msg = "Button start: camera";
+            startInsideFunctionApp(this, START_CAMERA);
         }
-        return appp;
     }
 
 
@@ -1121,132 +1091,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    //
-    //  Fő nézet: keresés
-    //
-    public void startSearch(View view) {
-        try {
-            Intent cal = new Intent(SearchManager.INTENT_ACTION_GLOBAL_SEARCH);
-            cal.addCategory(Intent.CATEGORY_DEFAULT);
-            startActivity(cal);
-            startedAndroidApp = true;
-        } catch (Exception e) {
-            systemMessage(getString(R.string.error_startapp));
-        }
-        //syslog("Button start: search");
-    }
-
-
-    //
-    //  Fő nézet: google discovery
-    //
-    public void openGoogleDiscovery() {
-        startNewTaskActivity(this, "com.google.android.googlequicksearchbox", "");
-        startedAndroidApp = true;
-        //syslog("Button start: search");
-    }
-
-
-    //
-    //  Fő nézet: app lista nézet indítása
-    //
-    public void openAppListActivity() {
-        try {
-            startActivity(new Intent(this, AppListActivity.class));
-        } catch (Exception e) {
-            systemMessage(getString(R.string.error_startapp));
-        }
-        //syslog("Action swipe up: openapplist");
-    }
-
-
-    //
-    //  Fő nézet: app lista nézet indítása gombról
-    //
-    public void openAppListButton(View view) {
-        try {
-            startActivity(new Intent(this, AppListActivity.class));
-        } catch (Exception e) {
-            systemMessage(getString(R.string.error_startapp));
-        }
-        //syslog("Action tap button: openapplist");
-    }
-
-
-    //
-    //  Fő nézet: beállítás nézet indítása
-    //
-    public void openSettingsActivity() {
-        try {
-            startActivity(new Intent(this, SettingsActivity.class));
-        } catch (Exception e) {
-            systemMessage(getString(R.string.error_startapp));
-        }
-        startedSettingsAct = true;
-        backgroundImageBackup = backgroundImage;
-        //syslog("Action long tap: open settings");
-    }
-
-
-    //
-    //  Fő nézet: kedvensek nézet indítása
-    //
-    public void openFavActivity() {
-        try {
-            startActivity(new Intent(this, FavoritesActivity.class));
-        } catch (Exception e) {
-            systemMessage(getString(R.string.error_startapp));
-        }
-        startedFavAct = true;
-        //syslog("Action swipe down: open fav avt");
-
-    }
-
-
-    //
-    //  Fő nézet: widget nézet indítása
-    //
-    public void openWidgetActivity() {
-        try {
-            startActivity(new Intent(this, WidgetActivity.class));
-        } catch (Exception e) {
-            systemMessage(getString(R.string.error_startapp));
-        }
-        startedWidgetAct = true;
-        //syslog("Action swipe right: open widgets");
-    }
-
-
-    //
-    //  Fő nézet: óra app indítása
-    //
-    public void openClock(View view) {
-        try {
-            Intent cal = new Intent(AlarmClock.ACTION_SHOW_ALARMS);
-            cal.addCategory(Intent.CATEGORY_DEFAULT);
-            startActivity(cal);
-            startedAndroidApp = true;
-        } catch (Exception e) {
-            systemMessage(getString(R.string.error_startapp));
-        }
-    }
-
-
-    //
-    //  Fő nézet: naptár app indítása
-    //
-    public void openCalendar(View view) {
-        try {
-            Intent cal = new Intent(Intent.ACTION_MAIN);
-            cal.addCategory(Intent.CATEGORY_APP_CALENDAR);
-            startActivity(cal);
-            startedAndroidApp = true;
-        } catch (Exception e) {
-            systemMessage(getString(R.string.error_startapp));
-        }
-    }
-
-
 
     //
     // Rendszer beállítások indítása
@@ -1256,18 +1100,48 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+
+    //
+    //  Fő nézet: keresés
+    //
+    public void startSearch(View view) {
+        startInsideFunctionApp(this, START_SEARCH);
+        //syslog("Button start: search");
+    }
+
+
+    //
+    //  Fő nézet: google discovery
+    //
+    public void openGoogleDiscovery() {
+        startInsideFunctionApp(this, START_DISCOVERY);
+        //syslog("Button start: search");
+    }
+
+
+
+    //
+    //  Fő nézet: óra app indítása
+    //
+    public void openClock(View view) {
+        startInsideFunctionApp(this, START_CLOCK);
+    }
+
+
+    //
+    //  Fő nézet: naptár app indítása
+    //
+    public void openCalendar(View view) {
+        startInsideFunctionApp(this, START_CALENDAR);
+    }
+
+
+
     //
     // Rendszer beállítások indítása
     //
     public void openAndroidSystemSettingsButton(View v) {
-        try {
-            Intent launchIntent = new Intent(Settings.ACTION_SETTINGS);
-            launchIntent.addCategory(Intent.CATEGORY_DEFAULT);
-            startActivity(launchIntent);
-            startedAndroidApp = true;
-        } catch (Exception e) {
-            systemMessage(getString(R.string.error_startapp));
-        }
+        startInsideFunctionApp(this, START_SETTINGS_LONG);
     }
 
 
@@ -1275,14 +1149,7 @@ public class MainActivity extends AppCompatActivity {
     // Internet keresás
     //
     public void openSearchBrowser(View v) {
-        try {
-            Intent launchIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(privateSearchUrl));
-            launchIntent.addCategory(Intent.CATEGORY_DEFAULT);
-            startActivity(launchIntent);
-            startedAndroidApp = true;
-        } catch (Exception e) {
-            systemMessage(getString(R.string.error_startapp));
-        }
+        startInsideFunctionApp(this, START_SEARCH_LONG);
     }
 
 
@@ -1290,24 +1157,7 @@ public class MainActivity extends AppCompatActivity {
     // Időjárás keresás
     //
     public void openWeatherSearch(View v) {
-        try {
-            Intent searchIntent;
-            if (weatherUrl.contains("://")) {
-                searchIntent = new Intent(Intent.ACTION_VIEW);
-                searchIntent.setData(Uri.parse(weatherUrl));
-                searchIntent.setPackage(packName.get(3));
-                searchIntent.addCategory(Intent.CATEGORY_DEFAULT);
-            } else {
-                searchIntent = new Intent(Intent.ACTION_WEB_SEARCH);
-                searchIntent.putExtra(SearchManager.QUERY, weatherUrl + "\n");
-                searchIntent.setComponent(new ComponentName("com.google.android.googlequicksearchbox", "com.google.android.googlequicksearchbox.SearchActivity"));
-                //searchIntent.setPackage("com.google.android.googlequicksearchbox");
-            }
-            startActivity(searchIntent);
-            startedAndroidApp = true;
-        } catch (Exception e) {
-            systemMessage(getString(R.string.error_startapp));
-        }
+        startInsideFunctionApp(this, START_WEATHER);
     }
 
 
@@ -1315,40 +1165,7 @@ public class MainActivity extends AppCompatActivity {
     // AI mutatása
     //
     public void openAI(View view) {
-        try {
-            Intent intent;
-            if (privateAIUrl != null && !privateAIUrl.trim().isEmpty()) {
-                String url = privateAIUrl.trim();
-                if (!url.contains("://")) {
-                    url = "https://" + url;
-                }
-                intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-            } else {
-                //intent = new Intent(Intent.ACTION_VOICE_COMMAND);
-                intent = new Intent(Intent.ACTION_ASSIST);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            }
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent);
-        } catch (Exception e) {
-            systemMessage(getString(R.string.error_startapp));
-        }
-        startedAndroidApp = true;
-    }
-
-
-
-    //
-    // App indítása
-    //
-    public void startButtonAppFav(View v) {
-        try {
-            startActivity(new Intent(this, FavoritesActivity.class));
-        } catch (Exception e) {
-            systemMessage(getString(R.string.error_startapp));
-        }
-        startedWidgetAct = true;
-        //syslog("Action swipe right: open widgets");
+        startInsideFunctionApp(this, START_AI);
     }
 
 
@@ -1357,9 +1174,18 @@ public class MainActivity extends AppCompatActivity {
     // App indítása
     //
     public void startButtonAppDiscovery(View v) {
-        // discovery
-        startNewTaskActivity(this, "com.google.android.googlequicksearchbox", "");
-        startedAndroidApp = true;
+        startInsideFunctionApp(this, START_DISCOVERY);
+    }
+
+
+
+    //
+    // App indítása
+    //
+    public void startButtonAppFav(View v) {
+        startLocalActivity(this, START_ACT_FAVAPP);
+        startedFavAct = true;
+        //syslog("Action swipe right: open widgets");
     }
 
 
@@ -1368,12 +1194,7 @@ public class MainActivity extends AppCompatActivity {
     // App indítása
     //
     public void startButtonAllApp(View v) {
-        // all
-        try {
-            startActivity(new Intent(this, AppListActivity.class));
-        } catch (Exception e) {
-            systemMessage(getString(R.string.error_startapp));
-        }
+        startLocalActivity(this, START_ACT_APPLIST);
         startedAppAct = true;
         //syslog("Action swipe down: open all app list");
     }
@@ -1384,13 +1205,65 @@ public class MainActivity extends AppCompatActivity {
     //  Fő nézet: widget nézet indítása
     //
     public void startButtonWidgetActivity(View v) {
-        try {
-            startActivity(new Intent(this, WidgetActivity.class));
-        } catch (Exception e) {
-            systemMessage(getString(R.string.error_startapp));
-        }
+        startLocalActivity(this, START_ACT_WIDGET);
         //syslog("Action swipe right: open widgets");
         startedWidgetAct = true;
     }
+
+
+
+    //
+    //  Fő nézet: widget nézet indítása
+    //
+    public void openWidgetActivity() {
+        startLocalActivity(this, START_ACT_WIDGET);
+        startedWidgetAct = true;
+        //syslog("Action swipe right: open widgets");
+    }
+
+
+
+    //
+    //  Fő nézet: app lista nézet indítása
+    //
+    public void openAppListActivity() {
+        startLocalActivity(this, START_ACT_APPLIST);
+        startedAppAct = true;
+        //syslog("Action swipe up: openapplist");
+    }
+
+
+    //
+    //  Fő nézet: app lista nézet indítása gombról
+    //
+    public void openAppListButton(View view) {
+        startLocalActivity(this, START_ACT_APPLIST);
+        startedAppAct = true;
+        //syslog("Action tap button: openapplist");
+    }
+
+
+
+    //
+    //  Fő nézet: kedvensek nézet indítása
+    //
+    public void openFavActivity() {
+        startLocalActivity(this, START_ACT_FAVAPP);
+        startedFavAct = true;
+        //syslog("Action swipe down: open fav avt");
+    }
+
+
+
+    //
+    //  Fő nézet: beállítás nézet indítása
+    //
+    public void openSettingsActivity() {
+        startLocalActivity(this, START_ACT_SETTINGS);
+        startedSettingsAct = true;
+        backgroundImageBackup = backgroundImage;
+        //syslog("Action long tap: open settings");
+    }
+
 }
 

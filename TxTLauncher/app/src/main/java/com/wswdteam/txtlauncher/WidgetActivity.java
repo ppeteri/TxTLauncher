@@ -2,10 +2,22 @@ package com.wswdteam.txtlauncher;
 
 import static android.view.View.GONE;
 import static android.view.View.VISIBLE;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.START_ACT_APPLIST;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.START_ACT_FAVAPP;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.START_ACT_HELP;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.START_ACT_SETTINGS;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.START_AI;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.START_AI_LONG;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.START_BROWSER;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.START_CALENDAR;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.START_CAMERA;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.START_DISCOVERY;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.START_MAP;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.START_SETTINGS_LONG;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.START_WEATHER;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.SWIPE_MIN_DISTANCE;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.SWIPE_TRESHOLD;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.SETTINGS_NOTE_TAG;
-import static com.wswdteam.txtlauncher.TxTLauncherApp.SETTINGS_URL_SEARCH_TAG;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.adaptiveIcon;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.adaptiveIconColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultBackGroundColor;
@@ -14,28 +26,20 @@ import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultIconColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultPlusFontSizeTitle;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultTextColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.extraTools;
-import static com.wswdteam.txtlauncher.TxTLauncherApp.packName;
-import static com.wswdteam.txtlauncher.TxTLauncherApp.privateAIUrl;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.startInsideFunctionApp;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.startLocalActivity;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.syslog;
-import static com.wswdteam.txtlauncher.TxTLauncherApp.systemMessage;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.textColorMode;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.hideKeyboard;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.startedAndroidApp;
-import static com.wswdteam.txtlauncher.TxTLauncherApp.weatherUrl;
 
 import android.annotation.SuppressLint;
-import android.app.SearchManager;
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.icu.util.Calendar;
-import android.net.Uri;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.text.method.ScrollingMovementMethod;
 import android.util.TypedValue;
 import android.view.GestureDetector;
@@ -83,13 +87,6 @@ public class WidgetActivity extends AppCompatActivity {
         });
 
         gestureDetector = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
-            @Override
-            public void onLongPress(@NonNull MotionEvent event) {
-                //syslog("Action long tap: favorite");
-                finish();
-                super.onLongPress(event);
-            }
-
             @Override
             public boolean onFling(MotionEvent e1, @NonNull MotionEvent e2, float velocityX, float velocityY) {
                 if (e1 == null) return false;
@@ -139,21 +136,13 @@ public class WidgetActivity extends AppCompatActivity {
         });
 
         CalendarView cv = findViewById(R.id.widgetCalendar);
-        //EditText editT = findViewById(R.id.widgetTextNote);
+        cv.setLongClickable(true);
         Calendar calendar = Calendar.getInstance();
         cv.setDate(calendar.getTimeInMillis(), false, true);
         cv.setFirstDayOfWeek(calendar.getFirstDayOfWeek());
         cv.setOnLongClickListener(v -> {
-            try {
-                Intent cal = new Intent(Intent.ACTION_MAIN);
-                cal.addCategory(Intent.CATEGORY_APP_CALENDAR);
-                startActivity(cal);
-                startedAndroidApp = true;
-                finish();
-            } catch (Exception e) {
-                systemMessage(getString(R.string.error_startapp));
-            }
-            return false;
+            startInsideFunctionApp(v.getContext(), START_CALENDAR);
+            return true;
         });
         cv.setOnDateChangeListener((view, year, mounth, day) -> {
             Calendar calendar1 = Calendar.getInstance();
@@ -257,7 +246,7 @@ public class WidgetActivity extends AppCompatActivity {
 
         iv = findViewById(R.id.waiButton);
         iv.setOnLongClickListener(v -> {
-            openAI(v);
+            startInsideFunctionApp(this, START_AI_LONG);
             this.finish();
             return true;
         });
@@ -363,15 +352,8 @@ public class WidgetActivity extends AppCompatActivity {
     // Rendszer beállítások indítása
     //
     public void startButtonSystemSettings(View v) {
-        try {
-            Intent intent = new Intent(Settings.ACTION_SETTINGS);
-            intent.addCategory(Intent.CATEGORY_DEFAULT);
-            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent);
-            startedAndroidApp = true;
-        } catch (Exception e) {
-            systemMessage(getString(R.string.error_startapp));
-        }
+        startInsideFunctionApp(this, START_SETTINGS_LONG);
+        this.finish();
     }
 
 
@@ -380,25 +362,8 @@ public class WidgetActivity extends AppCompatActivity {
     // időjárás keresés
     //
     public void startButtonWeatherSearch(View v) {
-        try {
-            Intent searchIntent;
-            if (weatherUrl.contains("://")) {
-                searchIntent = new Intent(Intent.ACTION_VIEW);
-                searchIntent.setData(Uri.parse(weatherUrl));
-                searchIntent.setPackage(packName.get(3));
-                searchIntent.addCategory(Intent.CATEGORY_DEFAULT);
-            } else {
-                searchIntent = new Intent(Intent.ACTION_WEB_SEARCH);
-                searchIntent.putExtra(SearchManager.QUERY, weatherUrl + "\n");
-                searchIntent.setComponent(new ComponentName("com.google.android.googlequicksearchbox", "com.google.android.googlequicksearchbox.SearchActivity"));
-                //searchIntent.setPackage("com.google.android.googlequicksearchbox");
-            }
-            startActivity(searchIntent);
-            startedAndroidApp = true;
-            this.finish();
-        } catch (Exception e) {
-            systemMessage(getString(R.string.error_startapp));
-        }
+        startInsideFunctionApp(this, START_WEATHER);
+        this.finish();
     }
 
 
@@ -417,23 +382,8 @@ public class WidgetActivity extends AppCompatActivity {
     // App indítása
     //
     public void startButtonAppBrowser(View v) {
-        // browser
-        try {
-            String url = TxTLauncherApp.sharedPreferences.getString(SETTINGS_URL_SEARCH_TAG, "");
-            if (url.isEmpty()) {
-                url = TxTLauncherApp.privateSearchUrl;
-            }
-            Intent broIn = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-            broIn.addCategory(Intent.CATEGORY_DEFAULT);
-            // ! final PackageManager pm = getPackageManager();
-            // ! Intent broIn = new Intent(Intent.ACTION_MAIN);
-            // ! broIn.addCategory(Intent.CATEGORY_APP_BROWSER);
-            startActivity(broIn);
-            startedAndroidApp = true;
-            this.finish();
-        } catch (Exception e) {
-            systemMessage(getString(R.string.error_startapp));
-        }
+        startInsideFunctionApp(this, START_BROWSER);
+        this.finish();
     }
 
 
@@ -442,17 +392,8 @@ public class WidgetActivity extends AppCompatActivity {
     // App indítása
     //
     public void startButtonAppCamera(View v) {
-        // camera
-        try {
-            final PackageManager pm = getPackageManager();
-            Intent launchIntent = pm.getLaunchIntentForPackage(TxTLauncherApp.packName.get(3));
-            assert launchIntent != null;
-            startActivity(launchIntent);
-            startedAndroidApp = true;
-            this.finish();
-        } catch (Exception e) {
-            systemMessage(getString(R.string.error_startapp));
-        }
+        startInsideFunctionApp(this, START_CAMERA);
+        this.finish();
     }
 
 
@@ -462,7 +403,8 @@ public class WidgetActivity extends AppCompatActivity {
     //
     public void startButtonAppList(View v) {
         // applist
-        startActivity(new Intent(WidgetActivity.this, AppListActivity.class));
+        MainActivity.startedSettingsAct = true;
+        startLocalActivity(this, START_ACT_APPLIST);
         this.finish();
     }
 
@@ -473,7 +415,8 @@ public class WidgetActivity extends AppCompatActivity {
     //
     public void startButtonAppFav(View v) {
         // fav
-        startActivity(new Intent(WidgetActivity.this, FavoritesActivity.class));
+        MainActivity.startedSettingsAct = true;
+        startLocalActivity(this, START_ACT_FAVAPP);
         this.finish();
     }
 
@@ -484,7 +427,7 @@ public class WidgetActivity extends AppCompatActivity {
     //
     public void startButtonSettings(View v) {
         MainActivity.startedSettingsAct = true;
-        startActivity(new Intent(WidgetActivity.this, SettingsActivity.class));
+        startLocalActivity(this, START_ACT_SETTINGS);
         this.finish();
     }
 
@@ -494,25 +437,9 @@ public class WidgetActivity extends AppCompatActivity {
     // App indítása
     //
     public void startButtonAppAI(View v) {
-        // ai
-        try {
-            Intent intent;
-            if (privateAIUrl != null && !privateAIUrl.trim().isEmpty()) {
-                String url = privateAIUrl.trim();
-                if (!url.contains("://")) {
-                    url = "https://" + url;
-                }
-                intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-            } else {
-                intent = new Intent(Intent.ACTION_ASSIST);
-            }
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent);
-            this.finish();
-        } catch (Exception e) {
-            systemMessage(getString(R.string.error_startapp));
-        }
+        startInsideFunctionApp(this, START_AI);
         startedAndroidApp = true;
+        this.finish();
     }
 
 
@@ -521,26 +448,9 @@ public class WidgetActivity extends AppCompatActivity {
     // AI mutatása
     //
     public void openAI(View view) {
-        try {
-            Intent intent;
-            if (!(privateAIUrl != null && !privateAIUrl.trim().isEmpty())) {
-                assert privateAIUrl != null;
-                String url = privateAIUrl.trim();
-                if (!url.contains("://")) {
-                    url = "https://" + url;
-                }
-                intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-            } else {
-                intent = new Intent(Intent.ACTION_VOICE_COMMAND);
-                //intent = new Intent(Intent.ACTION_ASSIST);
-                intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            }
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(intent);
-        } catch (Exception e) {
-            systemMessage(getString(R.string.error_startapp));
-        }
+        startInsideFunctionApp(this, START_AI);
         startedAndroidApp = true;
+        this.finish();
     }
 
 
@@ -549,15 +459,19 @@ public class WidgetActivity extends AppCompatActivity {
     // App indítása
     //
     public void startButtonAppDiscovery(View v) {
-        // discovery
-        try {
-            Intent intent = getPackageManager().getLaunchIntentForPackage("com.google.android.googlequicksearchbox");
-            startActivity(intent);
-            startedAndroidApp = true;
-            this.finish();
-        } catch (Exception e) {
-            systemMessage(getString(R.string.error_startapp));
-        }
+        startInsideFunctionApp(this, START_DISCOVERY);
+        startedAndroidApp = true;
+        this.finish();
+    }
+
+
+    //
+    // App indítása
+    //
+    public void startCalendar(View v) {
+        startInsideFunctionApp(this, START_CALENDAR);
+        startedAndroidApp = true;
+        this.finish();
     }
 
 
@@ -576,16 +490,9 @@ public class WidgetActivity extends AppCompatActivity {
     // Térkép mutatása
     //
     public void openMap(View view) {
-        try {
-            //Uri gmmIntentUri = Uri.parse("geo:0,0?q=restaurants");
-            Uri mapUri = Uri.parse("geo:0,0");
-            Intent mapIntent = new Intent(Intent.ACTION_VIEW, mapUri);
-            startActivity(mapIntent);
-            startedAndroidApp = true;
-            this.finish();
-        } catch (Exception e) {
-            systemMessage(getString(R.string.error_startapp));
-        }
+        startInsideFunctionApp(this, START_MAP);
+        startedAndroidApp = true;
+        this.finish();
     }
 
 
@@ -594,7 +501,8 @@ public class WidgetActivity extends AppCompatActivity {
     //  Fő nézet: leírás
     //
     public void openHelp(View view) {
-        startActivity(new Intent(WidgetActivity.this, HelpActivity.class));
+        MainActivity.startedHelpAct = true;
+        startLocalActivity(this, START_ACT_HELP);
         this.finish();
     }
 
@@ -604,7 +512,8 @@ public class WidgetActivity extends AppCompatActivity {
     //  Fő nézet: kedvencek
     //
     public void startFavApp(View view) {
-        startActivity(new Intent(WidgetActivity.this, FavoritesActivity.class));
+        MainActivity.startedFavAct = true;
+        startLocalActivity(this, START_ACT_FAVAPP);
         this.finish();
     }
 

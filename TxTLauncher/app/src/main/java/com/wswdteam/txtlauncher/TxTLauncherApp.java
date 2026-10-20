@@ -2,6 +2,8 @@ package com.wswdteam.txtlauncher;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.SearchManager;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -9,8 +11,11 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
+import android.provider.AlarmClock;
+import android.provider.MediaStore;
 import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
@@ -50,6 +55,31 @@ public class TxTLauncherApp extends android.app.Application {
     public static final int SWIPE_MIN_DISTANCE = 50;
     public static final int SWIPE_TRESHOLD = 50;
 
+    // jelölők
+    public static final int START_PHONE = 1;
+    public static final int START_MAIL = 2;
+    public static final int START_BROWSER = 3;
+    public static final int START_BROWSER_LONG = 4;
+    public static final int START_CAMERA = 5;
+    public static final int START_SEARCH = 6;
+    public static final int START_SEARCH_LONG = 7;
+    public static final int START_WEATHER = 8;
+    public static final int START_SETTINGS = 9;
+    public static final int START_SETTINGS_LONG = 10;
+    public static final int START_AI = 11;
+    public static final int START_AI_LONG = 12;
+    public static final int START_DISCOVERY = 13;
+    public static final int START_MAP = 14;
+    public static final int START_CALENDAR = 15;
+    public static final int START_CLOCK = 16;
+    public static final int START_ACT_APPLIST = 1;
+    public static final int START_ACT_FAVAPP = 2;
+    public static final int START_ACT_HELP = 3;
+    public static final int START_ACT_SETTINGS = 4;
+    public static final int START_ACT_WIDGET = 5;
+    public static final int START_ACT_FAVAPP_SEL = 6;
+    public static final int START_ACT_APPLIST_SEL = 7;
+
     // beállítások mentése jelölők
     public static String PRIVATE_SETTINGS_TAG = "TxTLauncher_App";
     public static String SETTINGS_APP_TAG = "HomeApp";
@@ -73,6 +103,7 @@ public class TxTLauncherApp extends android.app.Application {
     public static String SETTINGS_EXPERIMENTAL_TAG = "Experimental";
 
     // beállítások alapértelmezett tartalma
+    public static String AI_NAME_STRING = "gemini";
     public static String privateAIUrl = "https://duckduckgo.com/?q=DuckDuckGo+AI+Chat&ia=chat&duckai=1";
     public static String privateSearchUrl = "https://duckduckgo.com/?q=";
     public static String privateAIUrlOrig = "https://duckduckgo.com/?q=DuckDuckGo+AI+Chat&ia=chat&duckai=1";
@@ -106,7 +137,6 @@ public class TxTLauncherApp extends android.app.Application {
 
     // app-ok kezelése
     public static ArrayList<ResolveInfo> allApplicationsList = new ArrayList<>();
-    public static List<String> packName = new ArrayList<>();
     public static List<String> homeAppName = new ArrayList<>();
     public static List<Drawable> defaultIcons = new ArrayList<>();
     public static Context AppContext;
@@ -276,19 +306,18 @@ public class TxTLauncherApp extends android.app.Application {
             adaptiveIconColor = defaultIconColor;
         }
 
-        if (adaptiveIcon) {
-            homeSysIcon = true;
-            homeStartAppIcon = true;
-        } else {
-            val = sharedPreferences.getString(SETTINGS_SYS_ICON_TAG, "");
-            if (!val.isEmpty()) {
-                homeSysIcon = !val.equals("0");
-            }
-            val = sharedPreferences.getString(SETTINGS_HOME_ICON_TAG, "");
-            if (!val.isEmpty()) {
-                homeStartAppIcon = !val.equals("0");
-            }
+        val = sharedPreferences.getString(SETTINGS_SYS_ICON_TAG, "");
+        if (!val.isEmpty()) {
+            homeSysIcon = !val.equals("0");
         }
+        val = sharedPreferences.getString(SETTINGS_HOME_ICON_TAG, "");
+        if (!val.isEmpty()) {
+            homeStartAppIcon = !val.equals("0");
+        }
+        //if (adaptiveIcon) {
+            //homeSysIcon = true;
+            //homeStartAppIcon = true;
+        //}
 
         val = sharedPreferences.getString(SETTINGS_TEXT_COLOR_MODE_TAG, "");
         if (!val.isEmpty()) {
@@ -398,6 +427,288 @@ public class TxTLauncherApp extends android.app.Application {
     }
 
 
+
+    //
+    // activity indítás
+    //
+    public static boolean startLocalActivity(Context cont, int marker) {
+        switch (marker) {
+            case START_ACT_APPLIST:
+                try {
+                    cont.startActivity(new Intent(cont, AppListActivity.class));
+                } catch (Exception e) {
+                    systemMessage(cont.getString(R.string.error_startapp));
+                }
+                break;
+            case START_ACT_FAVAPP:
+                try {
+                cont.startActivity(new Intent(cont, FavoritesActivity.class));
+                } catch (Exception e) {
+                    systemMessage(cont.getString(R.string.error_startapp));
+                }
+                break;
+            case START_ACT_HELP:
+                try {
+                cont.startActivity(new Intent(cont, HelpActivity.class));
+                } catch (Exception e) {
+                    systemMessage(cont.getString(R.string.error_startapp));
+                }
+                break;
+            case START_ACT_SETTINGS:
+                try {
+                cont.startActivity(new Intent(cont, SettingsActivity.class));
+                } catch (Exception e) {
+                    systemMessage(cont.getString(R.string.error_startapp));
+                }
+                break;
+            case START_ACT_WIDGET:
+                try {
+                cont.startActivity(new Intent(cont, WidgetActivity.class));
+                } catch (Exception e) {
+                    systemMessage(cont.getString(R.string.error_startapp));
+                }
+                break;
+            case START_ACT_FAVAPP_SEL:
+                try {
+                cont.startActivity(new Intent(cont, FavoritesAddAppActivity.class));
+                } catch (Exception e) {
+                    systemMessage(cont.getString(R.string.error_startapp));
+                }
+                break;
+            case START_ACT_APPLIST_SEL:
+                try {
+                cont.startActivity(new Intent(cont, AddAppActivity.class));
+                } catch (Exception e) {
+                    systemMessage(cont.getString(R.string.error_startapp));
+                }
+                break;
+        }
+        return true;
+    }
+
+
+
+    //
+    // activity indítás
+    //
+    public static boolean startInsideFunctionApp(Context cont, int marker) {
+        switch (marker) {
+            case START_PHONE:
+                try {
+                    Intent dialIn = new Intent(Intent.ACTION_DIAL, null);
+                    List<ResolveInfo> appDL = cont.getPackageManager().queryIntentActivities(dialIn, 0);
+                    ResolveInfo appR = appDL.get(0);
+                    String pkg = appR.activityInfo.packageName;
+                    if (!pkg.isEmpty()) {
+                        dialIn = new Intent(cont.getPackageManager().getLaunchIntentForPackage(pkg));
+                    }
+                    dialIn.addCategory(Intent.CATEGORY_DEFAULT);
+                    dialIn.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    cont.startActivity(dialIn);
+                    startedAndroidApp = true;
+                } catch (Exception e) {
+                    systemMessage(cont.getString(R.string.error_startapp));
+                }
+                break;
+            case START_MAIL:
+                try {
+                    Intent mailIn = new Intent(Intent.ACTION_MAIN, null);
+                    mailIn.addCategory(Intent.CATEGORY_APP_EMAIL);
+                    mailIn.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    cont.startActivity(mailIn);
+                    startedAndroidApp = true;
+                } catch (Exception e) {
+                    systemMessage(cont.getString(R.string.error_startapp));
+                }
+                break;
+            case START_BROWSER:
+                try {
+                    Intent broIn = new Intent(Intent.ACTION_VIEW, Uri.parse("https://"));
+                    broIn.addCategory(Intent.CATEGORY_DEFAULT);
+                    broIn.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    cont.startActivity(broIn);
+                    startedAndroidApp = true;
+                } catch (Exception e) {
+                    systemMessage(cont.getString(R.string.error_startapp));
+                }
+                break;
+            case START_BROWSER_LONG:
+                try {
+                    Intent broIn;
+                    if (privateSearchUrl.isEmpty()) {
+                        broIn = new Intent(Intent.ACTION_VIEW, Uri.parse("https://"));
+                    } else {
+                        broIn = new Intent(Intent.ACTION_VIEW, Uri.parse(privateSearchUrl));
+                    }
+                    broIn.addCategory(Intent.CATEGORY_DEFAULT);
+                    broIn.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    cont.startActivity(broIn);
+                    startedAndroidApp = true;
+                } catch (Exception e) {
+                    systemMessage(cont.getString(R.string.error_startapp));
+                }
+                break;
+            case START_CAMERA:
+                try {
+                    Intent camIn = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                    camIn.addCategory(Intent.CATEGORY_DEFAULT);
+                    camIn.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    cont.startActivity(camIn);
+                    startedAndroidApp = true;
+                } catch (Exception e) {
+                    systemMessage(cont.getString(R.string.error_startapp));
+                }
+                break;
+            case START_SEARCH:
+                try {
+                    Intent se = new Intent(SearchManager.INTENT_ACTION_GLOBAL_SEARCH);
+                    se.addCategory(Intent.CATEGORY_DEFAULT);
+                    se.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    cont.startActivity(se);
+                    startedAndroidApp = true;
+                } catch (Exception e) {
+                    systemMessage(cont.getString(R.string.error_startapp));
+                }
+                break;
+            case START_SEARCH_LONG:
+                try {
+                    Intent lIntent;
+                    if (privateSearchUrl.isEmpty()) {
+                        lIntent = new Intent(SearchManager.INTENT_ACTION_GLOBAL_SEARCH);
+                    } else {
+                        lIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(privateSearchUrl));
+                    }
+                    lIntent.addCategory(Intent.CATEGORY_DEFAULT);
+                    lIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    cont.startActivity(lIntent);
+                    startedAndroidApp = true;
+                } catch (Exception e) {
+                    systemMessage(cont.getString(R.string.error_startapp));
+                }
+                break;
+            case START_WEATHER:
+                try {
+                    Intent searchIntent;
+                    if (weatherUrl.contains("://")) {
+                        searchIntent = new Intent(Intent.ACTION_VIEW);
+                        searchIntent.setData(Uri.parse(weatherUrl));
+                        searchIntent.addCategory(Intent.CATEGORY_DEFAULT);
+                    } else {
+                        searchIntent = new Intent(Intent.ACTION_WEB_SEARCH);
+                        searchIntent.putExtra(SearchManager.QUERY, weatherUrl + "\n");
+                        searchIntent.setComponent(new ComponentName("com.google.android.googlequicksearchbox", "com.google.android.googlequicksearchbox.SearchActivity"));
+                        //searchIntent.setPackage("com.google.android.googlequicksearchbox");
+                    }
+                    searchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    cont.startActivity(searchIntent);
+                    startedAndroidApp = true;
+                } catch (Exception e) {
+                    systemMessage(cont.getString(R.string.error_startapp));
+                }
+                break;
+            case START_SETTINGS:
+                startLocalActivity(cont, START_ACT_SETTINGS);
+                break;
+            case START_SETTINGS_LONG:
+                try {
+                    Intent launchIntent = new Intent(Settings.ACTION_SETTINGS);
+                    launchIntent.addCategory(Intent.CATEGORY_DEFAULT);
+                    launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    cont.startActivity(launchIntent);
+                    startedAndroidApp = true;
+                } catch (Exception e) {
+                    systemMessage(cont.getString(R.string.error_startapp));
+                }
+                break;
+            case START_AI:
+                try {
+                    Intent intent;
+                    if (privateAIUrl != null && !privateAIUrl.trim().isEmpty()) {
+                        String url = privateAIUrl.trim();
+                        if (!url.contains("://")) {
+                            url = "https://" + url;
+                        }
+                        intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                    } else {
+                        intent = new Intent(Intent.ACTION_ASSIST);
+                        intent.addCategory(Intent.CATEGORY_DEFAULT);
+                    }
+                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    cont.startActivity(intent);
+                    startedAndroidApp = true;
+                } catch (Exception e) {
+                    systemMessage(cont.getString(R.string.error_startapp));
+                }
+                break;
+            case START_AI_LONG:
+                try {
+                    String appName;
+                    for (String[] allAppDatum : allAppData) {
+                        appName = allAppDatum[0];
+                        syslog(appName);
+                        if (appName != null && appName.toLowerCase().contains(AI_NAME_STRING.toLowerCase())) {
+                            String pkg = allAppDatum[1];
+                            String cls = allAppDatum[2];
+                            if (startNewTaskActivity(cont, pkg, cls)) {
+                                startedAndroidApp = true;
+                            }
+                            break;
+                        }
+                    }
+                    if (!startedAndroidApp) {
+                        Intent intent = new Intent(Intent.ACTION_VOICE_COMMAND);
+                        intent.addCategory(Intent.CATEGORY_DEFAULT);
+                        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        cont.startActivity(intent);
+                        startedAndroidApp = true;
+                    }
+                } catch (Exception e) {
+                    systemMessage(cont.getString(R.string.error_startapp));
+                }
+                break;
+            case START_DISCOVERY:
+                startNewTaskActivity(cont, "com.google.android.googlequicksearchbox", "");
+                break;
+            case START_MAP:
+                try {
+                    Uri mapUri = Uri.parse("geo:0,0");
+                    Intent mapIntent = new Intent(Intent.ACTION_VIEW, mapUri);
+                    mapIntent.addCategory(Intent.CATEGORY_DEFAULT);
+                    mapIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    cont.startActivity(mapIntent);
+                    startedAndroidApp = true;
+                } catch (Exception e) {
+                    systemMessage(cont.getString(R.string.error_startapp));
+                }
+                break;
+            case START_CALENDAR:
+                try {
+                    Intent cal = new Intent(Intent.ACTION_MAIN);
+                    cal.addCategory(Intent.CATEGORY_APP_CALENDAR);
+                    cal.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    cont.startActivity(cal);
+                    startedAndroidApp = true;
+                } catch (Exception e) {
+                    systemMessage(cont.getString(R.string.error_startapp));
+                }
+                break;
+            case START_CLOCK:
+                try {
+                    Intent cl = new Intent(AlarmClock.ACTION_SHOW_ALARMS);
+                    cl.addCategory(Intent.CATEGORY_DEFAULT);
+                    cl.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    cont.startActivity(cl);
+                    startedAndroidApp = true;
+                } catch (Exception e) {
+                    systemMessage(cont.getString(R.string.error_startapp));
+                }
+                break;
+        }
+        return true;
+    }
+
+
+
     //
     // verzió ellenőrzése
     //
@@ -489,12 +800,14 @@ public class TxTLauncherApp extends android.app.Application {
     }
 
 
+
     //
     //  Fő nézet: rendszerüzenet
     //
     public static void systemMessage(String mtext) {
         Toast.makeText(AppContext, mtext, Toast.LENGTH_SHORT).show();
     }
+
 
 
     //

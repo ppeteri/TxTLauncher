@@ -2,6 +2,9 @@ package com.wswdteam.txtlauncher;
 
 import static android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.SETTINGS_EXPERIMENTAL_TAG;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.START_ACT_APPLIST_SEL;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.START_ACT_FAVAPP_SEL;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.START_ACT_HELP;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.SWIPE_MIN_DISTANCE;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.SWIPE_TRESHOLD;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.SETTINGS_ADAPTIVE_ICON_COLOR_TAG;
@@ -39,6 +42,7 @@ import static com.wswdteam.txtlauncher.TxTLauncherApp.sharedPreferences;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.showArrows;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.showDecor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.showMainIcons;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.startLocalActivity;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.startedAndroidApp;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.syslog;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.systemMessage;
@@ -46,7 +50,6 @@ import static com.wswdteam.txtlauncher.TxTLauncherApp.textColorMode;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.weatherUrlOrig;
 
 import android.annotation.SuppressLint;
-import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.Editable;
@@ -434,7 +437,7 @@ public class SettingsActivity extends AppCompatActivity {
     // App választás indítása
     //
     public void openAddAppList(View view){
-        startActivity(new Intent(SettingsActivity.this, AddAppActivity.class));
+        startLocalActivity(this, START_ACT_APPLIST_SEL);
     }
 
 
@@ -442,7 +445,7 @@ public class SettingsActivity extends AppCompatActivity {
     // Kedvenc app választás indítása
     //
     public void openAddFavAppList(View view){
-        startActivity(new Intent(SettingsActivity.this, FavoritesAddAppActivity.class));
+        startLocalActivity(this, START_ACT_FAVAPP_SEL);
     }
 
 
@@ -493,7 +496,7 @@ public class SettingsActivity extends AppCompatActivity {
     // App választás indítása
     //
     public void helpButton(View view){
-        startActivity(new Intent(SettingsActivity.this, HelpActivity.class));
+        startLocalActivity(this, START_ACT_HELP);
     }
 
 

@@ -97,4 +97,5 @@
     <string name="wbutt_weather">Időjárás</string>
     <string name="settings_decor">Egyéb vizuális elemek</string>
     <string name="settings_experimental">Kísérleti eszközök</string>
+    <string name="widget_calendar">Naptár</string>
 </resources>

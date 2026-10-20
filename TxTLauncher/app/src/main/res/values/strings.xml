@@ -97,5 +97,6 @@
     <string name="wbutt_weather">Weather</string>
     <string name="settings_decor">Other visual elements</string>
     <string name="settings_experimental">Experimental tools</string>
+    <string name="widget_calendar">Calendar app</string>
 
 </resources>

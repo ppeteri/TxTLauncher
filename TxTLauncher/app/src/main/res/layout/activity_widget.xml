@@ -509,8 +509,22 @@
                 android:id="@+id/widgetCalendar"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:longClickable="true"
                 android:theme="@style/Theme.AppCompat.DayNight"
                 app:layout_constraintTop_toBottomOf="@+id/widgetDivider" />
+
+            <Button
+                android:id="@+id/wcalendarbutton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:layout_marginTop="0dp"
+                android:gravity="center|center_horizontal"
+                android:onClick="startCalendar"
+                android:text="@string/widget_calendar"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/settingsDivider3" />
 
             <View
                 android:id="@+id/widgetDividerCal"
