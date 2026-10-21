@@ -9,14 +9,13 @@ import static com.wswdteam.txtlauncher.TxTLauncherApp.START_ACT_SETTINGS;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.START_AI;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.START_AI_LONG;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.START_BROWSER;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.START_BROWSER_LONG;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.START_CALENDAR;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.START_CAMERA;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.START_DISCOVERY;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.START_MAP;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.START_SETTINGS_LONG;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.START_WEATHER;
-import static com.wswdteam.txtlauncher.TxTLauncherApp.SWIPE_MIN_DISTANCE;
-import static com.wswdteam.txtlauncher.TxTLauncherApp.SWIPE_TRESHOLD;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.SETTINGS_NOTE_TAG;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.adaptiveIcon;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.adaptiveIconColor;
@@ -55,7 +54,6 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.graphics.drawable.DrawableCompat;
@@ -86,18 +84,28 @@ public class WidgetActivity extends AppCompatActivity {
             return insets;
         });
 
-        gestureDetector = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
+        gestureDetector = GestureManagerMain.create(this, new GestureManagerMain.Callback() {
             @Override
-            public boolean onFling(MotionEvent e1, @NonNull MotionEvent e2, float velocityX, float velocityY) {
-                if (e1 == null) return false;
-                float dx = e2.getX() - e1.getX();
-                float dy = e2.getY() - e1.getY();
-
-                if (Math.abs(dx) > SWIPE_MIN_DISTANCE && Math.abs(dy) < SWIPE_TRESHOLD) {
-                    finish();
-                    return true;
-                }
-                return false;
+            public void onLeft() {
+                finish();
+            }
+            @Override
+            public void onRight() {
+                finish();
+            }
+            @Override
+            public void onUp() {
+            }
+            @Override
+            public void onDown() {
+            }
+            @Override
+            public void onDoubleTap() {
+                finish();
+            }
+            @Override
+            public void onLongPress() {
+                finish();
             }
         });
 
@@ -257,6 +265,13 @@ public class WidgetActivity extends AppCompatActivity {
             this.finish();
             return true;
         });
+
+        iv = findViewById(R.id.wbrowserButton);
+        iv.setOnLongClickListener(v -> {
+            startButtonAppBrowserLong();
+            this.finish();
+            return true;
+        });
     }
 
     @Override
@@ -383,6 +398,16 @@ public class WidgetActivity extends AppCompatActivity {
     //
     public void startButtonAppBrowser(View v) {
         startInsideFunctionApp(this, START_BROWSER);
+        this.finish();
+    }
+
+
+
+    //
+    // App indítása
+    //
+    public void startButtonAppBrowserLong() {
+        startInsideFunctionApp(this, START_BROWSER_LONG);
         this.finish();
     }
 

@@ -1,8 +1,6 @@
 package com.wswdteam.txtlauncher;
 
 import static android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN;
-import static com.wswdteam.txtlauncher.TxTLauncherApp.SWIPE_MIN_DISTANCE;
-import static com.wswdteam.txtlauncher.TxTLauncherApp.SWIPE_TRESHOLD;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.TXT_APP_NAME;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.TXT_VERSION;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.TXT_WEB_PAGE;
@@ -23,7 +21,6 @@ import android.view.View;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -47,25 +44,28 @@ public class HelpActivity extends AppCompatActivity {
             return insets;
         });
 
-        gestureDetector = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
+        gestureDetector = GestureManagerMain.create(this, new GestureManagerMain.Callback() {
             @Override
-            public void onLongPress(@NonNull MotionEvent event) {
-                //syslog("Action long tap: favorite");
+            public void onLeft() {
                 finish();
-                super.onLongPress(event);
             }
-
             @Override
-            public boolean onFling(MotionEvent e1, @NonNull MotionEvent e2, float velocityX, float velocityY) {
-                if (e1 == null) return false;
-                float dx = e2.getX() - e1.getX();
-                float dy = e2.getY() - e1.getY();
-
-                if (Math.abs(dx) > SWIPE_MIN_DISTANCE && Math.abs(dy) < SWIPE_TRESHOLD) {
-                    finish();
-                    return true;
-                }
-                return false;
+            public void onRight() {
+                finish();
+            }
+            @Override
+            public void onUp() {
+            }
+            @Override
+            public void onDown() {
+            }
+            @Override
+            public void onDoubleTap() {
+                finish();
+            }
+            @Override
+            public void onLongPress() {
+                finish();
             }
         });
 

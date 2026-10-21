@@ -9,7 +9,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
-import android.content.res.Configuration;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Handler;
@@ -41,6 +40,8 @@ public class TxTLauncherApp extends android.app.Application {
     // Log üzenetekhez használható
     //
     public static boolean developerMode = false;
+    public static boolean verNewInstall = false;
+    public static boolean verUpdate = false;
 
     // verzió mentése
     public static final String SETTINGS_VERSION_TAG = "TxTVersion";
@@ -51,9 +52,11 @@ public class TxTLauncherApp extends android.app.Application {
     // általános constansok
     public static final int HOME_APP_NUM = 10;
     public static final int FAV_APP_NUM = 20;
+
     // gesture mód beállítások
-    public static final int SWIPE_MIN_DISTANCE = 50;
-    public static final int SWIPE_TRESHOLD = 50;
+    public static int SWIPE_MIN_DISTANCE = 72;
+    public static int SWIPE_MAX_OFF_PATH = 48;
+    public static int SWIPE_MIN_VELOCITY = 100;
 
     // jelölők
     public static final int START_PHONE = 1;
@@ -108,7 +111,6 @@ public class TxTLauncherApp extends android.app.Application {
     public static String privateSearchUrl = "https://duckduckgo.com/?q=";
     public static String privateAIUrlOrig = "https://duckduckgo.com/?q=DuckDuckGo+AI+Chat&ia=chat&duckai=1";
     public static String privateSearchUrlOrig = "https://duckduckgo.com/?q=";
-    public static boolean extraTools = false;
     public static String weatherUrl = "";
     public static String backgroundImage = "";
     public static String weatherUrlOrig = "";
@@ -131,6 +133,7 @@ public class TxTLauncherApp extends android.app.Application {
     public static boolean showArrows = false;
     public static boolean showMainIcons = true;
     public static boolean showDecor = true;
+    public static boolean extraTools = false;
     public static boolean experimantalToola = false;
     public static int adaptiveIconColor = 0;
     public static int defaultIconColor = 0;
@@ -160,21 +163,21 @@ public class TxTLauncherApp extends android.app.Application {
     public void onCreate() {
         super.onCreate();
 
+        SWIPE_MIN_VELOCITY = Math.round(SWIPE_MIN_VELOCITY * getResources().getDisplayMetrics().density);
+        SWIPE_MAX_OFF_PATH = Math.round(SWIPE_MAX_OFF_PATH * getResources().getDisplayMetrics().density);
+        SWIPE_MIN_DISTANCE = Math.round(SWIPE_MIN_DISTANCE * getResources().getDisplayMetrics().density);
+
         AppContext = this.getApplicationContext();
         sharedPreferences = getSharedPreferences(PRIVATE_SETTINGS_TAG, MODE_PRIVATE);
+        //saveSettings();
         packageMan = getPackageManager();
 
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
 
-        // sötét mód beállítása
-        Configuration configuration = getResources().getConfiguration();
-        int currentNightMode = configuration.uiMode & Configuration.UI_MODE_NIGHT_MASK;
-        darkMode = currentNightMode == Configuration.UI_MODE_NIGHT_YES;
-
         versionCheck();
 
         weatherUrl = getString(R.string.search_weather);
-        TxTLauncherApp.weatherUrlOrig = getString(R.string.search_weather);
+        weatherUrlOrig = getString(R.string.search_weather);
 
         iconSize = (int) (32 * this.getResources().getDisplayMetrics().density);
         float density = ((float) iconSize / 2);// * getContext().getResources().getDisplayMetrics().density;
@@ -193,13 +196,13 @@ public class TxTLauncherApp extends android.app.Application {
     //
     public static void generateAppList() {
         // másodperc
-        long currentTime = System.currentTimeMillis() / 1000;
+        // long currentTime = System.currentTimeMillis() / 1000;
         // 5 perc és újra olvas
         // - if ((currentTime - packageUpdateTime) > 300) {
         // -    startedAndroidApp = true;
         // - }
+        //packageUpdateTime = currentTime;
         if (startedAndroidApp) {
-            packageUpdateTime = currentTime;
             startedAndroidApp = false;
             allApplicationsList.clear();
             Intent intent = new Intent(Intent.ACTION_MAIN, null);
@@ -254,24 +257,30 @@ public class TxTLauncherApp extends android.app.Application {
         String appName;
         for (var i = 0; i <  HOME_APP_NUM; i++) {
             tag = SETTINGS_APP_TAG + i;
-            val = sharedPreferences.getString(tag, "");
-            if (!val.isEmpty()) {
-                for (String[] allAppDatum : allAppData) {
-                    appName = allAppDatum[0];
-                    if (appName.equals(val)) {
-                        homeAppName.add(appName);
+            if (sharedPreferences.contains(tag)) {
+                val = sharedPreferences.getString(tag, null);
+                if (val != null) {
+                    for (String[] allAppDatum : allAppData) {
+                        appName = allAppDatum[0];
+                        if (appName.equals(val)) {
+                            homeAppName.add(appName);
+                        }
                     }
                 }
             }
         }
 
-        val = sharedPreferences.getString(SETTINGS_ADAPTIVE_ICON_TAG, "");
-        if (!val.isEmpty()) {
-            adaptiveIcon = !val.equals("0");
+        if (sharedPreferences.contains(SETTINGS_ADAPTIVE_ICON_TAG)) {
+            val = sharedPreferences.getString(SETTINGS_ADAPTIVE_ICON_TAG, null);
+            if (val != null) {
+                adaptiveIcon = !val.equals("0");
+            }
         }
 
-        int buttonId;
-        buttonId = sharedPreferences.getInt(SETTINGS_ADAPTIVE_ICON_COLOR_TAG, Integer.parseInt("0"));
+        int buttonId = 0;
+        if (sharedPreferences.contains(SETTINGS_ADAPTIVE_ICON_COLOR_TAG)) {
+            buttonId = sharedPreferences.getInt(SETTINGS_ADAPTIVE_ICON_COLOR_TAG, Integer.parseInt("0"));
+        }
         if (buttonId == R.id.btnRed) {
             adaptiveIconColor = ContextCompat.getColor(cont, R.color.red);
         }
@@ -306,70 +315,98 @@ public class TxTLauncherApp extends android.app.Application {
             adaptiveIconColor = defaultIconColor;
         }
 
-        val = sharedPreferences.getString(SETTINGS_SYS_ICON_TAG, "");
-        if (!val.isEmpty()) {
-            homeSysIcon = !val.equals("0");
-        }
-        val = sharedPreferences.getString(SETTINGS_HOME_ICON_TAG, "");
-        if (!val.isEmpty()) {
-            homeStartAppIcon = !val.equals("0");
-        }
-        //if (adaptiveIcon) {
-            //homeSysIcon = true;
-            //homeStartAppIcon = true;
-        //}
-
-        val = sharedPreferences.getString(SETTINGS_TEXT_COLOR_MODE_TAG, "");
-        if (!val.isEmpty()) {
-            textColorMode = !val.equals("0");
+        if (sharedPreferences.contains(SETTINGS_SYS_ICON_TAG)) {
+            val = sharedPreferences.getString(SETTINGS_SYS_ICON_TAG, null);
+            if (val != null) {
+                homeSysIcon = !val.equals("0");
+            }
         }
 
-        val = sharedPreferences.getString(SETTINGS_DARK_MODE_TAG, "");
-        if (!val.isEmpty()) {
-            darkMode = !val.equals("0");
+        if (sharedPreferences.contains(SETTINGS_HOME_ICON_TAG)) {
+            val = sharedPreferences.getString(SETTINGS_HOME_ICON_TAG, null);
+            if (val != null) {
+                homeStartAppIcon = !val.equals("0");
+            }
         }
 
-        val = sharedPreferences.getString(SETTINGS_SHOW_ARROWS_TAG, "");
-        if (!val.isEmpty()) {
-            showArrows = !val.equals("0");
-        }
-        val = sharedPreferences.getString(SETTINGS_SHOW_MAIN_CONTROL_ICONS, "");
-        if (!val.isEmpty()) {
-            showMainIcons = !val.equals("0");
+        if (sharedPreferences.contains(SETTINGS_TEXT_COLOR_MODE_TAG)) {
+            val = sharedPreferences.getString(SETTINGS_TEXT_COLOR_MODE_TAG, null);
+            if (val != null) {
+                textColorMode = !val.equals("0");
+            }
         }
 
-        val = sharedPreferences.getString(SETTINGS_EXTRA_TOOLS, "");
-        if (!val.isEmpty()) {
-            extraTools = !val.equals("0");
+        if (sharedPreferences.contains(SETTINGS_DARK_MODE_TAG)) {
+            val = sharedPreferences.getString(SETTINGS_DARK_MODE_TAG, null);
+            if (val != null) {
+                darkMode = !val.equals("0");
+            }
         }
 
-        val = sharedPreferences.getString(SETTINGS_DECOR_TAG, "");
-        if (!val.isEmpty()) {
-            showDecor = !val.equals("0");
+        if (sharedPreferences.contains(SETTINGS_SHOW_ARROWS_TAG)) {
+            val = sharedPreferences.getString(SETTINGS_SHOW_ARROWS_TAG, null);
+            if (val != null) {
+                showArrows = !val.equals("0");
+            }
         }
 
-        val = sharedPreferences.getString(SETTINGS_EXPERIMENTAL_TAG, "");
-        if (!val.isEmpty()) {
-            experimantalToola = !val.equals("0");
+        if (sharedPreferences.contains(SETTINGS_SHOW_MAIN_CONTROL_ICONS)) {
+            val = sharedPreferences.getString(SETTINGS_SHOW_MAIN_CONTROL_ICONS, null);
+            if (val != null) {
+                showMainIcons = !val.equals("0");
+            }
         }
 
-        val = sharedPreferences.getString(SETTINGS_URL_PRIVATEAI_TAG, "");
-        if (!val.isEmpty()) {
-            privateAIUrl = val;
+        if (sharedPreferences.contains(SETTINGS_EXTRA_TOOLS)) {
+            val = sharedPreferences.getString(SETTINGS_EXTRA_TOOLS, null);
+            if (val != null) {
+                extraTools = !val.equals("0");
+            }
         }
-        val = sharedPreferences.getString(SETTINGS_URL_SEARCH_TAG, "");
-        if (!val.isEmpty()) {
-            privateSearchUrl = val;
+
+        if (sharedPreferences.contains(SETTINGS_DECOR_TAG)) {
+            val = sharedPreferences.getString(SETTINGS_DECOR_TAG, null);
+            if (val != null) {
+                showDecor = !val.equals("0");
+            }
         }
-        val = sharedPreferences.getString(SETTINGS_WEATHER_URL_TAG, "");
-        if (!val.isEmpty()) {
-            weatherUrl = val;
+
+        if (sharedPreferences.contains(SETTINGS_EXPERIMENTAL_TAG)) {
+            val = sharedPreferences.getString(SETTINGS_EXPERIMENTAL_TAG, null);
+            if (val != null) {
+                experimantalToola = !val.equals("0");
+            }
         }
-        val = sharedPreferences.getString(SETTINGS_BACKGROUND_IMAGE_TAG, "");
-        if (!val.isEmpty()) {
-            backgroundImage = val;
+
+        if (sharedPreferences.contains(SETTINGS_URL_PRIVATEAI_TAG)) {
+            val = sharedPreferences.getString(SETTINGS_URL_PRIVATEAI_TAG, null);
+            if (val != null) {
+                privateAIUrl = val;
+            }
+        }
+
+        if (sharedPreferences.contains(SETTINGS_URL_SEARCH_TAG)) {
+            val = sharedPreferences.getString(SETTINGS_URL_SEARCH_TAG, null);
+            if (val != null) {
+                privateSearchUrl = val;
+            }
+        }
+
+        if (sharedPreferences.contains(SETTINGS_WEATHER_URL_TAG)) {
+            val = sharedPreferences.getString(SETTINGS_WEATHER_URL_TAG, null);
+            if (val != null) {
+                weatherUrl = val;
+            }
+        }
+
+        if (sharedPreferences.contains(SETTINGS_BACKGROUND_IMAGE_TAG)) {
+            val = sharedPreferences.getString(SETTINGS_BACKGROUND_IMAGE_TAG, null);
+            if (val != null) {
+                backgroundImage = val;
+            }
         }
     }
+
 
 
     //
@@ -752,7 +789,7 @@ public class TxTLauncherApp extends android.app.Application {
         settings.putString(SETTINGS_ONE_COLUMN_FAVORITES_TAG, "0");
         settings.putString(SETTINGS_TEXT_COLOR_MODE_TAG, "0");
         settings.putString(SETTINGS_SHOW_ARROWS_TAG, "0");
-        settings.putString(SETTINGS_SHOW_MAIN_CONTROL_ICONS, "0");
+        settings.putString(SETTINGS_SHOW_MAIN_CONTROL_ICONS, "1");
         settings.putString(SETTINGS_EXTRA_TOOLS, "0");
         settings.putString(SETTINGS_DECOR_TAG, "0");
         if (darkMode) {
@@ -762,15 +799,7 @@ public class TxTLauncherApp extends android.app.Application {
         }
         settings.apply();
 
-        // üzenet
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        String msg = getString(R.string.news_firstrun);
-        builder.setTitle(getString(R.string.news_firstrun_title))
-                .setMessage(msg)
-                .setPositiveButton(getString(R.string.button_next), (dialog, id) ->
-                        startActivity(new Intent(this, HelpActivity.class)));
-        AlertDialog alert = builder.create();
-        alert.show();
+        verNewInstall = true;
     }
 
 
@@ -787,16 +816,36 @@ public class TxTLauncherApp extends android.app.Application {
         settings.putString(SETTINGS_VERSION_TAG, TXT_VERSION);
         settings.apply();
 
-        // üzenet
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        String msg = getString(R.string.news_update);
-        builder.setTitle(getString(R.string.news_update_title))
-                .setMessage(msg)
-                .setPositiveButton(getString(R.string.button_next), (dialog, id) -> {
-                    //startActivity(new Intent(this, HelpActivity.class));
-                });
-        AlertDialog alert = builder.create();
-        alert.show();
+        verUpdate = true;
+    }
+
+
+
+    //
+    // üzenet
+    //
+    public static void verMessage(Context cont) {
+        if (verNewInstall) {
+            // üzenet
+            AlertDialog.Builder builder = new AlertDialog.Builder(cont);
+            String msg = cont.getString(R.string.news_firstrun);
+            builder.setTitle(cont.getString(R.string.news_firstrun_title))
+                    .setMessage(msg)
+                    .setPositiveButton(cont.getString(R.string.button_next), (dialog,
+                                      id) -> cont.startActivity(new Intent(cont, HelpActivity.class)));
+            AlertDialog alert = builder.create();
+            alert.show();
+        }
+        if (verUpdate) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(cont);
+            String msg = cont.getString(R.string.news_update);
+            builder.setTitle(cont.getString(R.string.news_update_title))
+                    .setMessage(msg)
+                    .setPositiveButton(cont.getString(R.string.button_next), (dialog,
+                                      id) -> cont.startActivity(new Intent(cont, HelpActivity.class)));
+            AlertDialog alert = builder.create();
+            alert.show();
+        }
     }
 
 

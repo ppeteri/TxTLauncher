@@ -20,14 +20,13 @@ import static com.wswdteam.txtlauncher.TxTLauncherApp.START_SEARCH;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.START_SEARCH_LONG;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.START_SETTINGS_LONG;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.START_WEATHER;
-import static com.wswdteam.txtlauncher.TxTLauncherApp.SWIPE_MIN_DISTANCE;
-import static com.wswdteam.txtlauncher.TxTLauncherApp.SWIPE_TRESHOLD;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.adaptiveIcon;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.adaptiveIconColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.allApplicationsList;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultBackGroundColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultIcons;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.experimantalToola;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.lockApp;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.packageMan;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.savedBackgroundImage;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.showArrows;
@@ -58,6 +57,7 @@ import static com.wswdteam.txtlauncher.TxTLauncherApp.syslog;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.systemMessage;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.generateAppList;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.getSettingsMain;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.verMessage;
 import static java.lang.Math.round;
 
 import android.Manifest;
@@ -93,7 +93,6 @@ import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.app.ActivityCompat;
@@ -126,6 +125,7 @@ public class MainActivity extends AppCompatActivity {
     public static boolean startedSettingsAct = false;
     public static boolean startedFavAct = false;
     public static boolean startedHelpAct = false;
+    public static boolean touchOnIconObject = false;
     private GestureDetector gestureDetector;
 
 
@@ -145,138 +145,81 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
 
+        darkMode = (getResources().getConfiguration().uiMode
+                & android.content.res.Configuration.UI_MODE_NIGHT_MASK)
+                == android.content.res.Configuration.UI_MODE_NIGHT_YES;
+        var settings = TxTLauncherApp.sharedPreferences.edit();
+        if (darkMode) {
+            settings.putString(TxTLauncherApp.SETTINGS_DARK_MODE_TAG, "1");
+        } else {
+            settings.putString(TxTLauncherApp.SETTINGS_DARK_MODE_TAG, "0");
+        }
+        settings.apply();
+
         // globális érintés figyelés
-        gestureDetector = new GestureDetector(this, new GestureDetector.SimpleOnGestureListener() {
+        gestureDetector = GestureManagerMain.create(this, new GestureManagerMain.Callback() {
             @Override
-            public boolean onDoubleTap(@NonNull MotionEvent event) {
-                //syslog("Action double tap: lock");
-                TxTLauncherApp.lockApp(getBaseContext());
-                return super.onDoubleTap(event);
+            public void onLongPress() {
             }
-
             @Override
-            public boolean onScroll(MotionEvent e1, @NonNull MotionEvent e2, float distanceX, float distanceY) {
-                // - if (e1 == null) return false;
-                // - return true;
-                return e1 != null;
+            public void onLeft() {
+                openGoogleDiscovery();
             }
-
             @Override
-            public boolean onFling(MotionEvent e1, @NonNull MotionEvent e2, float velocityX, float velocityY) {
-                if (e1 == null) return false;
-                // - float dx = e2.getX() - e1.getX();
-                // - float dy = e2.getY() - e1.getY();
-                var x1 = e1.getX();
-                var x2 = e2.getX();
-                var y1 = e1.getY();
-                var y2 = e2.getY();
-                // függőleges
-                if ((Math.abs(y2 - y1) > SWIPE_MIN_DISTANCE) && (Math.abs(x2 - x1) < SWIPE_TRESHOLD)) {
-                    // fel vagy le
-                    if (y2 < y1) {
-                        // fel
-                        if (!startedAppAct) {
-                            openAppListActivity();
-                        }
-                    } else {
-                        // le
-                        if (!startedFavAct) {
-                            openFavActivity();
-                        }
-                    }
-                    return super.onFling(e1, e2, velocityX, velocityY);
-                }
-                // vízszintes
-                if ((Math.abs(x2 - x1) > SWIPE_MIN_DISTANCE) && (Math.abs(y2 - y1) < SWIPE_TRESHOLD)) {
-                    if (x1 < x2) {
-                        // jobbra
-                        if (!startedWidgetAct) {
-                            openWidgetActivity();
-                        }
-                    } else {
-                        // balra
-                        //openAndroidSystemSettings();
-                        openGoogleDiscovery();
-                    }
-                    return super.onFling(e1, e2, velocityX, velocityY);
-                }
-                return super.onFling(e1, e2, velocityX, velocityY);
+            public void onRight() {
+                openWidgetActivity();
+            }
+            @Override
+            public void onUp() {
+                // fel
+                openAppListActivity();
+            }
+            @Override
+            public void onDown() {
+                openFavActivity();
+            }
+            @Override
+            public void onDoubleTap() {
+                lockApp(getBaseContext());
             }
         });
 
         // touch
         findViewById(R.id.menuIconMain).setOnTouchListener(new View.OnTouchListener() {
-            private final GestureDetector gestureDetectorIcon = new GestureDetector(MainActivity.this, new GestureDetector.SimpleOnGestureListener() {
+            private final GestureDetector gestureDetectorIcon = GestureManagerMain.create(MainActivity.this, new GestureManagerMain.Callback() {
                 @Override
-                public boolean onDoubleTap(@NonNull MotionEvent event) {
-                    //syslog("Action double tap: lock");
-                    TxTLauncherApp.lockApp(getBaseContext());
-                    return super.onDoubleTap(event);
+                public void onLongPress() {
+                    lockApp(getBaseContext());
                 }
-
                 @Override
-                public void onLongPress(@NonNull MotionEvent event) {
-                    //syslog("Action long tap: favorite");
-                    TxTLauncherApp.lockApp(getBaseContext());
-                    super.onLongPress(event);
+                public void onLeft() {
+                    openGoogleDiscovery();
                 }
-
                 @Override
-                public boolean onFling(@Nullable MotionEvent e1, @NonNull MotionEvent e2, float distanceX, float distanceY) {
-                    assert e1 != null;
-                    var x1 = e1.getX();
-                    var x2 = e2.getX();
-                    var y1 = e1.getY();
-                    var y2 = e2.getY();
-                    // függőleges
-                    if ((Math.abs(y2 - y1) > Math.abs(SWIPE_MIN_DISTANCE / 2)) && (Math.abs(x2 - x1) < SWIPE_TRESHOLD)) {
-                        // fel vagy le
-                        if (y2 < y1) {
-                            // fel
-                            if (!startedAppAct) {
-                                openAppListActivity();
-                            }
-                        } else {
-                            // le
-                            if (!startedFavAct) {
-                                openFavActivity();
-                            }
-                        }
-                    }
-                    // vízszintes
-                    if ((Math.abs(x2 - x1) > Math.abs(SWIPE_MIN_DISTANCE / 2)) && (Math.abs(y2 - y1) < SWIPE_TRESHOLD)) {
-                        if (x1 < x2) {
-                            // jobbra
-                            if (!startedWidgetAct) {
-                                openWidgetActivity();
-                            }
-                        } else {
-                            // balra
-                            //openAndroidSystemSettings();
-                            openGoogleDiscovery();
-                        }
-                    }
-                    return super.onFling(e1, e2, distanceX, distanceY);
+                public void onRight() {
+                    openWidgetActivity();
                 }
-
-                //@Override public boolean onScroll(@Nullable MotionEvent event, @NonNull MotionEvent event2, float distanceX, float distanceY) {
-                //@Override public boolean onTouchEvent(MotionEvent event){}
-                //@Override public boolean onDown(MotionEvent event) {}
-                //@Override public boolean onFling(MotionEvent event1, MotionEvent event2, float velocityX, float velocityY) {}
-                //@Override public void onLongPress(MotionEvent event) {}
-                //@Override public boolean onScroll(MotionEvent event1, MotionEvent event2, float distanceX, float distanceY) {}
-                //@Override public void onShowPress(MotionEvent event) {}
-                //@Override public boolean onSingleTapUp(MotionEvent event) {}
-                //@Override public boolean onDoubleTap(MotionEvent event) {}
-                //@Override public boolean onDoubleTapEvent(MotionEvent event) {}
-                //@Override public boolean onSingleTapConfirmed(MotionEvent event) {}
-
+                @Override
+                public void onUp() {
+                    // fel
+                    openAppListActivity();
+                }
+                @Override
+                public void onDown() {
+                    openFavActivity();
+                }
+                @Override
+                public void onDoubleTap() {
+                    lockApp(getBaseContext());
+                }
             });
 
             @SuppressLint("ClickableViewAccessibility")
             @Override
             public boolean onTouch(View v, MotionEvent event) {
+                touchOnIconObject = true;
                 gestureDetectorIcon.onTouchEvent(event);
+                touchOnIconObject = false;
                 return true;
             }
         });
@@ -287,76 +230,56 @@ public class MainActivity extends AppCompatActivity {
         // @float defaultTextSize = 14f;
         // - méretezetten: defaultPlusFontSize = (defaultFontSize * scaledDensity) - defaultFontSize + defaultPlusFontSize;
         // - méretezetten: defaultPlusFontSizeTitle = (defaultFontSize * scaledDensity) - defaultFontSize + defaultPlusFontSizeTitle;
-
         tv = findViewById(R.id.digitalClock);
-        tv.setTextSize(tv.getTextSize());
         tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, defaultFontSize + (2 * defaultPlusFontSizeTitle));
-        tv.setTextColor(defaultTextColor);
         tv = findViewById(R.id.digitalDate);
-        tv.setTextSize(tv.getTextSize());
         tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, defaultFontSize + (2 * defaultPlusFontSizeTitle));
-        tv.setTextColor(defaultTextColor);
 
         ImageView iv;
         iv = findViewById(R.id.applistButton);
         iv.setOnLongClickListener(v -> {
-            //syslog("Action long tap: open favorite apps");
             startActivity(new Intent(this, FavoritesActivity.class));
             return true;
         });
 
         iv = findViewById(R.id.settingsButton);
         iv.setOnLongClickListener(v -> {
-            //syslog("Action long tap: open system settings");
             openAndroidSystemSettingsButton(v);
             return true;
         });
 
         iv = findViewById(R.id.browserButton);
         iv.setOnLongClickListener(v -> {
-            //syslog("Action long tap: open private search");
             openSearchBrowser(v);
             return true;
         });
 
         iv = findViewById(R.id.searchButton);
         iv.setOnLongClickListener(v -> {
-            //syslog("Action long tap: open internet search");
             openSearchBrowser(v);
             return true;
         });
 
         iv = findViewById(R.id.aiButton);
         iv.setOnLongClickListener(v -> {
-            //syslog("Action long tap: open internet search");
             startInsideFunctionApp(this, START_AI_LONG);
             return true;
         });
 
         LinearLayout ll = findViewById(R.id.AppFrame);
         ll.setOnLongClickListener(v -> {
-            //syslog("Action long tap: open internet search");
             openFavActivity();
             return true;
         });
 
+        // új telepítés vagy frissítési üzenet
+        verMessage(this);
+
         // első indulás
         startedAndroidApp = true;
-        generateAppList();
-        getSettingsMain(this);
-        screenPrepare();
-        setColors();
-        // első indulás: nincs új háttér
         backgroundImageBackup = backgroundImage;
-        timeInScreen();
         saveButtonImages();
-        buttonPrepare();
-        setHomaApp();
-        backgroundPrepare();
-
-        if (experimantalToola) {
-            setIconColor(R.id.menuIconMain, defaultLetterColor);
-        }
+        startedSettingsAct = true;
     }
 
 
@@ -397,9 +320,9 @@ public class MainActivity extends AppCompatActivity {
 
         if (startedSettingsAct) {
             getSettingsMain(this);
-            screenPrepare();
             setColors();
-            //saveButtonImages();
+            screenPrepare();
+            timeInScreen();
             buttonPrepare();
             setHomaApp();
             backgroundPrepare();
@@ -413,7 +336,10 @@ public class MainActivity extends AppCompatActivity {
         startedSettingsAct = false;
         startedFavAct = false;
         startedHelpAct = false;
-        timeInScreen();
+
+        if (experimantalToola) {
+            setIconColor(R.id.menuIconMain, defaultLetterColor);
+        }
 
         syslog(getString(R.string.started_activity) + ": " + this.getClass().getSimpleName());
         super.onStart();
@@ -641,17 +567,11 @@ public class MainActivity extends AppCompatActivity {
             setIconColor(R.id.menuIconMain, defaultIconColor);
         }
 
-        if (textColorMode) {
-            final TextView tw = findViewById(R.id.digitalClock);
-            tw.setTextColor(defaultTextColor);
-            final TextView tdw = findViewById(R.id.digitalDate);
-            tdw.setTextColor(defaultTextColor);
-        } else {
-            final TextView tw = findViewById(R.id.digitalClock);
-            tw.setTextColor(defaultTextColor);
-            final TextView tdw = findViewById(R.id.digitalDate);
-            tdw.setTextColor(defaultTextColor);
-        }
+       TextView tw = findViewById(R.id.digitalClock);
+       tw.setTextColor(defaultTextColor);
+       TextView tdw = findViewById(R.id.digitalDate);
+       tdw.setTextColor(defaultTextColor);
+
     }
 
 
@@ -854,17 +774,25 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
+
+
+    //
+    // ikonok kiszedése és szinezáse
+    //
     static Drawable getDrawable(View view, Drawable appI, int iconSize) {
         Drawable iconToDisplay;
-        if (adaptiveIcon && appI instanceof AdaptiveIconDrawable) {
-            AdaptiveIconDrawable adaptI = (AdaptiveIconDrawable) appI;
+        Drawable base = appI.mutate();
+        if (adaptiveIcon && base instanceof AdaptiveIconDrawable) {
+            AdaptiveIconDrawable adaptI = (AdaptiveIconDrawable) base;
             Drawable monoIcon = adaptI.getMonochrome();
             if (monoIcon != null) {
-                monoIcon.mutate();
+                monoIcon = monoIcon.mutate();
                 monoIcon.setTint(adaptiveIconColor);
-                InsetDrawable insetIcon = new InsetDrawable(monoIcon, iconPadding);
+                int inset = iconPadding;
+                InsetDrawable insetIcon = new InsetDrawable(monoIcon, inset);
                 LayerDrawable layer = new LayerDrawable(new Drawable[]{insetIcon});
                 layer.setLayerSize(0, iconSize, iconSize);
+                layer.setBounds(0, 0, iconSize, iconSize);
                 iconToDisplay = layer;
             } else {
                 iconToDisplay = getDefaultIcon(view, iconSize);
@@ -873,8 +801,9 @@ public class MainActivity extends AppCompatActivity {
             if (adaptiveIcon) {
                 iconToDisplay = getDefaultIcon(view, iconSize);
             } else {
-                LayerDrawable layer = new LayerDrawable(new Drawable[]{appI});
+                LayerDrawable layer = new LayerDrawable(new Drawable[]{base});
                 layer.setLayerSize(0, iconSize, iconSize);
+                layer.setBounds(0, 0, iconSize, iconSize);
                 iconToDisplay = layer;
             }
         }
@@ -882,6 +811,7 @@ public class MainActivity extends AppCompatActivity {
         iconToDisplay.setBounds(0, 0, iconSize, iconSize);
         return iconToDisplay;
     }
+
 
 
     // Segédfüggvény a kód tisztaságáért
