@@ -15,12 +15,12 @@ import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultFontSize;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultIconColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultPlusFontSizeTitle;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultTextColor;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.extraTools;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.homeStartAppIcon;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.iconSize;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.onecolFavorites;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.packageMan;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.sharedPreferences;
-import static com.wswdteam.txtlauncher.TxTLauncherApp.showDecor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.startLocalActivity;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.startNewTaskActivity;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.syslog;
@@ -119,7 +119,7 @@ public class FavoritesActivity extends AppCompatActivity {
         }
 
         LinearLayout ll = findViewById(R.id.lLayoutDecor);
-        if (showDecor) {
+        if (extraTools) {
             ll.setVisibility(VISIBLE);
         } else {
             ll.setVisibility(INVISIBLE);
@@ -147,24 +147,6 @@ public class FavoritesActivity extends AppCompatActivity {
         overrideActivityTransition(OVERRIDE_TRANSITION_CLOSE, R.anim.enter_from_bottom, R.anim.exit_to_top);
         super.onStart();
 
-        favAppName.clear();
-        String tag;
-        String val;
-        String appName;
-        for (var i = 0; i < FAV_APP_NUM; i++) {
-            tag = SETTINGS_FAV_APP_TAG + i;
-            if (sharedPreferences.contains(tag)) {
-                val = sharedPreferences.getString(tag, "");
-                if (!val.isEmpty()) {
-                    for (String[] allAppDatum : allAppData) {
-                        appName = allAppDatum[0];
-                        if (appName.equals(val)) {
-                            favAppName.add(appName);
-                        }
-                    }
-                }
-            }
-        }
         setFavApp();
         syslog(getString(R.string.started_activity) + ": "+ this.getClass().getSimpleName());
     }

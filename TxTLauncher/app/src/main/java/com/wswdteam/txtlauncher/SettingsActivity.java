@@ -1,7 +1,6 @@
 package com.wswdteam.txtlauncher;
 
 import static android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN;
-import static com.wswdteam.txtlauncher.TxTLauncherApp.SETTINGS_EXPERIMENTAL_TAG;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.START_ACT_APPLIST_SEL;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.START_ACT_FAVAPP_SEL;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.START_ACT_HELP;
@@ -9,7 +8,6 @@ import static com.wswdteam.txtlauncher.TxTLauncherApp.SETTINGS_ADAPTIVE_ICON_COL
 import static com.wswdteam.txtlauncher.TxTLauncherApp.SETTINGS_ADAPTIVE_ICON_TAG;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.SETTINGS_BACKGROUND_IMAGE_TAG;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.SETTINGS_DARK_MODE_TAG;
-import static com.wswdteam.txtlauncher.TxTLauncherApp.SETTINGS_DECOR_TAG;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.SETTINGS_EXTRA_TOOLS;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.SETTINGS_HOME_ICON_TAG;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.SETTINGS_ONE_COLUMN_FAVORITES_TAG;
@@ -27,7 +25,6 @@ import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultBackGroundColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultFontSize;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultPlusFontSizeTitle;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultTextColor;
-import static com.wswdteam.txtlauncher.TxTLauncherApp.experimantalToola;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.extraTools;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.homeStartAppIcon;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.homeSysIcon;
@@ -38,7 +35,6 @@ import static com.wswdteam.txtlauncher.TxTLauncherApp.privateSearchUrlOrig;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.savedBackgroundImage;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.sharedPreferences;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.showArrows;
-import static com.wswdteam.txtlauncher.TxTLauncherApp.showDecor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.showMainIcons;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.startLocalActivity;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.startedAndroidApp;
@@ -159,8 +155,6 @@ public class SettingsActivity extends AppCompatActivity {
         @SuppressLint("UseSwitchCompatOrMaterialCode") Switch c7 = findViewById(R.id.showArrows);
         @SuppressLint("UseSwitchCompatOrMaterialCode") Switch c8 = findViewById(R.id.showMainIcons);
         @SuppressLint("UseSwitchCompatOrMaterialCode") Switch c9 = findViewById(R.id.extraTools);
-        @SuppressLint("UseSwitchCompatOrMaterialCode") Switch c10 = findViewById(R.id.screenDecor);
-        @SuppressLint("UseSwitchCompatOrMaterialCode") Switch c11 = findViewById(R.id.experimentalSwitch);
 
         val = TxTLauncherApp.sharedPreferences.getString(SETTINGS_SYS_ICON_TAG, "");
         if (!val.isEmpty()) {
@@ -215,18 +209,6 @@ public class SettingsActivity extends AppCompatActivity {
             c9.setChecked(!val.equals("0"));
         } else {
             c9.setChecked(extraTools);
-        }
-        val = TxTLauncherApp.sharedPreferences.getString(SETTINGS_DECOR_TAG, "");
-        if (!val.isEmpty()) {
-            c10.setChecked(!val.equals("0"));
-        } else {
-            c10.setChecked(showDecor);
-        }
-        val = TxTLauncherApp.sharedPreferences.getString(SETTINGS_EXPERIMENTAL_TAG, "");
-        if (!val.isEmpty()) {
-            c11.setChecked(!val.equals("0"));
-        } else {
-            c11.setChecked(experimantalToola);
         }
 
         c1.setOnCheckedChangeListener((buttonView, isChecked) -> {
@@ -307,24 +289,6 @@ public class SettingsActivity extends AppCompatActivity {
                 settings.putString(SETTINGS_EXTRA_TOOLS, "1");
             } else {
                 settings.putString(SETTINGS_EXTRA_TOOLS, "0");
-            }
-            settings.apply();
-        });
-        c10.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            var settings = TxTLauncherApp.sharedPreferences.edit();
-            if (isChecked) {
-                settings.putString(SETTINGS_DECOR_TAG, "1");
-            } else {
-                settings.putString(SETTINGS_DECOR_TAG, "0");
-            }
-            settings.apply();
-        });
-        c11.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            var settings = TxTLauncherApp.sharedPreferences.edit();
-            if (isChecked) {
-                settings.putString(SETTINGS_EXPERIMENTAL_TAG, "1");
-            } else {
-                settings.putString(SETTINGS_EXPERIMENTAL_TAG, "0");
             }
             settings.apply();
         });

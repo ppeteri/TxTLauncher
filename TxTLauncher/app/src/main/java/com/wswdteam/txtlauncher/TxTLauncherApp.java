@@ -1,5 +1,7 @@
 package com.wswdteam.txtlauncher;
 
+import static com.wswdteam.txtlauncher.FavoritesActivity.favAppName;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.SearchManager;
@@ -54,9 +56,9 @@ public class TxTLauncherApp extends android.app.Application {
     public static final int FAV_APP_NUM = 20;
 
     // gesture mód beállítások
-    public static int SWIPE_MIN_DISTANCE = 72;
-    public static int SWIPE_MAX_OFF_PATH = 48;
-    public static int SWIPE_MIN_VELOCITY = 100;
+    public static int SWIPE_MIN_DISTANCE = 36;
+    public static int SWIPE_MAX_OFF_PATH = 24;
+    public static int SWIPE_MIN_VELOCITY = 50;
 
     // jelölők
     public static final int START_PHONE = 1;
@@ -102,8 +104,6 @@ public class TxTLauncherApp extends android.app.Application {
     public static String SETTINGS_WEATHER_URL_TAG = "Weather";
     public static String SETTINGS_BACKGROUND_IMAGE_TAG = "BackgroundImage";
     public static String SETTINGS_NOTE_TAG = "AppNote";
-    public static String SETTINGS_DECOR_TAG = "Decor";
-    public static String SETTINGS_EXPERIMENTAL_TAG = "Experimental";
 
     // beállítások alapértelmezett tartalma
     public static String AI_NAME_STRING = "gemini";
@@ -132,9 +132,7 @@ public class TxTLauncherApp extends android.app.Application {
     public static boolean darkMode = true;
     public static boolean showArrows = false;
     public static boolean showMainIcons = true;
-    public static boolean showDecor = true;
     public static boolean extraTools = false;
-    public static boolean experimantalToola = false;
     public static int adaptiveIconColor = 0;
     public static int defaultIconColor = 0;
 
@@ -251,10 +249,10 @@ public class TxTLauncherApp extends android.app.Application {
     //  Fő nézet: beállítások betöltése
     //
     public static void getSettingsMain(Context cont) {
-        homeAppName.clear();
         String tag;
         String val;
         String appName;
+        homeAppName.clear();
         for (var i = 0; i <  HOME_APP_NUM; i++) {
             tag = SETTINGS_APP_TAG + i;
             if (sharedPreferences.contains(tag)) {
@@ -264,6 +262,21 @@ public class TxTLauncherApp extends android.app.Application {
                         appName = allAppDatum[0];
                         if (appName.equals(val)) {
                             homeAppName.add(appName);
+                        }
+                    }
+                }
+            }
+        }
+        favAppName.clear();
+        for (var i = 0; i < FAV_APP_NUM; i++) {
+            tag = SETTINGS_FAV_APP_TAG + i;
+            if (sharedPreferences.contains(tag)) {
+                val = sharedPreferences.getString(tag, "");
+                if (!val.isEmpty()) {
+                    for (String[] allAppDatum : allAppData) {
+                        appName = allAppDatum[0];
+                        if (appName.equals(val)) {
+                            favAppName.add(appName);
                         }
                     }
                 }
@@ -364,19 +377,13 @@ public class TxTLauncherApp extends android.app.Application {
             }
         }
 
-        if (sharedPreferences.contains(SETTINGS_DECOR_TAG)) {
-            val = sharedPreferences.getString(SETTINGS_DECOR_TAG, null);
+        if (sharedPreferences.contains(SETTINGS_ONE_COLUMN_FAVORITES_TAG)) {
+            val = sharedPreferences.getString(SETTINGS_ONE_COLUMN_FAVORITES_TAG, null);
             if (val != null) {
-                showDecor = !val.equals("0");
+                onecolFavorites = !val.equals("0");
             }
         }
 
-        if (sharedPreferences.contains(SETTINGS_EXPERIMENTAL_TAG)) {
-            val = sharedPreferences.getString(SETTINGS_EXPERIMENTAL_TAG, null);
-            if (val != null) {
-                experimantalToola = !val.equals("0");
-            }
-        }
 
         if (sharedPreferences.contains(SETTINGS_URL_PRIVATEAI_TAG)) {
             val = sharedPreferences.getString(SETTINGS_URL_PRIVATEAI_TAG, null);
@@ -549,8 +556,11 @@ public class TxTLauncherApp extends android.app.Application {
                 break;
             case START_MAIL:
                 try {
-                    Intent mailIn = new Intent(Intent.ACTION_MAIN, null);
-                    mailIn.addCategory(Intent.CATEGORY_APP_EMAIL);
+                    Intent mailIn = cont.getPackageManager().getLaunchIntentForPackage("com.google.android.gm");
+                    if (mailIn == null) {
+                        mailIn = new Intent(Intent.ACTION_MAIN, null);
+                        mailIn.addCategory(Intent.CATEGORY_APP_EMAIL);
+                    }
                     mailIn.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     cont.startActivity(mailIn);
                     startedAndroidApp = true;
@@ -791,7 +801,6 @@ public class TxTLauncherApp extends android.app.Application {
         settings.putString(SETTINGS_SHOW_ARROWS_TAG, "0");
         settings.putString(SETTINGS_SHOW_MAIN_CONTROL_ICONS, "1");
         settings.putString(SETTINGS_EXTRA_TOOLS, "0");
-        settings.putString(SETTINGS_DECOR_TAG, "0");
         if (darkMode) {
             settings.putString(SETTINGS_DARK_MODE_TAG, "1");
         } else {

@@ -327,24 +327,6 @@
                 app:layout_constraintTop_toBottomOf="@+id/showMainIcons"
                 tools:ignore="UseSwitchCompatOrMaterialXml" />
 
-            <Switch
-                android:id="@+id/screenDecor"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="16dp"
-                android:layout_marginEnd="16dp"
-                android:background="@android:color/transparent"
-                android:checkable="true"
-                android:gravity="start"
-                android:text="@string/settings_decor"
-                android:textAlignment="viewStart"
-                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/extraTools"
-                tools:ignore="UseSwitchCompatOrMaterialXml" />
-
             <View
                 android:id="@+id/settingsDivider0"
                 android:layout_width="match_parent"
@@ -532,33 +514,6 @@
                 android:background="?android:attr/listDivider"
                 app:layout_constraintTop_toBottomOf="@+id/buttonReset" />
 
-            <Switch
-                android:id="@+id/experimentalSwitch"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="32dp"
-                android:layout_marginEnd="16dp"
-                android:background="@android:color/transparent"
-                android:checkable="true"
-                android:gravity="start"
-                android:text="@string/settings_experimental"
-                android:textAlignment="viewStart"
-                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/settingsDivider2"
-                tools:ignore="UseSwitchCompatOrMaterialXml" />
-
-            <View
-                android:id="@+id/settingsDivider3"
-                android:layout_width="match_parent"
-                android:layout_height="2dp"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="32dp"
-                android:layout_marginEnd="16dp"
-                android:background="?android:attr/listDivider"
-                app:layout_constraintTop_toBottomOf="@+id/buttonReset" />
 
             <TextView
                 android:id="@+id/buttonReadAppListTitle"

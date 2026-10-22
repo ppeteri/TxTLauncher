@@ -25,12 +25,11 @@ import static com.wswdteam.txtlauncher.TxTLauncherApp.adaptiveIconColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.allApplicationsList;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultBackGroundColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultIcons;
-import static com.wswdteam.txtlauncher.TxTLauncherApp.experimantalToola;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.extraTools;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.lockApp;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.packageMan;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.savedBackgroundImage;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.showArrows;
-import static com.wswdteam.txtlauncher.TxTLauncherApp.showDecor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.showMainIcons;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.startInsideFunctionApp;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.startLocalActivity;
@@ -326,9 +325,6 @@ public class MainActivity extends AppCompatActivity {
             buttonPrepare();
             setHomaApp();
             backgroundPrepare();
-            if (experimantalToola) {
-                setIconColor(R.id.menuIconMain, defaultLetterColor);
-            }
         }
 
         startedAppAct = false;
@@ -336,10 +332,6 @@ public class MainActivity extends AppCompatActivity {
         startedSettingsAct = false;
         startedFavAct = false;
         startedHelpAct = false;
-
-        if (experimantalToola) {
-            setIconColor(R.id.menuIconMain, defaultLetterColor);
-        }
 
         syslog(getString(R.string.started_activity) + ": " + this.getClass().getSimpleName());
         super.onStart();
@@ -404,7 +396,7 @@ public class MainActivity extends AppCompatActivity {
             ll.setVisibility(INVISIBLE);
         }
         ll = findViewById(R.id.lLayoutDecor);
-        if (showDecor) {
+        if (extraTools) {
             ll.setVisibility(VISIBLE);
         } else {
             ll.setVisibility(INVISIBLE);

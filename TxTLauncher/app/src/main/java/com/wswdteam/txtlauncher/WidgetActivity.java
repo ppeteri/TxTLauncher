@@ -14,6 +14,7 @@ import static com.wswdteam.txtlauncher.TxTLauncherApp.START_CALENDAR;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.START_CAMERA;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.START_DISCOVERY;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.START_MAP;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.START_SEARCH;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.START_SETTINGS_LONG;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.START_WEATHER;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.SETTINGS_NOTE_TAG;
@@ -37,6 +38,7 @@ import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.icu.util.Calendar;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
@@ -67,12 +69,9 @@ import java.text.DateFormat;
 // Widget nézet létrehozása
 //
 public class WidgetActivity extends AppCompatActivity {
-
-    public static boolean firstLoadAI = true;
     private GestureDetector gestureDetector;
 
-
-    @SuppressLint({"SetJavaScriptEnabled", "ClickableViewAccessibility", "SetTextI18n"})
+    @SuppressLint({"SetJavaScriptEnabled", "ClickableViewAccessibility", "SetTextI18n", "MissingInflatedId"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -130,7 +129,6 @@ public class WidgetActivity extends AppCompatActivity {
         editText.setMovementMethod(new ScrollingMovementMethod());
         editText.setOnTouchListener((v, event) -> {
             if (editText.hasFocus()) {
-                editText.clearFocus();
                 v.getParent().requestDisallowInterceptTouchEvent(true);
                 switch (event.getAction() & MotionEvent.ACTION_MASK){
                     case MotionEvent.ACTION_SCROLL:
@@ -241,11 +239,19 @@ public class WidgetActivity extends AppCompatActivity {
         setIconColorW(R.id.wmapButton, iconColor);
         tvx = findViewById(R.id.wmapButtonTitle);
         tvx.setTextColor(textColor);
-
         tvx = findViewById(R.id.widgetNoteTitle);
         tvx.setTextColor(textColor);
 
-        ImageView iv = findViewById(R.id.wsettingsButton);
+        ImageView iv = findViewById(R.id.extraSearchBar);
+        setIconColorW(R.id.extraSearchBar, iconColor);
+        GradientDrawable bg = (GradientDrawable) iv.getBackground();
+        bg.setStroke(2, iconColor);
+        iv.setOnClickListener(v -> {
+            startInsideFunctionApp(this, START_SEARCH);
+            this.finish();
+        });
+
+        iv = findViewById(R.id.wsettingsButton);
         iv.setOnLongClickListener(v -> {
             startButtonSystemSettings(v);
             this.finish();
@@ -272,13 +278,38 @@ public class WidgetActivity extends AppCompatActivity {
             this.finish();
             return true;
         });
+
+        setIconColorW(R.id.menuIconW, iconColor);
+        iv = findViewById(R.id.menuIconW);
+        iv.setOnLongClickListener(v -> {
+            this.finish();
+            return true;
+        });
+        iv.setOnClickListener(v -> this.finish());
     }
 
     @Override
     public boolean dispatchTouchEvent(MotionEvent event) {
-        gestureDetector.onTouchEvent(event);
+        boolean touchOnIcon;
+        boolean touchOnIcon2;
+
+        CalendarView cv = findViewById(R.id.widgetCalendar);
+        touchOnIcon = isTouchOnView(event, cv);
+        EditText text = findViewById(R.id.widgetTextNote);
+        touchOnIcon2 = isTouchOnView(event, text);
+        if (!touchOnIcon && !touchOnIcon2) {
+            gestureDetector.onTouchEvent(event);
+        }
         return super.dispatchTouchEvent(event);
     }
+    private boolean isTouchOnView(MotionEvent event, View view) {
+        int[] loc = new int[2];
+        view.getLocationOnScreen(loc);
+        float x = event.getRawX();
+        float y = event.getRawY();
+        return x >= loc[0] && x <= loc[0] + view.getWidth() && y >= loc[1] && y <= loc[1] + view.getHeight();
+    }
+
 
 
     //
@@ -296,7 +327,6 @@ public class WidgetActivity extends AppCompatActivity {
             EditText tv = findViewById(R.id.widgetTextNote);
             tv.setText(val);
         }
-        firstLoadAI = true;
 
         if (extraTools) {
             LinearLayout ll = findViewById(R.id.extraWidget1);
