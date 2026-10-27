@@ -22,6 +22,7 @@ import android.content.pm.ResolveInfo;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.view.GestureDetector;
+import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
@@ -161,19 +162,26 @@ public class AppListActivity extends AppCompatActivity {
     }
 
 
+
+
     //
-    // App lista nézet készítése
-    //
+// App lista nézet készítése (Optimalizálva + Magyar ékezetkezeléssel)
+//
     @SuppressLint("QueryPermissionsNeeded")
     public void appListView() {
-        char first = '\0';
         final ListView appTable = findViewById(R.id.allAppListTable);
-        final var adapterallapp = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, appList){
-            @Override
-            public String getItem(int position) {
-                return super.getItem(position);
-            }
+        final ListView letterTable = findViewById(R.id.allLetterListTable);
 
+        final java.util.Map<String, ResolveInfo> appIconMap = new java.util.HashMap<>();
+        if (homeStartAppIcon && allAppData != null && allApplicationsList != null) {
+            for (int i = 0; i < allAppData.length; i++) {
+                if (i < allApplicationsList.size()) {
+                    appIconMap.put(allAppData[i][0], allApplicationsList.get(i));
+                }
+            }
+        }
+
+        final var adapterallapp = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, appList) {
             @NonNull
             @Override
             public View getView(int position, View convertView, @NonNull ViewGroup parent) {
@@ -183,13 +191,12 @@ public class AppListActivity extends AppCompatActivity {
                 if (appN != null) {
                     if (appN.isEmpty()) {
                         tvt.setText("");
-                        tvt.setCompoundDrawables(null, null, null, null);
+                        tvt.setCompoundDrawablesRelative(null, null, null, null);
                     } else {
                         if (appN.length() == 1) {
                             tvt.setTextColor(defaultLetterColor);
                             tvt.setText(appN);
-                            tvt.setCompoundDrawables(null, null, null, null);
-                            // ! tvt.setTextSize(TypedValue.COMPLEX_UNIT_PX, defaultFontSize + defaultPlusFontSizeTitle);
+                            tvt.setCompoundDrawablesRelative(null, null, null, null);
                         } else {
                             if (textColorMode) {
                                 tvt.setTextColor(adaptiveIconColor);
@@ -198,63 +205,51 @@ public class AppListActivity extends AppCompatActivity {
                             }
                             tvt.setText(appN);
                             if (homeStartAppIcon) {
-                                String appName;
-                                for (int i = 0; i < allAppData.length; i++) {
-                                    appName = allAppData[i][0];
-                                    if ((appN.equals(appName))||(appN.equals(appName + " "))) {
-                                        int padding = iconSize / 2;
-                                        ResolveInfo info = allApplicationsList.get(i);
-                                        Drawable appI = info.loadIcon(packageMan);
-                                        Drawable ic = MainActivity.getDrawable(row, appI, iconSize);
-                                        tvt.setCompoundDrawablesRelative(ic, null, null, null);
-                                        tvt.setCompoundDrawablePadding(padding);
-                                    }
+                                String cleanAppName = appN.trim();
+                                ResolveInfo info = appIconMap.get(cleanAppName);
+                                if (info != null) {
+                                    int padding = iconSize / 2;
+                                    tvt.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
+                                    Drawable appI = info.loadIcon(packageMan);
+                                    Drawable ic = MainActivity.getDrawableTxT(row, appI, iconSize);
+                                    tvt.setCompoundDrawablesRelative(ic, null, null, null);
+                                    tvt.setCompoundDrawablePadding(padding);
+                                } else {
+                                    tvt.setCompoundDrawablesRelative(null, null, null, null);
                                 }
                             }
-                            // ! Ftvt.setTextSize(TypedValue.COMPLEX_UNIT_PX, defaultFontSize + defaultPlusFontSize);
                         }
                     }
                 }
                 return row;
             }
-
         };
 
-        final ListView letterTable = findViewById(R.id.allLetterListTable);
-        final var adapterletters = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, letterList){
-            @Override
-            public String getItem(int position) {
-                return super.getItem(position);
-            }
-
+        final var adapterletters = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, letterList) {
             @NonNull
             @Override
             public View getView(int position, View convertView, @NonNull ViewGroup parent) {
                 String appN = getItem(position);
                 View row = super.getView(position, convertView, parent);
                 TextView tvt = row.findViewById(android.R.id.text1);
-                if (appN != null) {
-                    if (!appN.isEmpty()) {
-                        if (appN.length() == 1) {
-                            tvt.setTextColor(defaultLetterColor);
-                            tvt.setText(appN);
-                            tvt.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_END);
-                            tvt.setCompoundDrawablePadding(0);
-                            ViewGroup.LayoutParams params = tvt.getLayoutParams();
-                            int totalH = parent.getHeight();
-                            if (totalH > 0) {
-                                int itemC = getCount();
-                                int goodItemHeight = (int) (48 * parent.getContext().getResources().getDisplayMetrics().density);
-                                int maxItemFit = totalH / goodItemHeight;
-                                if (itemC > maxItemFit) {
-                                    params.height = totalH / itemC;
-                                } else {
-                                    params.height = goodItemHeight;
-                                }
-                            }
-                            tvt.setLayoutParams(params);
+                if (appN != null && appN.length() == 1) {
+                    tvt.setTextColor(defaultLetterColor);
+                    tvt.setText(appN);
+                    tvt.setTextAlignment(View.TEXT_ALIGNMENT_TEXT_END);
+                    tvt.setCompoundDrawablePadding(0);
+                    ViewGroup.LayoutParams params = tvt.getLayoutParams();
+                    int totalH = parent.getHeight();
+                    if (totalH > 0) {
+                        int itemC = getCount();
+                        int goodItemHeight = (int) (48 * parent.getContext().getResources().getDisplayMetrics().density);
+                        int maxItemFit = totalH / goodItemHeight;
+                        if (itemC > maxItemFit) {
+                            params.height = totalH / itemC;
+                        } else {
+                            params.height = goodItemHeight;
                         }
                     }
+                    tvt.setLayoutParams(params);
                 }
                 return row;
             }
@@ -263,12 +258,21 @@ public class AppListActivity extends AppCompatActivity {
         appList.clear();
         appPackList.clear();
         allappList.clear();
+        letterList.clear();
+
+        char first = '\0';
         boolean firstapp = true;
+
         for (String[] allAppDatum : allAppData) {
             String appName = allAppDatum[0];
             String pName = allAppDatum[1];
-            if (first != appName.charAt(0)) {
-                first = appName.charAt(0);
+
+            if (appName == null || appName.isEmpty()) continue;
+
+            char currentFirst = Character.toUpperCase(appName.charAt(0));
+
+            if (first != currentFirst) {
+                first = currentFirst;
                 String s = String.valueOf(first);
                 if (firstapp) {
                     firstapp = false;
@@ -287,23 +291,28 @@ public class AppListActivity extends AppCompatActivity {
         adapterletters.notifyDataSetChanged();
         appTable.setAdapter(adapterallapp);
         adapterallapp.notifyDataSetChanged();
+
+        appListBackup.clear();
+        allappListBackup.clear();
+        appPackListBackup.clear();
         appListBackup.addAll(appList);
         allappListBackup.addAll(allappList);
         appPackListBackup.addAll(appPackList);
 
         appTable.setOnItemClickListener((parent, view, position, id) -> {
             String selectedL = (String) (appTable.getItemAtPosition(position));
-            for (int i=0; i<allAppData.length; i++) {
-                String appName;
-                appName = allAppData[i][0];
-                if ((selectedL.equals(appName))||(selectedL.equals(appName + " "))) {
-                    String pkg = allAppData[i][1];
-                    String cls = allAppData[i][2];
+            if (selectedL == null || selectedL.length() == 1) return;
+            String cleanSelected = selectedL.trim();
+            for (String[] allAppDatum : allAppData) {
+                String appName = allAppDatum[0];
+                if (cleanSelected.equals(appName)) {
+                    String pkg = allAppDatum[1];
+                    String cls = allAppDatum[2];
                     if (startNewTaskActivity(this, pkg, cls)) {
                         startedAndroidApp = true;
                         this.finish();
                     }
-                    i = allAppData.length;
+                    break;
                 }
             }
         });
@@ -311,16 +320,13 @@ public class AppListActivity extends AppCompatActivity {
         letterTable.setOnItemClickListener((parent, view, position, id) -> {
             String selectedL = (String) (letterTable.getItemAtPosition(position));
             ListView lv = findViewById(R.id.allAppListTable);
-            var i = 0;
-            while (i < appList.size()) {
+            for (int i = 0; i < appList.size(); i++) {
                 if (selectedL.equals(appList.get(i))) {
                     lv.setSelection(i);
-                    i = appList.size();
+                    break;
                 }
-                i++;
             }
         });
-
 
         SearchView sv = findViewById(R.id.allAppListSearch);
         sv.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
@@ -347,22 +353,22 @@ public class AppListActivity extends AppCompatActivity {
                         String appName = allAppDatum[0];
                         String pName = allAppDatum[1];
                         String aName = allAppDatum[2];
-                        if (appName.toLowerCase().contains(nt)) {
+                        if (appName.toLowerCase(Locale.getDefault()).contains(nt)) {
                             appList.add(appName);
                             appPackList.add(pName);
                             allappList.add(aName);
                         }
                     }
                 }
-                if (appList.isEmpty()){
+                if (appList.isEmpty()) {
                     appList.add("");
                 }
                 adapterallapp.notifyDataSetChanged();
                 return true;
             }
         });
-
     }
+
 
 
     //

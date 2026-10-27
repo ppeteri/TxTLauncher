@@ -21,10 +21,12 @@ import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.content.ContextCompat;
+import androidx.core.graphics.drawable.DrawableCompat;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,9 +58,8 @@ public class TxTLauncherApp extends android.app.Application {
     public static final int FAV_APP_NUM = 20;
 
     // gesture mód beállítások
-    public static int SWIPE_MIN_DISTANCE = 36;
-    public static int SWIPE_MAX_OFF_PATH = 24;
-    public static int SWIPE_MIN_VELOCITY = 50;
+    public static int SWIPE_MIN_DISTANCE = 30;
+    public static int SWIPE_MAX_OFF_PATH = 40;
 
     // jelölők
     public static final int START_PHONE = 1;
@@ -153,7 +154,9 @@ public class TxTLauncherApp extends android.app.Application {
     public static int defaultTextColor = 0;
     public static int defaultLetterColor = 0;
     public static int iconSize;
+    public static int iconSizeDP = 32;
     public static int iconPadding;
+    public static int iconPaddingDP = 1;
     public static boolean startedAndroidApp = true;
 
 
@@ -161,9 +164,8 @@ public class TxTLauncherApp extends android.app.Application {
     public void onCreate() {
         super.onCreate();
 
-        SWIPE_MIN_VELOCITY = Math.round(SWIPE_MIN_VELOCITY * getResources().getDisplayMetrics().density);
-        SWIPE_MAX_OFF_PATH = Math.round(SWIPE_MAX_OFF_PATH * getResources().getDisplayMetrics().density);
         SWIPE_MIN_DISTANCE = Math.round(SWIPE_MIN_DISTANCE * getResources().getDisplayMetrics().density);
+        SWIPE_MAX_OFF_PATH = Math.round(SWIPE_MAX_OFF_PATH * getResources().getDisplayMetrics().density);
 
         AppContext = this.getApplicationContext();
         sharedPreferences = getSharedPreferences(PRIVATE_SETTINGS_TAG, MODE_PRIVATE);
@@ -177,9 +179,9 @@ public class TxTLauncherApp extends android.app.Application {
         weatherUrl = getString(R.string.search_weather);
         weatherUrlOrig = getString(R.string.search_weather);
 
-        iconSize = (int) (32 * this.getResources().getDisplayMetrics().density);
-        float density = ((float) iconSize / 2);// * getContext().getResources().getDisplayMetrics().density;
-        iconPadding = (int) (-1 * density);
+        iconSize = (int) (iconSizeDP * this.getResources().getDisplayMetrics().density);
+        //float density = ((float) iconSize / 2);// * getContext().getResources().getDisplayMetrics().density;
+        iconPadding = (int) (iconPaddingDP * this.getResources().getDisplayMetrics().density);
 
         savedBackgroundImage = String.format("%s/launcher_bg.png", getFilesDir());
 
@@ -414,6 +416,21 @@ public class TxTLauncherApp extends android.app.Application {
         }
     }
 
+
+    //
+    //  Fő nézet: alapértelmezett gombok beállítása
+    //
+    public static void setIconColor(Activity act, int id, int color) {
+        ImageView btn;
+        Drawable drw;
+        btn = act.findViewById(id);
+        drw =btn.getDrawable();
+        if(drw !=null) {
+            drw = DrawableCompat.wrap(drw).mutate();
+            DrawableCompat.setTint(drw, color);
+            btn.setImageDrawable(drw);
+        }
+    }
 
 
     //

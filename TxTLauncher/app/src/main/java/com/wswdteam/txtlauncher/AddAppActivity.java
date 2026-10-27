@@ -186,7 +186,7 @@ public class AddAppActivity extends AppCompatActivity {
                         int padding = iconSize / 2;
                         ResolveInfo info = allApplicationsList.get(position);
                         Drawable appI = info.loadIcon(packageMan);
-                        Drawable ic = MainActivity.getDrawable(row, appI, iconSize);
+                        Drawable ic = MainActivity.getDrawableTxT(row, appI, iconSize);
                         tvt.setCompoundDrawablesRelative(ic, null, null, null);
                         tvt.setCompoundDrawablePadding(padding);
                     }

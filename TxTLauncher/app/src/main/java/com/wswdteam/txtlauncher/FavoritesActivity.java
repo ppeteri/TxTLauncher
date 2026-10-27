@@ -5,7 +5,6 @@ import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.START_ACT_APPLIST;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.FAV_APP_NUM;
-import static com.wswdteam.txtlauncher.TxTLauncherApp.SETTINGS_FAV_APP_TAG;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.adaptiveIcon;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.adaptiveIconColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.allAppData;
@@ -20,7 +19,7 @@ import static com.wswdteam.txtlauncher.TxTLauncherApp.homeStartAppIcon;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.iconSize;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.onecolFavorites;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.packageMan;
-import static com.wswdteam.txtlauncher.TxTLauncherApp.sharedPreferences;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.setIconColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.startLocalActivity;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.startNewTaskActivity;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.syslog;
@@ -40,7 +39,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -49,7 +47,6 @@ import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
-import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
@@ -126,9 +123,9 @@ public class FavoritesActivity extends AppCompatActivity {
         }
 
         if (adaptiveIcon || textColorMode) {
-            setIconColorF(R.id.menuIconF, adaptiveIconColor);
+            setIconColor(this, R.id.menuIconF, adaptiveIconColor);
         } else {
-            setIconColorF(R.id.menuIconF, defaultIconColor);
+            setIconColor(this, R.id.menuIconF, defaultIconColor);
         }
     }
 
@@ -165,33 +162,22 @@ public class FavoritesActivity extends AppCompatActivity {
     //
     //  Fő nézet: alapértelmezett gombok beállítása
     //
-    public void setIconColorF(int id, int color) {
-        ImageView btn;
-        Drawable drw;
-        btn = findViewById(id);
-        drw =btn.getDrawable();
-        if(drw !=null) {
-            drw = DrawableCompat.wrap(drw).mutate();
-            DrawableCompat.setTint(drw, color);
-            btn.setImageDrawable(drw);
-        }
-    }
-
-
-    //
-    //  Fő nézet: alapértelmezett gombok beállítása
-    //
     public void setFavApp(){
         final ArrayList<String> appFList1 = new ArrayList<>();
         final ArrayList<String> appFList2 = new ArrayList<>();
         final ListView favTable1 = findViewById(R.id.favAppList1);
         final ListView favTable2 = findViewById(R.id.favAppList2);
-        final var adapter1 = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, appFList1) {
-            @Override
-            public String getItem(int position) {
-                return super.getItem(position);
-            }
 
+        final java.util.Map<String, ResolveInfo> appIconMap = new java.util.HashMap<>();
+        if (homeStartAppIcon && allAppData != null && allApplicationsList != null) {
+            for (int i = 0; i < allAppData.length; i++) {
+                if (i < allApplicationsList.size()) {
+                    appIconMap.put(allAppData[i][0], allApplicationsList.get(i));
+                }
+            }
+        }
+
+        final var adapter1 = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, appFList1) {
             @NonNull
             @Override
             public View getView(int position, View convertView, @NonNull ViewGroup parent) {
@@ -199,33 +185,32 @@ public class FavoritesActivity extends AppCompatActivity {
                 View row = super.getView(position, convertView, parent);
                 if (appN != null) {
                     TextView tvt = row.findViewById(android.R.id.text1);
-                    if (homeStartAppIcon) {
-                        ResolveInfo app;
-                        String appName;
-                        for (int i = 0; i < allAppData.length; i++) {
-                            appName = allAppData[i][0];
-                            if (appName.equals(appN)) {
-                                int padding = iconSize / 2;
-                                app = allApplicationsList.get(i);
-                                tvt.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
-                                Drawable appI = app.loadIcon(packageMan);
-                                Drawable iconToDisplay = MainActivity.getDrawable(row, appI, iconSize);
-                                tvt.setCompoundDrawablesRelative(iconToDisplay, null, null, null);
-                                tvt.setCompoundDrawablePadding(padding);
-                            }
+
+                    if (homeStartAppIcon && !TextUtils.isEmpty(appN)) {
+                        ResolveInfo app = appIconMap.get(appN);
+                        if (app != null) {
+                            int padding = iconSize / 2;
+                            tvt.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
+                            Drawable appI = app.loadIcon(packageMan);
+                            Drawable iconToDisplay = MainActivity.getDrawableTxT(row, appI, iconSize);
+                            tvt.setCompoundDrawablesRelative(iconToDisplay, null, null, null);
+                            tvt.setCompoundDrawablePadding(padding);
+                        } else {
+                            tvt.setCompoundDrawablesRelative(null, null, null, null);
                         }
                     } else {
-                        // ! tvt.setTextSize(TypedValue.COMPLEX_UNIT_PX, defaultFontSize + defaultPlusFontSize);
                         tvt.setGravity(Gravity.CENTER_HORIZONTAL);
+                        tvt.setCompoundDrawablesRelative(null, null, null, null);
                     }
+
                     tvt.setText(appN);
                     if (textColorMode) {
                         tvt.setTextColor(adaptiveIconColor);
                     } else {
                         tvt.setTextColor(defaultTextColor);
                     }
-                    tvt.setCompoundDrawablePadding(30);
-                    tvt.setPadding(10,10,10,10);
+                    // S tvt.setCompoundDrawablePadding(30);
+                    // S tvt.setPadding(10, 10, 10, 10);
                     tvt.setEllipsize(TextUtils.TruncateAt.END);
                     tvt.setMaxLines(1);
                 }
@@ -234,11 +219,6 @@ public class FavoritesActivity extends AppCompatActivity {
         };
 
         final var adapter2 = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, appFList2) {
-            @Override
-            public String getItem(int position) {
-                return super.getItem(position);
-            }
-
             @NonNull
             @Override
             public View getView(int position, View convertView, @NonNull ViewGroup parent) {
@@ -246,33 +226,32 @@ public class FavoritesActivity extends AppCompatActivity {
                 View row = super.getView(position, convertView, parent);
                 if (appN != null) {
                     TextView tvt = row.findViewById(android.R.id.text1);
-                    if (homeStartAppIcon) {
-                        ResolveInfo app;
-                        String appName;
-                        for (int i = 0; i < allAppData.length; i++) {
-                            appName = allAppData[i][0];
-                            if (appName.equals(appN)) {
-                                int padding = iconSize / 2;
-                                app = allApplicationsList.get(i);
-                                tvt.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
-                                Drawable appI = app.loadIcon(packageMan);
-                                Drawable iconToDisplay = MainActivity.getDrawable(row, appI, iconSize);
-                                tvt.setCompoundDrawablesRelative(iconToDisplay, null, null, null);
-                                tvt.setCompoundDrawablePadding(padding);
-                            }
+
+                    if (homeStartAppIcon && !TextUtils.isEmpty(appN)) {
+                        ResolveInfo app = appIconMap.get(appN);
+                        if (app != null) {
+                            int padding = iconSize / 2;
+                            tvt.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
+                            Drawable appI = app.loadIcon(packageMan);
+                            Drawable iconToDisplay = MainActivity.getDrawableTxT(row, appI, iconSize);
+                            tvt.setCompoundDrawablesRelative(iconToDisplay, null, null, null);
+                            tvt.setCompoundDrawablePadding(padding);
+                        } else {
+                            tvt.setCompoundDrawablesRelative(null, null, null, null);
                         }
                     } else {
-                        // ! tvt.setTextSize(TypedValue.COMPLEX_UNIT_PX, defaultFontSize + defaultPlusFontSize);
                         tvt.setGravity(Gravity.CENTER_HORIZONTAL);
+                        tvt.setCompoundDrawablesRelative(null, null, null, null);
                     }
+
                     tvt.setText(appN);
                     if (textColorMode) {
                         tvt.setTextColor(adaptiveIconColor);
                     } else {
                         tvt.setTextColor(defaultTextColor);
                     }
-                    tvt.setCompoundDrawablePadding(30);
-                    tvt.setPadding(10,10,10,10);
+                    // S tvt.setCompoundDrawablePadding(30);
+                    // S tvt.setPadding(10, 10, 10, 10);
                     tvt.setEllipsize(TextUtils.TruncateAt.END);
                     tvt.setMaxLines(1);
                 }
@@ -284,23 +263,19 @@ public class FavoritesActivity extends AppCompatActivity {
             ListView tx1 = findViewById(R.id.favAppList2);
             tx1.setVisibility(View.VISIBLE);
             ListView tx2 = findViewById(R.id.favAppList1);
-            tx2.setPadding(0,0,0,0);
+            tx2.setPadding(0, 0, 0, 0);
             double anum = Math.min(favAppName.size(), FAV_APP_NUM);
             double an = anum / 2;
             long halfA = Math.round(an);
             int halfApp = (int) halfA;
             for (var i = 0; i < halfApp; i++) {
-                if (favAppName.size() > i) {
-                    if (!favAppName.get(i).isEmpty()) {
-                        appFList1.add(favAppName.get(i));
-                    }
+                if (favAppName.size() > i && !favAppName.get(i).isEmpty()) {
+                    appFList1.add(favAppName.get(i));
                 }
             }
             for (var i = halfApp; i < FAV_APP_NUM; i++) {
-                if (favAppName.size() > i) {
-                    if (!favAppName.get(i).isEmpty()) {
-                        appFList2.add(favAppName.get(i));
-                    }
+                if (favAppName.size() > i && !favAppName.get(i).isEmpty()) {
+                    appFList2.add(favAppName.get(i));
                 }
             }
             if ((halfApp * 2) > favAppName.size()) {
@@ -310,57 +285,51 @@ public class FavoritesActivity extends AppCompatActivity {
             ListView t1 = findViewById(R.id.favAppList1);
             int dp = 30;
             int pixeldp = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, Resources.getSystem().getDisplayMetrics());
-            t1.setPadding(pixeldp,0,0,0);
+            t1.setPadding(pixeldp, 0, 0, 0);
             ListView t2 = findViewById(R.id.favAppList2);
             t2.setVisibility(INVISIBLE);
             t2.setVisibility(GONE);
             for (var i = 0; i < FAV_APP_NUM; i++) {
-                if (favAppName.size() > i) {
-                    if (!favAppName.get(i).isEmpty()) {
-                        appFList1.add(favAppName.get(i));
-                    }
+                if (favAppName.size() > i && !favAppName.get(i).isEmpty()) {
+                    appFList1.add(favAppName.get(i));
                 }
             }
         }
 
         favTable1.setAdapter(adapter1);
-        adapter1.notifyDataSetChanged();
         favTable2.setAdapter(adapter2);
-        adapter2.notifyDataSetChanged();
+
+        // Kattintáskezelők (megmaradnak)
+        //View.OnClickListener itemClickListener = (view) -> {
+            // ... (kattintás logika)
+        //};
 
         favTable1.setOnItemClickListener((parent, view, position, id) -> {
             String selectedP = (String) (favTable1.getItemAtPosition(position));
-            for (int i=0; i<allAppData.length; i++) {
-                String appName;
-                appName = allAppData[i][0];
-                if (selectedP.equals(appName)) {
-                    String pkg = allAppData[i][1];
-                    String cls = allAppData[i][2];
-                    if (startNewTaskActivity(this, pkg, cls)) {
-                        startedAndroidApp = true;
-                        this.finish();
-                    }
-                    i = allAppData.length;
-                }
-            }
+            launchApp(selectedP);
         });
+
         favTable2.setOnItemClickListener((parent, view, position, id) -> {
             String selectedP = (String) (favTable2.getItemAtPosition(position));
-            for (int i=0; i<allAppData.length; i++) {
-                String appName;
-                appName = allAppData[i][0];
-                if (selectedP.equals(appName)) {
-                    String pkg = allAppData[i][1];
-                    String cls = allAppData[i][2];
-                    if (startNewTaskActivity(this, pkg, cls)) {
-                        startedAndroidApp = true;
-                        this.finish();
-                    }
-                    i = allAppData.length;
-                }
-            }
+            launchApp(selectedP);
         });
     }
+
+    private void launchApp(String selectedP) {
+        if (TextUtils.isEmpty(selectedP)) return;
+        for (String[] allAppDatum : allAppData) {
+            if (selectedP.equals(allAppDatum[0])) {
+                String pkg = allAppDatum[1];
+                String cls = allAppDatum[2];
+                if (startNewTaskActivity(this, pkg, cls)) {
+                    startedAndroidApp = true;
+                    this.finish();
+                }
+                break;
+            }
+        }
+    }
+
 
 
     //

@@ -189,7 +189,7 @@ public class FavoritesAddAppActivity extends AppCompatActivity {
                         int padding = iconSize / 2;
                         ResolveInfo thisApp = allApplicationsList.get(position);
                         Drawable appI = thisApp.loadIcon(packageMan);
-                        Drawable iconToDisplay = MainActivity.getDrawable(row, appI, iconSize);
+                        Drawable iconToDisplay = MainActivity.getDrawableTxT(row, appI, iconSize);
                         tvt.setCompoundDrawablesRelative(iconToDisplay, null, null, null);
                         tvt.setCompoundDrawablePadding(padding);
                     }

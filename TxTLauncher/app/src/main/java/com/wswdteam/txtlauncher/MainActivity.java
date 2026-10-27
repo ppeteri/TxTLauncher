@@ -29,6 +29,7 @@ import static com.wswdteam.txtlauncher.TxTLauncherApp.extraTools;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.lockApp;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.packageMan;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.savedBackgroundImage;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.setIconColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.showArrows;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.showMainIcons;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.startInsideFunctionApp;
@@ -40,7 +41,6 @@ import static com.wswdteam.txtlauncher.TxTLauncherApp.homeStartAppIcon;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.homeSysIcon;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultLetterColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultSelectColor;
-import static com.wswdteam.txtlauncher.TxTLauncherApp.iconPadding;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.allAppData;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.backgroundImage;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultFontSize;
@@ -97,7 +97,6 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
-import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
@@ -199,10 +198,7 @@ public class MainActivity extends AppCompatActivity {
                     openWidgetActivity();
                 }
                 @Override
-                public void onUp() {
-                    // fel
-                    openAppListActivity();
-                }
+                public void onUp() { openAppListActivity(); }
                 @Override
                 public void onDown() {
                     openFavActivity();
@@ -222,6 +218,7 @@ public class MainActivity extends AppCompatActivity {
                 return true;
             }
         });
+
 
         TextView tv = findViewById(R.id.mainTitle);
         defaultFontSize = tv.getTextSize();
@@ -276,9 +273,15 @@ public class MainActivity extends AppCompatActivity {
 
         // első indulás
         startedAndroidApp = true;
-        backgroundImageBackup = backgroundImage;
+        generateAppList();
+        getSettingsMain(this);
+        backgroundImage = backgroundImageBackup;
         saveButtonImages();
-        startedSettingsAct = true;
+        backgroundPrepare();
+        setColors();
+        screenPrepare();
+        buttonPrepare();
+        setHomaApp();
     }
 
 
@@ -315,16 +318,18 @@ public class MainActivity extends AppCompatActivity {
         overrideActivityTransition(OVERRIDE_TRANSITION_OPEN, R.anim.enter_from_bottom, R.anim.exit_to_top);
         overrideActivityTransition(OVERRIDE_TRANSITION_CLOSE, R.anim.enter_from_top, R.anim.exit_to_bottom);
 
+        super.onStart();
+
         generateAppList();
+        startClock();
 
         if (startedSettingsAct) {
             getSettingsMain(this);
+            backgroundPrepare();
             setColors();
             screenPrepare();
-            timeInScreen();
             buttonPrepare();
             setHomaApp();
-            backgroundPrepare();
         }
 
         startedAppAct = false;
@@ -332,9 +337,9 @@ public class MainActivity extends AppCompatActivity {
         startedSettingsAct = false;
         startedFavAct = false;
         startedHelpAct = false;
+        startedAndroidApp = false;
 
         syslog(getString(R.string.started_activity) + ": " + this.getClass().getSimpleName());
-        super.onStart();
     }
 
 
@@ -344,7 +349,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onStop() {
         super.onStop();
-        timeHandler.removeCallbacks(timeRunnable);
+        stopClock();
     }
 
 
@@ -354,6 +359,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onResume() {
         super.onResume();
+        //startClock();
     }
 
 
@@ -363,7 +369,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        timeHandler.removeCallbacks(timeRunnable);
+        stopClock();
     }
 
 
@@ -432,7 +438,9 @@ public class MainActivity extends AppCompatActivity {
             }
         } else {
             // új kép
-            setupBackground();
+            if (!backgroundImage.isEmpty()) {
+                setupBackground();
+            }
         }
     }
 
@@ -484,7 +492,7 @@ public class MainActivity extends AppCompatActivity {
             try (FileOutputStream out = new FileOutputStream(savedBackgroundImage)) {
                 croppedBitmap.compress(Bitmap.CompressFormat.PNG, 100, out);
             }
-            // 6. Megjelenítés
+            // Megjelenítés
             view.setBackground(new BitmapDrawable(getResources(), croppedBitmap));
             if (sourceBitmap != croppedBitmap) {
                 sourceBitmap.recycle();
@@ -524,39 +532,39 @@ public class MainActivity extends AppCompatActivity {
         getWindow().getDecorView().setBackgroundColor(defaultBackGroundColor);
 
         if (adaptiveIcon || textColorMode) {
-            setIconColor(R.id.applistButton, adaptiveIconColor);
-            setIconColor(R.id.searchButton, adaptiveIconColor);
-            setIconColor(R.id.weatherButton, adaptiveIconColor);
-            setIconColor(R.id.settingsButton, adaptiveIconColor);
-            setIconColor(R.id.aiButton, adaptiveIconColor);
-            setIconColor(R.id.arrowDown, adaptiveIconColor);
-            setIconColor(R.id.arrowLeft, adaptiveIconColor);
-            setIconColor(R.id.arrowRight, adaptiveIconColor);
-            setIconColor(R.id.arrowUp, adaptiveIconColor);
-            setIconColor(R.id.applistButton, adaptiveIconColor);
-            setIconColor(R.id.dialButton, adaptiveIconColor);
-            setIconColor(R.id.mailButton, adaptiveIconColor);
-            setIconColor(R.id.applistButton, adaptiveIconColor);
-            setIconColor(R.id.browserButton, adaptiveIconColor);
-            setIconColor(R.id.cameraButton, adaptiveIconColor);
-            setIconColor(R.id.menuIconMain, adaptiveIconColor);
+            setIconColor(this, R.id.applistButton, adaptiveIconColor);
+            setIconColor(this, R.id.searchButton, adaptiveIconColor);
+            setIconColor(this, R.id.weatherButton, adaptiveIconColor);
+            setIconColor(this, R.id.settingsButton, adaptiveIconColor);
+            setIconColor(this, R.id.aiButton, adaptiveIconColor);
+            setIconColor(this, R.id.arrowDown, adaptiveIconColor);
+            setIconColor(this, R.id.arrowLeft, adaptiveIconColor);
+            setIconColor(this, R.id.arrowRight, adaptiveIconColor);
+            setIconColor(this, R.id.arrowUp, adaptiveIconColor);
+            setIconColor(this, R.id.applistButton, adaptiveIconColor);
+            setIconColor(this, R.id.dialButton, adaptiveIconColor);
+            setIconColor(this, R.id.mailButton, adaptiveIconColor);
+            setIconColor(this, R.id.applistButton, adaptiveIconColor);
+            setIconColor(this, R.id.browserButton, adaptiveIconColor);
+            setIconColor(this, R.id.cameraButton, adaptiveIconColor);
+            setIconColor(this, R.id.menuIconMain, adaptiveIconColor);
         } else {
-            setIconColor(R.id.applistButton, defaultIconColor);
-            setIconColor(R.id.searchButton, defaultIconColor);
-            setIconColor(R.id.weatherButton, defaultIconColor);
-            setIconColor(R.id.settingsButton, defaultIconColor);
-            setIconColor(R.id.aiButton, defaultIconColor);
-            setIconColor(R.id.arrowDown, defaultIconColor);
-            setIconColor(R.id.arrowLeft, defaultIconColor);
-            setIconColor(R.id.arrowRight, defaultIconColor);
-            setIconColor(R.id.arrowUp, defaultIconColor);
-            setIconColor(R.id.applistButton, defaultIconColor);
-            setIconColor(R.id.dialButton, defaultIconColor);
-            setIconColor(R.id.mailButton, defaultIconColor);
-            setIconColor(R.id.applistButton, defaultIconColor);
-            setIconColor(R.id.browserButton, defaultIconColor);
-            setIconColor(R.id.cameraButton, defaultIconColor);
-            setIconColor(R.id.menuIconMain, defaultIconColor);
+            setIconColor(this, R.id.applistButton, defaultIconColor);
+            setIconColor(this, R.id.searchButton, defaultIconColor);
+            setIconColor(this, R.id.weatherButton, defaultIconColor);
+            setIconColor(this, R.id.settingsButton, defaultIconColor);
+            setIconColor(this, R.id.aiButton, defaultIconColor);
+            setIconColor(this, R.id.arrowDown, defaultIconColor);
+            setIconColor(this, R.id.arrowLeft, defaultIconColor);
+            setIconColor(this, R.id.arrowRight, defaultIconColor);
+            setIconColor(this, R.id.arrowUp, defaultIconColor);
+            setIconColor(this, R.id.applistButton, defaultIconColor);
+            setIconColor(this, R.id.dialButton, defaultIconColor);
+            setIconColor(this, R.id.mailButton, defaultIconColor);
+            setIconColor(this, R.id.applistButton, defaultIconColor);
+            setIconColor(this, R.id.browserButton, defaultIconColor);
+            setIconColor(this, R.id.cameraButton, defaultIconColor);
+            setIconColor(this, R.id.menuIconMain, defaultIconColor);
         }
 
        TextView tw = findViewById(R.id.digitalClock);
@@ -583,23 +591,6 @@ public class MainActivity extends AppCompatActivity {
         defaultIcons.add(ivone.getDrawable());
         ivone = findViewById(R.id.cameraButton);
         defaultIcons.add(ivone.getDrawable());
-    }
-
-
-
-    //
-    //  Fő nézet: alapértelmezett gombok beállítása
-    //
-    public void setIconColor(int id, int color) {
-        ImageView btn;
-        Drawable drw;
-        btn = findViewById(id);
-        drw =btn.getDrawable();
-        if(drw !=null) {
-            drw = DrawableCompat.wrap(drw).mutate();
-            DrawableCompat.setTint(drw, color);
-            btn.setImageDrawable(drw);
-        }
     }
 
 
@@ -635,7 +626,7 @@ public class MainActivity extends AppCompatActivity {
                                 app = allApplicationsList.get(i);
                                 tvt.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
                                 Drawable appI = app.loadIcon(packageMan);
-                                Drawable iconToDisplay = getDrawable(row, appI, iconSize);
+                                Drawable iconToDisplay = getDrawableTxT(row, appI, iconSize);
                                 tvt.setCompoundDrawablesRelative(iconToDisplay, null, null, null);
                                 tvt.setCompoundDrawablePadding(padding);
                             }
@@ -650,8 +641,8 @@ public class MainActivity extends AppCompatActivity {
                     } else {
                         tvt.setTextColor(defaultTextColor);
                     }
-                    tvt.setCompoundDrawablePadding(30);
-                    tvt.setPadding(10, 10, 10, 10);
+                    // S tvt.setCompoundDrawablePadding(30);
+                    // S  tvt.setPadding(10, 10, 10, 10);
                     tvt.setEllipsize(TextUtils.TruncateAt.END);
                     tvt.setMaxLines(1);
                 }
@@ -683,7 +674,7 @@ public class MainActivity extends AppCompatActivity {
                                 app = allApplicationsList.get(i);
                                 tvt.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
                                 Drawable appI = app.loadIcon(packageMan);
-                                Drawable iconToDisplay = getDrawable(row, appI, iconSize);
+                                Drawable iconToDisplay = getDrawableTxT(row, appI, iconSize);
                                 tvt.setCompoundDrawablesRelative(iconToDisplay, null, null, null);
                                 tvt.setCompoundDrawablePadding(padding);
                             }
@@ -698,8 +689,8 @@ public class MainActivity extends AppCompatActivity {
                     } else {
                         tvt.setTextColor(defaultTextColor);
                     }
-                    tvt.setCompoundDrawablePadding(30);
-                    tvt.setPadding(10, 10, 10, 10);
+                    //S tvt.setCompoundDrawablePadding(30);
+                    //S tvt.setPadding(10, 10, 10, 10);
                     tvt.setEllipsize(TextUtils.TruncateAt.END);
                     tvt.setMaxLines(1);
                 }
@@ -771,32 +762,33 @@ public class MainActivity extends AppCompatActivity {
     //
     // ikonok kiszedése és szinezáse
     //
-    static Drawable getDrawable(View view, Drawable appI, int iconSize) {
+    static Drawable getDrawableTxT(View view, Drawable appI, int iconSize) {
         Drawable iconToDisplay;
-        Drawable base = appI.mutate();
+        Drawable base = appI != null ? appI.mutate() : null;
+
         if (adaptiveIcon && base instanceof AdaptiveIconDrawable) {
             AdaptiveIconDrawable adaptI = (AdaptiveIconDrawable) base;
             Drawable monoIcon = adaptI.getMonochrome();
             if (monoIcon != null) {
-                monoIcon = monoIcon.mutate();
-                monoIcon.setTint(adaptiveIconColor);
-                int inset = iconPadding;
-                InsetDrawable insetIcon = new InsetDrawable(monoIcon, inset);
-                LayerDrawable layer = new LayerDrawable(new Drawable[]{insetIcon});
-                layer.setLayerSize(0, iconSize, iconSize);
-                layer.setBounds(0, 0, iconSize, iconSize);
-                iconToDisplay = layer;
+                iconToDisplay = getDefaultMonoIcon(monoIcon, iconSize);
+                if (iconToDisplay == null) {
+                    iconToDisplay = getDefaultIconAsLayer(view, iconSize);
+                }
             } else {
-                iconToDisplay = getDefaultIcon(view, iconSize);
+                iconToDisplay = getDefaultIconAsLayer(view, iconSize);
             }
         } else {
             if (adaptiveIcon) {
-                iconToDisplay = getDefaultIcon(view, iconSize);
+                iconToDisplay = getDefaultIconAsLayer(view, iconSize);
             } else {
-                LayerDrawable layer = new LayerDrawable(new Drawable[]{base});
-                layer.setLayerSize(0, iconSize, iconSize);
-                layer.setBounds(0, 0, iconSize, iconSize);
-                iconToDisplay = layer;
+                if (base == null) {
+                    iconToDisplay = getDefaultIconAsLayer(view, iconSize);
+                } else {
+                    LayerDrawable layer = new LayerDrawable(new Drawable[]{base});
+                    layer.setLayerSize(0, iconSize, iconSize);
+                    layer.setBounds(0, 0, iconSize, iconSize);
+                    iconToDisplay = layer;
+                }
             }
         }
         assert iconToDisplay != null;
@@ -804,21 +796,51 @@ public class MainActivity extends AppCompatActivity {
         return iconToDisplay;
     }
 
-
-
-    // Segédfüggvény a kód tisztaságáért
-    private static Drawable getDefaultIcon(View view, int iconSize) {
-        Drawable d = ContextCompat.getDrawable(view.getContext(), R.drawable.app);
-        if (d != null) {
-            d.mutate();
-            d.setTint(adaptiveIconColor);
-            d.setBounds(0, 0, iconSize, iconSize);
-            LayerDrawable layer = new LayerDrawable(new Drawable[]{d});
-            layer.setLayerSize(0, iconSize, iconSize);
-            return layer;
+    // alapértelmezett app ikon
+    private static Drawable getDefaultIconAsLayer(View view, int iconSize) {
+        try {
+            Drawable d = ContextCompat.getDrawable(view.getContext(), R.drawable.app);
+            if (d != null) {
+                d = d.mutate();
+                d.setTint(adaptiveIconColor);
+                LayerDrawable layer = new LayerDrawable(new Drawable[]{d});
+                layer.setLayerSize(0, iconSize, iconSize);
+                layer.setBounds(0, 0, iconSize, iconSize);
+                return layer;
+            }
+        } catch (Exception e) {
+            // Hiba kezelése
         }
         return null;
     }
+
+    // mono app ikon
+    public static Drawable getDefaultMonoIcon(Drawable monoIcon, int iconSize) {
+        try {
+            if (monoIcon != null) {
+                monoIcon = monoIcon.mutate();
+                monoIcon.setTint(adaptiveIconColor);
+                monoIcon.setBounds(0, 0, iconSize, iconSize);
+                //float negInset = -0.50f; // -50%
+                //InsetDrawable insetIcon = new InsetDrawable(monoIcon, negInset);
+                //LayerDrawable layer = new LayerDrawable(new Drawable[]{insetIcon});
+                //layer.setLayerSize(0, iconSize, iconSize);
+                //layer.setBounds(0, 0, iconSize, iconSize);
+                int largerSize = (int) (iconSize * 1.5f);
+                int offset = (largerSize - iconSize) / 2;
+                LayerDrawable layer = new LayerDrawable(new Drawable[]{monoIcon});
+                layer.setLayerSize(0, largerSize, largerSize);
+                layer.setLayerInset(0, -offset, -offset, -offset, -offset);
+                layer.setBounds(0, 0, iconSize, iconSize);
+                return layer;
+            }
+        } catch (Exception e) {
+            // Hiba kezelése
+            e.printStackTrace();
+        }
+        return null;
+    }
+
 
 
     // fő ikonok kirajzolása
@@ -830,7 +852,8 @@ public class MainActivity extends AppCompatActivity {
             if (monoIcon != null) {
                 monoIcon.mutate();
                 monoIcon.setTint(adaptiveIconColor);
-                InsetDrawable insetIcon = new InsetDrawable(monoIcon, iconPadding);
+                int negPadding = -(iconSize/2);
+                InsetDrawable insetIcon = new InsetDrawable(monoIcon, negPadding);
                 LayerDrawable layer = new LayerDrawable(new Drawable[]{insetIcon});
                 layer.setLayerSize(0, iconSize, iconSize);
                 iconToDisplay = layer;
@@ -992,8 +1015,9 @@ public class MainActivity extends AppCompatActivity {
     //
     //  Fő nézet: idő kiírása a képernyőre
     //
-    public void timeInScreen() {
+    public void startClock() {
         // óra
+        stopClock();
         final TextView textView = findViewById(R.id.digitalClock);
         final TextView textDateView = findViewById(R.id.digitalDate);
         Calendar calendar = Calendar.getInstance();
@@ -1012,6 +1036,16 @@ public class MainActivity extends AppCompatActivity {
         timeHandler.post(timeRunnable);
     }
 
+
+
+    //
+    //  Fő nézet: idő kiírás: leállítás
+    //
+    public void stopClock() {
+        if (timeRunnable != null) {
+            timeHandler.removeCallbacks(timeRunnable);
+        }
+    }
 
 
     //

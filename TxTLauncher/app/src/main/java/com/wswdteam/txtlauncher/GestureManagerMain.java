@@ -3,7 +3,6 @@ package com.wswdteam.txtlauncher;
 import static com.wswdteam.txtlauncher.MainActivity.touchOnIconObject;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.SWIPE_MAX_OFF_PATH;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.SWIPE_MIN_DISTANCE;
-import static com.wswdteam.txtlauncher.TxTLauncherApp.SWIPE_MIN_VELOCITY;
 
 import android.app.Activity;
 import android.view.GestureDetector;
@@ -13,7 +12,6 @@ import androidx.annotation.NonNull;
 
 public class GestureManagerMain {
     public interface Callback {
-        //void onSwipe();
         void onLongPress();
         void onLeft();
         void onRight();
@@ -24,36 +22,48 @@ public class GestureManagerMain {
 
     public static GestureDetector create(Activity activity, GestureManagerMain.Callback callback) {
         return new GestureDetector(activity, new GestureDetector.SimpleOnGestureListener() {
+            private boolean hasFired = false;
+
+            @Override
+            public boolean onDown(@NonNull MotionEvent e) {
+                hasFired = false; // Új érintésnél reseteljük a jelzőt
+                return super.onDown(e);
+            }
+
             @Override
             public void onLongPress(@NonNull MotionEvent event) {
                 callback.onLongPress();
                 super.onLongPress(event);
             }
+
             @Override
             public boolean onDoubleTap(@NonNull MotionEvent event) {
                 callback.onDoubleTap();
-                super.onDoubleTap(event);
                 return true;
             }
+
             @Override
-            public boolean onFling(MotionEvent e1, @NonNull MotionEvent e2, float velocityX, float velocityY) {
-                if (e1 == null) return false;
+            public boolean onScroll(MotionEvent e1, @NonNull MotionEvent e2, float distanceX, float distanceY) {
+                if (e1 == null || hasFired) {
+                    return false;
+                }
+
+                // Érzékenységi küszöbök beállítása (touchOnIconObject esetén 3x érzékenyebb)
+                int smindis = SWIPE_MIN_DISTANCE;
+                int smaxoff = SWIPE_MAX_OFF_PATH;
+                if (touchOnIconObject) {
+                    smindis = smindis / 3;
+                    smaxoff = smaxoff / 3;
+                }
+
                 float dx = e2.getX() - e1.getX();
                 float dy = e2.getY() - e1.getY();
                 float absDx = Math.abs(dx);
                 float absDy = Math.abs(dy);
-                int sminvel = SWIPE_MIN_VELOCITY;
-                int smindis = SWIPE_MIN_DISTANCE;
-                int smaxoff = SWIPE_MAX_OFF_PATH;
-                if (touchOnIconObject) {
-                    sminvel = sminvel / 3;
-                    smindis = smindis / 3;
-                    smaxoff = smaxoff / 3;
-                }
-                if (Math.max(Math.abs(velocityX), Math.abs(velocityY)) < sminvel) {
-                    return false;
-                }
+
+                // Függőleges mozgás (Up / Down)
                 if (absDy > smindis && absDy > absDx && absDx < smaxoff) {
+                    hasFired = true;
                     if (dy < 0) {
                         callback.onUp();
                     } else {
@@ -61,7 +71,10 @@ public class GestureManagerMain {
                     }
                     return true;
                 }
+
+                // Vízszintes mozgás (Left / Right)
                 if (absDx > smindis && absDx > absDy && absDy < smaxoff) {
+                    hasFired = true;
                     if (dx > 0) {
                         callback.onRight();
                     } else {
@@ -69,6 +82,7 @@ public class GestureManagerMain {
                     }
                     return true;
                 }
+
                 return false;
             }
         });

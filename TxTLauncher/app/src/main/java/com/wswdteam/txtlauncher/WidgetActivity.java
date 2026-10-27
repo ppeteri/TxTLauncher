@@ -26,6 +26,7 @@ import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultIconColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultPlusFontSizeTitle;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultTextColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.extraTools;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.setIconColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.startInsideFunctionApp;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.startLocalActivity;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.syslog;
@@ -58,7 +59,6 @@ import android.widget.TextView;
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
-import androidx.core.graphics.drawable.DrawableCompat;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
@@ -172,27 +172,27 @@ public class WidgetActivity extends AppCompatActivity {
         });
 
         if (adaptiveIcon) {
-            setIconColorW(R.id.wsettingsButton, adaptiveIconColor);
-            setIconColorW(R.id.wwetButton, adaptiveIconColor);
-            setIconColorW(R.id.whelpButton, adaptiveIconColor);
-            setIconColorW(R.id.wbrowserButton, adaptiveIconColor);
-            setIconColorW(R.id.wcameraButton, adaptiveIconColor);
-            setIconColorW(R.id.wapplistButton, adaptiveIconColor);
-            setIconColorW(R.id.wfavlistButton, adaptiveIconColor);
-            setIconColorW(R.id.waiButton, adaptiveIconColor);
-            setIconColorW(R.id.wdiscoveryButton, adaptiveIconColor);
-            setIconColorW(R.id.wmapButton, adaptiveIconColor);
+            setIconColor(this, R.id.wsettingsButton, adaptiveIconColor);
+            setIconColor(this, R.id.wwetButton, adaptiveIconColor);
+            setIconColor(this, R.id.whelpButton, adaptiveIconColor);
+            setIconColor(this, R.id.wbrowserButton, adaptiveIconColor);
+            setIconColor(this, R.id.wcameraButton, adaptiveIconColor);
+            setIconColor(this, R.id.wapplistButton, adaptiveIconColor);
+            setIconColor(this, R.id.wfavlistButton, adaptiveIconColor);
+            setIconColor(this, R.id.waiButton, adaptiveIconColor);
+            setIconColor(this, R.id.wdiscoveryButton, adaptiveIconColor);
+            setIconColor(this, R.id.wmapButton, adaptiveIconColor);
         } else {
-            setIconColorW(R.id.wsettingsButton, defaultIconColor);
-            setIconColorW(R.id.wwetButton, defaultIconColor);
-            setIconColorW(R.id.whelpButton, defaultIconColor);
-            setIconColorW(R.id.wbrowserButton, defaultIconColor);
-            setIconColorW(R.id.wcameraButton, defaultIconColor);
-            setIconColorW(R.id.wapplistButton, defaultIconColor);
-            setIconColorW(R.id.wfavlistButton, defaultIconColor);
-            setIconColorW(R.id.waiButton, defaultIconColor);
-            setIconColorW(R.id.wdiscoveryButton, defaultIconColor);
-            setIconColorW(R.id.wmapButton, defaultIconColor);
+            setIconColor(this, R.id.wsettingsButton, defaultIconColor);
+            setIconColor(this, R.id.wwetButton, defaultIconColor);
+            setIconColor(this, R.id.whelpButton, defaultIconColor);
+            setIconColor(this, R.id.wbrowserButton, defaultIconColor);
+            setIconColor(this, R.id.wcameraButton, defaultIconColor);
+            setIconColor(this, R.id.wapplistButton, defaultIconColor);
+            setIconColor(this, R.id.wfavlistButton, defaultIconColor);
+            setIconColor(this, R.id.waiButton, defaultIconColor);
+            setIconColor(this, R.id.wdiscoveryButton, defaultIconColor);
+            setIconColor(this, R.id.wmapButton, defaultIconColor);
         }
 
         int textColor;
@@ -209,41 +209,41 @@ public class WidgetActivity extends AppCompatActivity {
             }
         }
         TextView tvx;
-        setIconColorW(R.id.wsettingsButton, iconColor);
+        setIconColor(this, R.id.wsettingsButton, iconColor);
         tvx = findViewById(R.id.wsettingsButtonTitle);
         tvx.setTextColor(textColor);
-        setIconColorW(R.id.wwetButton, iconColor);
+        setIconColor(this, R.id.wwetButton, iconColor);
         tvx = findViewById(R.id.wwetButtonTitle);
         tvx.setTextColor(textColor);
-        setIconColorW(R.id.whelpButton, iconColor);
+        setIconColor(this, R.id.whelpButton, iconColor);
         tvx = findViewById(R.id.whelpButtonTitle);
         tvx.setTextColor(textColor);
-        setIconColorW(R.id.wbrowserButton, iconColor);
+        setIconColor(this, R.id.wbrowserButton, iconColor);
         tvx = findViewById(R.id.wbrowserButtonTitle);
         tvx.setTextColor(textColor);
-        setIconColorW(R.id.wcameraButton, iconColor);
+        setIconColor(this, R.id.wcameraButton, iconColor);
         tvx = findViewById(R.id.wcameraButtonTitle);
         tvx.setTextColor(textColor);
-        setIconColorW(R.id.wapplistButton, iconColor);
+        setIconColor(this, R.id.wapplistButton, iconColor);
         tvx = findViewById(R.id.wapplistButtonTitle);
         tvx.setTextColor(textColor);
-        setIconColorW(R.id.wfavlistButton, iconColor);
+        setIconColor(this, R.id.wfavlistButton, iconColor);
         tvx = findViewById(R.id.wfavlistButtonTitle);
         tvx.setTextColor(textColor);
-        setIconColorW(R.id.waiButton, iconColor);
+        setIconColor(this, R.id.waiButton, iconColor);
         tvx = findViewById(R.id.waiButtonTitle);
         tvx.setTextColor(textColor);
-        setIconColorW(R.id.wdiscoveryButton, iconColor);
+        setIconColor(this, R.id.wdiscoveryButton, iconColor);
         tvx = findViewById(R.id.wdiscoveryButtonTitle);
         tvx.setTextColor(textColor);
-        setIconColorW(R.id.wmapButton, iconColor);
+        setIconColor(this, R.id.wmapButton, iconColor);
         tvx = findViewById(R.id.wmapButtonTitle);
         tvx.setTextColor(textColor);
         tvx = findViewById(R.id.widgetNoteTitle);
         tvx.setTextColor(textColor);
 
         ImageView iv = findViewById(R.id.extraSearchBar);
-        setIconColorW(R.id.extraSearchBar, iconColor);
+        setIconColor(this, R.id.extraSearchBar, iconColor);
         GradientDrawable bg = (GradientDrawable) iv.getBackground();
         bg.setStroke(2, iconColor);
         iv.setOnClickListener(v -> {
@@ -279,7 +279,7 @@ public class WidgetActivity extends AppCompatActivity {
             return true;
         });
 
-        setIconColorW(R.id.menuIconW, iconColor);
+        setIconColor(this, R.id.menuIconW, iconColor);
         iv = findViewById(R.id.menuIconW);
         iv.setOnLongClickListener(v -> {
             this.finish();
@@ -366,22 +366,6 @@ public class WidgetActivity extends AppCompatActivity {
         settings.apply();
     }
 
-
-
-    //
-    //  Fő nézet: alapértelmezett gombok beállítása
-    //
-    public void setIconColorW(int id, int color) {
-        ImageView btn;
-        Drawable drw;
-        btn = findViewById(id);
-        drw =btn.getDrawable();
-        if(drw !=null) {
-            drw = DrawableCompat.wrap(drw).mutate();
-            DrawableCompat.setTint(drw, color);
-            btn.setImageDrawable(drw);
-        }
-    }
 
 
     //

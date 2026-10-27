@@ -356,6 +356,12 @@ public class SettingsActivity extends AppCompatActivity {
         } else {
             v3.setText(TxTLauncherApp.weatherUrl);
         }
+        val = TxTLauncherApp.sharedPreferences.getString(SETTINGS_BACKGROUND_IMAGE_TAG, "");
+        if (!val.isEmpty()) {
+            v4.setText(val);
+        } else {
+            v4.setText(TxTLauncherApp.backgroundImage);
+        }
 
         if (buttonId > 0) {
             RadioButton rb = findViewById(buttonId);
