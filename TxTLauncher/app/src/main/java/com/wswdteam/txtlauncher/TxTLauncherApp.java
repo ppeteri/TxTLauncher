@@ -29,7 +29,9 @@ import androidx.core.content.ContextCompat;
 import androidx.core.graphics.drawable.DrawableCompat;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Locale;
 
 
 public class TxTLauncherApp extends android.app.Application {
@@ -156,7 +158,7 @@ public class TxTLauncherApp extends android.app.Application {
     public static int iconSize;
     public static int iconSizeDP = 32;
     public static int iconPadding;
-    public static int iconPaddingDP = 1;
+    public static int iconPaddingDP = 2;
     public static boolean startedAndroidApp = true;
 
 
@@ -207,8 +209,47 @@ public class TxTLauncherApp extends android.app.Application {
             allApplicationsList.clear();
             Intent intent = new Intent(Intent.ACTION_MAIN, null);
             intent.addCategory(Intent.CATEGORY_LAUNCHER);
+
             List<ResolveInfo> apps = packageMan.queryIntentActivities(intent, PackageManager.GET_META_DATA);
-            apps.sort(new ResolveInfo.DisplayNameComparator(packageMan));
+
+            boolean isHungarian = "hu".equals(Locale.getDefault().getLanguage());
+            if (isHungarian) {
+                apps.sort(new Comparator<>() {
+                    @Override
+                    public int compare(ResolveInfo info1, ResolveInfo info2) {
+                        String s1 = info1.loadLabel(packageMan).toString();
+                        String s2 = info2.loadLabel(packageMan).toString();
+                        return compareHungarian(s1, s2);
+                    }
+
+                    private int compareHungarian(String str1, String str2) {
+                        int length = Math.min(str1.length(), str2.length());
+                        for (int i = 0; i < length; i++) {
+                            char c1 = str1.charAt(i);
+                            char c2 = str2.charAt(i);
+                            if (c1 != c2) {
+                                int pos1 = getHungarianCharIndex(c1);
+                                int pos2 = getHungarianCharIndex(c2);
+                                if (pos1 != pos2) {
+                                    return Integer.compare(pos1, pos2);
+                                }
+                                return Character.compare(c1, c2);
+                            }
+                        }
+                        return Integer.compare(str1.length(), str2.length());
+                    }
+
+                    private int getHungarianCharIndex(char c) {
+                        String alphabet = "aábcdeéfghiíjklmnoóöőpqrstuúüűvwzxy";
+                        String lowerC = String.valueOf(c).toLowerCase();
+                        int index = alphabet.indexOf(lowerC);
+                        return (index != -1) ? index : 999;
+                    }
+                });
+            } else {
+                apps.sort(new ResolveInfo.DisplayNameComparator(packageMan));
+            }
+
             allApplicationsList.addAll(apps);
             allAppData = new String[apps.size()][3];
             String appName;
@@ -245,17 +286,15 @@ public class TxTLauncherApp extends android.app.Application {
         }
     }
 
-
-
     //
     //  Fő nézet: beállítások betöltése
     //
-    public static void getSettingsMain(Context cont) {
+    public static void getSettingsAppList() {
         String tag;
         String val;
         String appName;
         homeAppName.clear();
-        for (var i = 0; i <  HOME_APP_NUM; i++) {
+        for (var i = 0; i < HOME_APP_NUM; i++) {
             tag = SETTINGS_APP_TAG + i;
             if (sharedPreferences.contains(tag)) {
                 val = sharedPreferences.getString(tag, null);
@@ -283,7 +322,17 @@ public class TxTLauncherApp extends android.app.Application {
                     }
                 }
             }
+
         }
+    }
+
+
+
+    //
+    //  Fő nézet: beállítások betöltése
+    //
+    public static void getSettingsMain(Context cont) {
+        String val;
 
         if (sharedPreferences.contains(SETTINGS_ADAPTIVE_ICON_TAG)) {
             val = sharedPreferences.getString(SETTINGS_ADAPTIVE_ICON_TAG, null);

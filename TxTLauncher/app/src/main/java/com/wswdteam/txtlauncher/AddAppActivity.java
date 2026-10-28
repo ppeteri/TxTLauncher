@@ -16,6 +16,7 @@ import static com.wswdteam.txtlauncher.TxTLauncherApp.packageMan;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.sharedPreferences;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.syslog;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.textColorMode;
+import static com.wswdteam.txtlauncher.MainActivity.startedAppSelect;
 
 import static java.util.Collections.sort;
 
@@ -128,6 +129,7 @@ public class AddAppActivity extends AppCompatActivity {
                 selApp.add(val);
             }
         }
+        startedAppSelect = true;
         appListSelect();
         syslog(getString(R.string.started_activity) + ": "+ this.getClass().getSimpleName());
     }

@@ -26,6 +26,8 @@ import static com.wswdteam.txtlauncher.TxTLauncherApp.allApplicationsList;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultBackGroundColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultIcons;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.extraTools;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.getSettingsAppList;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.iconPadding;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.lockApp;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.packageMan;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.savedBackgroundImage;
@@ -96,6 +98,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.graphics.ColorUtils;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -123,6 +126,7 @@ public class MainActivity extends AppCompatActivity {
     public static boolean startedSettingsAct = false;
     public static boolean startedFavAct = false;
     public static boolean startedHelpAct = false;
+    public static boolean startedAppSelect = false;
     public static boolean touchOnIconObject = false;
     private GestureDetector gestureDetector;
 
@@ -275,6 +279,7 @@ public class MainActivity extends AppCompatActivity {
         startedAndroidApp = true;
         generateAppList();
         getSettingsMain(this);
+        getSettingsAppList();
         backgroundImage = backgroundImageBackup;
         saveButtonImages();
         backgroundPrepare();
@@ -324,6 +329,9 @@ public class MainActivity extends AppCompatActivity {
         startClock();
 
         if (startedSettingsAct) {
+            if (startedAppSelect) {
+                getSettingsAppList();
+            }
             getSettingsMain(this);
             backgroundPrepare();
             setColors();
@@ -769,12 +777,13 @@ public class MainActivity extends AppCompatActivity {
         if (adaptiveIcon && base instanceof AdaptiveIconDrawable) {
             AdaptiveIconDrawable adaptI = (AdaptiveIconDrawable) base;
             Drawable monoIcon = adaptI.getMonochrome();
-            if (monoIcon != null) {
-                iconToDisplay = getDefaultMonoIcon(monoIcon, iconSize);
-                if (iconToDisplay == null) {
-                    iconToDisplay = getDefaultIconAsLayer(view, iconSize);
-                }
+            if (monoIcon == null) {
+                monoIcon = ContextCompat.getDrawable(view.getContext(), R.drawable.app);
+                iconToDisplay = getDefaultMonoIcon(view, monoIcon, iconSize, true);
             } else {
+                iconToDisplay = getDefaultMonoIcon(view, monoIcon, iconSize, false);
+            }
+            if (iconToDisplay == null) {
                 iconToDisplay = getDefaultIconAsLayer(view, iconSize);
             }
         } else {
@@ -815,28 +824,49 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // mono app ikon
-    public static Drawable getDefaultMonoIcon(Drawable monoIcon, int iconSize) {
+    public static Drawable getDefaultMonoIcon(View view, Drawable monoIcon, int iconSize, Boolean full) {
         try {
             if (monoIcon != null) {
                 monoIcon = monoIcon.mutate();
                 monoIcon.setTint(adaptiveIconColor);
                 monoIcon.setBounds(0, 0, iconSize, iconSize);
-                //float negInset = -0.50f; // -50%
-                //InsetDrawable insetIcon = new InsetDrawable(monoIcon, negInset);
-                //LayerDrawable layer = new LayerDrawable(new Drawable[]{insetIcon});
-                //layer.setLayerSize(0, iconSize, iconSize);
-                //layer.setBounds(0, 0, iconSize, iconSize);
-                int largerSize = (int) (iconSize * 1.5f);
-                int offset = (largerSize - iconSize) / 2;
-                LayerDrawable layer = new LayerDrawable(new Drawable[]{monoIcon});
-                layer.setLayerSize(0, largerSize, largerSize);
-                layer.setLayerInset(0, -offset, -offset, -offset, -offset);
-                layer.setBounds(0, 0, iconSize, iconSize);
+                // 1
+                // 1 float negInset = -0.50f; // -50%
+                // 1 InsetDrawable insetIcon = new InsetDrawable(monoIcon, negInset);
+                // 1 LayerDrawable layer = new LayerDrawable(new Drawable[]{insetIcon});
+                // 1 layer.setLayerSize(0, iconSize, iconSize);
+                // 1 layer.setBounds(0, 0, iconSize, iconSize);
+                // 2 - nagyított ikon, de drive eltűnik
+                // 2 int largerSize = (int) (iconSize * 1.5f);
+                // 2 int offset = (largerSize - iconSize) / 2;
+                // 2 LayerDrawable layer = new LayerDrawable(new Drawable[]{monoIcon});
+                // 2 layer.setLayerSize(0, largerSize, largerSize);
+                // 2 layer.setLayerInset(0, -offset, -offset, -offset, -offset);
+                // 2 layer.setBounds(0, 0, iconSize, iconSize);
+                // 3 - teljes háttér
+                // 3 GradientDrawable background = new GradientDrawable();
+                // 3 int baseColor = ContextCompat.getColor(view.getContext(), R.color.transparentgray);
+                // 3 int translucentColor = ColorUtils.setAlphaComponent(baseColor, 180);
+                // 3 background.setColor(translucentColor);
+                // 3 background.setShape(GradientDrawable.OVAL);
+                // 3 background.setCornerRadius(iconSize * 0.22f);
+                GradientDrawable background = new GradientDrawable();
+                background.setColor(Color.TRANSPARENT);
+                int baseColor = ContextCompat.getColor(view.getContext(), R.color.transparentgray);
+                int translucentColor = ColorUtils.setAlphaComponent(baseColor, 180);
+                background.setStroke(iconPadding, translucentColor);
+                background.setShape(GradientDrawable.OVAL);
+                int inset = iconPadding;
+                if (full) {
+                    inset = inset * 4;
+                }
+                LayerDrawable layer = new LayerDrawable(new Drawable[]{background, monoIcon});
+                layer.setLayerSize(0, iconSize, iconSize);
+                layer.setLayerInset(1, inset, inset, inset, inset);
                 return layer;
             }
         } catch (Exception e) {
             // Hiba kezelése
-            e.printStackTrace();
         }
         return null;
     }
