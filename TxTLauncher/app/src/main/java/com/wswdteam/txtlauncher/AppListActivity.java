@@ -1,5 +1,6 @@
 package com.wswdteam.txtlauncher;
 
+import static com.wswdteam.txtlauncher.MainActivity.getDrawableTxT;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.adaptiveIconColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.allAppData;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.allApplicationsList;
@@ -10,6 +11,7 @@ import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultPlusFontSize;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultTextColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.hideKeyboard;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.homeStartAppIcon;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.iconCache;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.iconSize;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.packageMan;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.startNewTaskActivity;
@@ -163,10 +165,9 @@ public class AppListActivity extends AppCompatActivity {
 
 
 
-
     //
-// App lista nézet készítése (Optimalizálva + Magyar ékezetkezeléssel)
-//
+    // App lista nézet készítése (Optimalizálva + Magyar ékezetkezeléssel)
+    //
     @SuppressLint("QueryPermissionsNeeded")
     public void appListView() {
         final ListView appTable = findViewById(R.id.allAppListTable);
@@ -210,8 +211,18 @@ public class AppListActivity extends AppCompatActivity {
                                 if (info != null) {
                                     int padding = iconSize / 2;
                                     tvt.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
-                                    Drawable appI = info.loadIcon(packageMan);
-                                    Drawable ic = MainActivity.getDrawableTxT(row, appI, iconSize);
+
+                                    // Gyorsítótár kulcs generálása a csomagnév alapján
+                                    String cacheKey = info.activityInfo.packageName;
+                                    Drawable ic = iconCache.get(cacheKey);
+
+                                    if (ic == null) {
+                                        // Ha még nincs a memóriában, legyártjuk és elmentjük a cache-be
+                                        Drawable appI = info.loadIcon(packageMan);
+                                        ic = getDrawableTxT(row, appI, iconSize);
+                                        iconCache.put(cacheKey, ic);
+                                    }
+
                                     tvt.setCompoundDrawablesRelative(ic, null, null, null);
                                     tvt.setCompoundDrawablePadding(padding);
                                 } else {

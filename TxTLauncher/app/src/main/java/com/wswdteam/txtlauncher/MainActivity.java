@@ -27,7 +27,7 @@ import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultBackGroundColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultIcons;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.extraTools;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.getSettingsAppList;
-import static com.wswdteam.txtlauncher.TxTLauncherApp.iconPadding;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.iconCache;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.lockApp;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.packageMan;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.savedBackgroundImage;
@@ -68,7 +68,11 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Rect;
+import android.graphics.RectF;
 import android.graphics.drawable.AdaptiveIconDrawable;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -604,13 +608,24 @@ public class MainActivity extends AppCompatActivity {
 
 
     //
-    //  Fő nézet: alapértelmezett gombok beállítása
+    //   Fő nézet: alapértelmezett gombok beállítása (Cache-elve)
     //
     public void setHomaApp() {
         final ArrayList<String> appHList1 = new ArrayList<>();
         final ArrayList<String> appHList2 = new ArrayList<>();
         final ListView homeTable1 = findViewById(R.id.homeAppList1);
         final ListView homeTable2 = findViewById(R.id.homeAppList2);
+
+        // Gyorskereső térkép a ResolveInfo-hoz, hogy ne kelljen ciklikusan keresgélni
+        final java.util.Map<String, ResolveInfo> appIconMap = new java.util.HashMap<>();
+        if (homeStartAppIcon && allAppData != null && allApplicationsList != null) {
+            for (int i = 0; i < allAppData.length; i++) {
+                if (i < allApplicationsList.size()) {
+                    appIconMap.put(allAppData[i][0], allApplicationsList.get(i));
+                }
+            }
+        }
+
         final var adapter1 = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, appHList1) {
             @Override
             public String getItem(int position) {
@@ -625,23 +640,30 @@ public class MainActivity extends AppCompatActivity {
                 if (appN != null) {
                     TextView tvt = row.findViewById(android.R.id.text1);
                     if (homeStartAppIcon) {
-                        ResolveInfo app;
-                        String appName;
-                        for (int i = 0; i < allAppData.length; i++) {
-                            appName = allAppData[i][0];
-                            if (appName.equals(appN)) {
-                                int padding = iconSize / 2;
-                                app = allApplicationsList.get(i);
-                                tvt.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
+                        ResolveInfo app = appIconMap.get(appN);
+                        if (app != null && app.activityInfo != null) {
+                            int padding = iconSize / 2;
+                            tvt.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
+
+                            // Gyorsítótár ellenőrzése a csomagnév alapján
+                            String cacheKey = app.activityInfo.packageName;
+                            Drawable iconToDisplay = iconCache.get(cacheKey);
+
+                            if (iconToDisplay == null) {
+                                // Ha nincs a cache-ben, legyártjuk és eltároljuk
                                 Drawable appI = app.loadIcon(packageMan);
-                                Drawable iconToDisplay = getDrawableTxT(row, appI, iconSize);
-                                tvt.setCompoundDrawablesRelative(iconToDisplay, null, null, null);
-                                tvt.setCompoundDrawablePadding(padding);
+                                iconToDisplay = getDrawableTxT(row, appI, iconSize);
+                                iconCache.put(cacheKey, iconToDisplay);
                             }
+
+                            tvt.setCompoundDrawablesRelative(iconToDisplay, null, null, null);
+                            tvt.setCompoundDrawablePadding(padding);
+                        } else {
+                            tvt.setCompoundDrawablesRelative(null, null, null, null);
                         }
                     } else {
-                        // ! tvt.setTextSize(TypedValue.COMPLEX_UNIT_PX,defaultFontSize + defaultPlusFontSize);
                         tvt.setGravity(Gravity.CENTER_HORIZONTAL);
+                        tvt.setCompoundDrawablesRelative(null, null, null, null);
                     }
                     tvt.setText(appN);
                     if (textColorMode) {
@@ -649,15 +671,12 @@ public class MainActivity extends AppCompatActivity {
                     } else {
                         tvt.setTextColor(defaultTextColor);
                     }
-                    // S tvt.setCompoundDrawablePadding(30);
-                    // S  tvt.setPadding(10, 10, 10, 10);
                     tvt.setEllipsize(TextUtils.TruncateAt.END);
                     tvt.setMaxLines(1);
                 }
                 return row;
             }
         };
-
 
         final var adapter2 = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, appHList2) {
             @Override
@@ -673,23 +692,30 @@ public class MainActivity extends AppCompatActivity {
                 if (appN != null) {
                     TextView tvt = row.findViewById(android.R.id.text1);
                     if (homeStartAppIcon) {
-                        ResolveInfo app;
-                        String appName;
-                        int padding = iconSize / 2;
-                        for (int i = 0; i < allAppData.length; i++) {
-                            appName = allAppData[i][0];
-                            if (appName.equals(appN)) {
-                                app = allApplicationsList.get(i);
-                                tvt.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
+                        ResolveInfo app = appIconMap.get(appN);
+                        if (app != null && app.activityInfo != null) {
+                            int padding = iconSize / 2;
+                            tvt.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
+
+                            // Gyorsítótár ellenőrzése a csomagnév alapján
+                            String cacheKey = app.activityInfo.packageName;
+                            Drawable iconToDisplay = iconCache.get(cacheKey);
+
+                            if (iconToDisplay == null) {
+                                // Ha nincs a cache-ben, legyártjuk és eltároljuk
                                 Drawable appI = app.loadIcon(packageMan);
-                                Drawable iconToDisplay = getDrawableTxT(row, appI, iconSize);
-                                tvt.setCompoundDrawablesRelative(iconToDisplay, null, null, null);
-                                tvt.setCompoundDrawablePadding(padding);
+                                iconToDisplay = getDrawableTxT(row, appI, iconSize);
+                                iconCache.put(cacheKey, iconToDisplay);
                             }
+
+                            tvt.setCompoundDrawablesRelative(iconToDisplay, null, null, null);
+                            tvt.setCompoundDrawablePadding(padding);
+                        } else {
+                            tvt.setCompoundDrawablesRelative(null, null, null, null);
                         }
                     } else {
-                        // ! tvt.setTextSize(TypedValue.COMPLEX_UNIT_PX,defaultFontSize + defaultPlusFontSize);
                         tvt.setGravity(Gravity.CENTER_HORIZONTAL);
+                        tvt.setCompoundDrawablesRelative(null, null, null, null);
                     }
                     tvt.setText(appN);
                     if (textColorMode) {
@@ -697,14 +723,11 @@ public class MainActivity extends AppCompatActivity {
                     } else {
                         tvt.setTextColor(defaultTextColor);
                     }
-                    //S tvt.setCompoundDrawablePadding(30);
-                    //S tvt.setPadding(10, 10, 10, 10);
                     tvt.setEllipsize(TextUtils.TruncateAt.END);
                     tvt.setMaxLines(1);
                 }
                 return row;
             }
-
         };
 
         double anum = Math.min(homeAppName.size(),  HOME_APP_NUM);
@@ -745,8 +768,8 @@ public class MainActivity extends AppCompatActivity {
                     i = allAppData.length;
                 }
             }
-            //syslog(selectedP);
         });
+
         homeTable2.setOnItemClickListener((parent, view, position, id) -> {
             String selectedP = (String) (homeTable2.getItemAtPosition(position));
             for (int i=0; i<allAppData.length; i++) {
@@ -761,10 +784,8 @@ public class MainActivity extends AppCompatActivity {
                     i = allAppData.length;
                 }
             }
-            //syslog(selectedP);
         });
     }
-
 
 
     //
@@ -779,10 +800,8 @@ public class MainActivity extends AppCompatActivity {
             Drawable monoIcon = adaptI.getMonochrome();
             if (monoIcon == null) {
                 monoIcon = ContextCompat.getDrawable(view.getContext(), R.drawable.app);
-                iconToDisplay = getDefaultMonoIcon(view, monoIcon, iconSize, true);
-            } else {
-                iconToDisplay = getDefaultMonoIcon(view, monoIcon, iconSize, false);
             }
+            iconToDisplay = getDefaultMonoIcon(view, monoIcon, iconSize);
             if (iconToDisplay == null) {
                 iconToDisplay = getDefaultIconAsLayer(view, iconSize);
             }
@@ -824,46 +843,108 @@ public class MainActivity extends AppCompatActivity {
     }
 
     // mono app ikon
-    public static Drawable getDefaultMonoIcon(View view, Drawable monoIcon, int iconSize, Boolean full) {
+    public static Drawable getDefaultMonoIcon(View view, Drawable monoIcon, int iconSize) {
         try {
             if (monoIcon != null) {
                 monoIcon = monoIcon.mutate();
                 monoIcon.setTint(adaptiveIconColor);
                 monoIcon.setBounds(0, 0, iconSize, iconSize);
                 // 1
-                // 1 float negInset = -0.50f; // -50%
-                // 1 InsetDrawable insetIcon = new InsetDrawable(monoIcon, negInset);
-                // 1 LayerDrawable layer = new LayerDrawable(new Drawable[]{insetIcon});
-                // 1 layer.setLayerSize(0, iconSize, iconSize);
-                // 1 layer.setBounds(0, 0, iconSize, iconSize);
+                // - float negInset = -0.50f; // -50%
+                // - InsetDrawable insetIcon = new InsetDrawable(monoIcon, negInset);
+                // - LayerDrawable layer = new LayerDrawable(new Drawable[]{insetIcon});
+                // - layer.setLayerSize(0, iconSize, iconSize);
+                // - layer.setBounds(0, 0, iconSize, iconSize);
                 // 2 - nagyított ikon, de drive eltűnik
-                // 2 int largerSize = (int) (iconSize * 1.5f);
-                // 2 int offset = (largerSize - iconSize) / 2;
-                // 2 LayerDrawable layer = new LayerDrawable(new Drawable[]{monoIcon});
-                // 2 layer.setLayerSize(0, largerSize, largerSize);
-                // 2 layer.setLayerInset(0, -offset, -offset, -offset, -offset);
-                // 2 layer.setBounds(0, 0, iconSize, iconSize);
+                // - int largerSize = (int) (iconSize * 1.5f);
+                // - int offset = (largerSize - iconSize) / 2;
+                // - LayerDrawable layer = new LayerDrawable(new Drawable[]{monoIcon});
+                // - layer.setLayerSize(0, largerSize, largerSize);
+                // - layer.setLayerInset(0, -offset, -offset, -offset, -offset);
+                // - layer.setBounds(0, 0, iconSize, iconSize);
                 // 3 - teljes háttér
-                // 3 GradientDrawable background = new GradientDrawable();
-                // 3 int baseColor = ContextCompat.getColor(view.getContext(), R.color.transparentgray);
-                // 3 int translucentColor = ColorUtils.setAlphaComponent(baseColor, 180);
-                // 3 background.setColor(translucentColor);
-                // 3 background.setShape(GradientDrawable.OVAL);
-                // 3 background.setCornerRadius(iconSize * 0.22f);
-                GradientDrawable background = new GradientDrawable();
-                background.setColor(Color.TRANSPARENT);
+                // - GradientDrawable background = new GradientDrawable();
+                // - int baseColor = ContextCompat.getColor(view.getContext(), R.color.transparentgray);
+                // - int translucentColor = ColorUtils.setAlphaComponent(baseColor, 180);
+                // - background.setColor(translucentColor);
+                // - background.setShape(GradientDrawable.OVAL);
+                // - background.setCornerRadius(iconSize * 0.22f);
+                // 4
+                // - GradientDrawable background = new GradientDrawable();
+                // - background.setColor(Color.TRANSPARENT);
+                // - int baseColor = ContextCompat.getColor(view.getContext(), R.color.transparentgray);
+                // - int translucentColor = ColorUtils.setAlphaComponent(baseColor, 180);
+                // - background.setStroke(iconPadding, translucentColor);
+                // - background.setShape(GradientDrawable.OVAL);
+                // - int inset = iconPadding;
+                // - if (full) {
+                // -   inset = inset * 4;
+                // - }
+                // - LayerDrawable layer = new LayerDrawable(new Drawable[]{background, monoIcon});
+                // - layer.setLayerSize(0, iconSize, iconSize);
+                // - layer.setLayerInset(1, inset, inset, inset, inset);
+                // - return layer;
+
+                //  Nagyobb ideiglenes Bitmap az elemzéshez és vágáshoz
+                int rawSize = iconSize * 2;
+                Bitmap rawBitmap = Bitmap.createBitmap(rawSize, rawSize, Bitmap.Config.ARGB_8888);
+                Canvas rawCanvas = new Canvas(rawBitmap);
+                monoIcon.setBounds(0, 0, rawSize, rawSize);
+                monoIcon.draw(rawCanvas);
+                // Automatikus margóvágás (tartalom határainak keresése)
+                int minX = rawSize, minY = rawSize, maxX = 0, maxY = 0;
+                boolean hasContent = false;
+                for (int y = 0; y < rawSize; y++) {
+                    for (int x = 0; x < rawSize; x++) {
+                        int pixel = rawBitmap.getPixel(x, y);
+                        int r = Color.red(pixel);
+                        int g = Color.green(pixel);
+                        int b = Color.blue(pixel);
+                        int a = Color.alpha(pixel);
+                        if (!(r > 240 && g > 240 && b > 240) && a > 50) {
+                            if (x < minX) minX = x;
+                            if (x > maxX) maxX = x;
+                            if (y < minY) minY = y;
+                            if (y > maxY) maxY = y;
+                            hasContent = true;
+                        }
+                    }
+                }
+                if (!hasContent || minX >= maxX || minY >= maxY) {
+                    minX = 0; minY = 0; maxX = rawSize; maxY = rawSize;
+                }
+                int croppedWidth = maxX - minX;
+                int croppedHeight = maxY - minY;
+                Bitmap croppedBitmap = Bitmap.createBitmap(rawBitmap, minX, minY, croppedWidth, croppedHeight);
+                // Aránytartó méretezés és középre igazítás belső paddinggel
+                Bitmap finalBitmap = Bitmap.createBitmap(iconSize, iconSize, Bitmap.Config.ARGB_8888);
+                Canvas finalCanvas = new Canvas(finalBitmap);
+                //float paddingPercentage = 0.3f;
+                float paddingPercentage = 0.3f;
+                float maxAvailableSize = iconSize * (1.0f - (paddingPercentage * 2));
+                float scale = Math.min(maxAvailableSize / croppedWidth, maxAvailableSize / croppedHeight);
+                float scaledWidth = croppedWidth * scale;
+                float scaledHeight = croppedHeight * scale;
+                float left = (iconSize - scaledWidth) / 2f;
+                float top = (iconSize - scaledHeight) / 2f;
+                Rect srcRect = new Rect(0, 0, croppedWidth, croppedHeight);
+                RectF dstRect = new RectF(left, top, left + scaledWidth, top + scaledHeight);
+                Paint tintPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+                finalCanvas.drawBitmap(croppedBitmap, srcRect, dstRect, tintPaint);
                 int baseColor = ContextCompat.getColor(view.getContext(), R.color.transparentgray);
                 int translucentColor = ColorUtils.setAlphaComponent(baseColor, 180);
-                background.setStroke(iconPadding, translucentColor);
+                // A keret távolsága a szélektől
+                int frameMargin = (int) (iconSize * 0.1f);
+                GradientDrawable background = new GradientDrawable();
                 background.setShape(GradientDrawable.OVAL);
-                int inset = iconPadding;
-                if (full) {
-                    inset = inset * 4;
-                }
-                LayerDrawable layer = new LayerDrawable(new Drawable[]{background, monoIcon});
-                layer.setLayerSize(0, iconSize, iconSize);
-                layer.setLayerInset(1, inset, inset, inset, inset);
-                return layer;
+                background.setStroke((int) (iconSize * 0.05f), translucentColor);
+                // Keret vastagsága
+                background.setColor(Color.TRANSPARENT);
+                // Itt állítjuk be a margót, hogy a keret ne érjen ki teljesen a szélére
+                background.setBounds(frameMargin, frameMargin, iconSize - frameMargin, iconSize - frameMargin);
+                background.draw(finalCanvas);
+                return new BitmapDrawable(view.getContext().getResources(), finalBitmap);
+
             }
         } catch (Exception e) {
             // Hiba kezelése

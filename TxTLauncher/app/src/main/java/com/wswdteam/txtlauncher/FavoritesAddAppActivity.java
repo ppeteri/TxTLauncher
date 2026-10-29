@@ -11,6 +11,7 @@ import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultSelectColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultTextColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.FAV_APP_NUM;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.homeStartAppIcon;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.iconCache;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.iconSize;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.packageMan;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.sharedPreferences;
@@ -160,9 +161,8 @@ public class FavoritesAddAppActivity extends AppCompatActivity {
         super.onStop();
     }
 
-
     //
-    // Kedvencek választás lista készítése
+    // Kedvencek választás lista készítése (Cache-elve)
     //
     @SuppressLint("QueryPermissionsNeeded")
     public void favListSelect() {
@@ -189,13 +189,26 @@ public class FavoritesAddAppActivity extends AppCompatActivity {
                     }
                     if (homeStartAppIcon) {
                         int padding = iconSize / 2;
-                        ResolveInfo thisApp = allApplicationsList.get(position);
-                        Drawable appI = thisApp.loadIcon(packageMan);
-                        Drawable iconToDisplay = MainActivity.getDrawableTxT(row, appI, iconSize);
-                        tvt.setCompoundDrawablesRelative(iconToDisplay, null, null, null);
-                        tvt.setCompoundDrawablePadding(padding);
+                        if (position < allApplicationsList.size()) {
+                            ResolveInfo thisApp = allApplicationsList.get(position);
+                            if (thisApp != null && thisApp.activityInfo != null) {
+                                // Gyorsítótár kulcs ellenőrzése a csomagnév alapján
+                                String cacheKey = thisApp.activityInfo.packageName;
+                                Drawable iconToDisplay = iconCache.get(cacheKey);
+
+                                if (iconToDisplay == null) {
+                                    // Ha nincs a cache-ben, legyártjuk és eltároljuk
+                                    Drawable appI = thisApp.loadIcon(packageMan);
+                                    iconToDisplay = MainActivity.getDrawableTxT(row, appI, iconSize);
+                                    iconCache.put(cacheKey, iconToDisplay);
+                                }
+
+                                tvt.setCompoundDrawablesRelative(iconToDisplay, null, null, null);
+                                tvt.setCompoundDrawablePadding(padding);
+                            }
+                        }
                     }
-                    // ! tvt.setTextSize(TypedValue.COMPLEX_UNIT_PX, defaultFontSize + defaultPlusFontSize);
+
                     if (selApp.contains(appN)) {
                         tvt.setBackgroundColor(defaultSelectColor);
                     } else {
@@ -204,7 +217,6 @@ public class FavoritesAddAppActivity extends AppCompatActivity {
                 }
                 return row;
             }
-
         };
 
         for (String[] allAppDatum : allAppData) {
@@ -244,10 +256,9 @@ public class FavoritesAddAppActivity extends AppCompatActivity {
             TextView tv = findViewById(R.id.addFavAppInfo);
             String st1 = FAV_APP_NUM + " / " + selectedApp;
             tv.setText(st1);
-            // - String selectedP = (String) (appTable.getItemAtPosition(position));
-            // - syslog(selectedP);
         });
     }
+
 
 
     //

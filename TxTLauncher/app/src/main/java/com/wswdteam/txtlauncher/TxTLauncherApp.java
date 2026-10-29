@@ -19,6 +19,7 @@ import android.provider.AlarmClock;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.util.Log;
+import android.util.LruCache;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
@@ -191,6 +192,8 @@ public class TxTLauncherApp extends android.app.Application {
         syslog(getString(R.string.started_activity) + ": " + this.getClass().getSimpleName());
     }
 
+    // Gyorsítótár az ikonoknak, hogy ne kelljen újra és újra kiszámolni őket scrollozáskor (Max 150 ikon)
+    public static final LruCache<String, Drawable> iconCache = new LruCache<>(150);
 
 
     //

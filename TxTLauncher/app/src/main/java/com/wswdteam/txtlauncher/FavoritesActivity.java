@@ -16,6 +16,7 @@ import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultPlusFontSizeTitle;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultTextColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.extraTools;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.homeStartAppIcon;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.iconCache;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.iconSize;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.onecolFavorites;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.packageMan;
@@ -158,9 +159,8 @@ public class FavoritesActivity extends AppCompatActivity {
     }
 
 
-
     //
-    //  Fő nézet: alapértelmezett gombok beállítása
+    //   Fő nézet: alapértelmezett gombok beállítása (Cache-elve)
     //
     public void setFavApp(){
         final ArrayList<String> appFList1 = new ArrayList<>();
@@ -191,8 +191,18 @@ public class FavoritesActivity extends AppCompatActivity {
                         if (app != null) {
                             int padding = iconSize / 2;
                             tvt.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
-                            Drawable appI = app.loadIcon(packageMan);
-                            Drawable iconToDisplay = MainActivity.getDrawableTxT(row, appI, iconSize);
+
+                            // Gyorsítótár ellenőrzése a csomagnév alapján
+                            String cacheKey = app.activityInfo.packageName;
+                            Drawable iconToDisplay = iconCache.get(cacheKey);
+
+                            if (iconToDisplay == null) {
+                                // Ha nincs a cache-ben, legyártjuk és eltároljuk
+                                Drawable appI = app.loadIcon(packageMan);
+                                iconToDisplay = MainActivity.getDrawableTxT(row, appI, iconSize);
+                                iconCache.put(cacheKey, iconToDisplay);
+                            }
+
                             tvt.setCompoundDrawablesRelative(iconToDisplay, null, null, null);
                             tvt.setCompoundDrawablePadding(padding);
                         } else {
@@ -209,8 +219,6 @@ public class FavoritesActivity extends AppCompatActivity {
                     } else {
                         tvt.setTextColor(defaultTextColor);
                     }
-                    // S tvt.setCompoundDrawablePadding(30);
-                    // S tvt.setPadding(10, 10, 10, 10);
                     tvt.setEllipsize(TextUtils.TruncateAt.END);
                     tvt.setMaxLines(1);
                 }
@@ -232,8 +240,18 @@ public class FavoritesActivity extends AppCompatActivity {
                         if (app != null) {
                             int padding = iconSize / 2;
                             tvt.setGravity(Gravity.START | Gravity.CENTER_VERTICAL);
-                            Drawable appI = app.loadIcon(packageMan);
-                            Drawable iconToDisplay = MainActivity.getDrawableTxT(row, appI, iconSize);
+
+                            // Gyorsítótár ellenőrzése a csomagnév alapján
+                            String cacheKey = app.activityInfo.packageName;
+                            Drawable iconToDisplay = iconCache.get(cacheKey);
+
+                            if (iconToDisplay == null) {
+                                // Ha nincs a cache-ben, legyártjuk és eltároljuk
+                                Drawable appI = app.loadIcon(packageMan);
+                                iconToDisplay = MainActivity.getDrawableTxT(row, appI, iconSize);
+                                iconCache.put(cacheKey, iconToDisplay);
+                            }
+
                             tvt.setCompoundDrawablesRelative(iconToDisplay, null, null, null);
                             tvt.setCompoundDrawablePadding(padding);
                         } else {
@@ -250,8 +268,6 @@ public class FavoritesActivity extends AppCompatActivity {
                     } else {
                         tvt.setTextColor(defaultTextColor);
                     }
-                    // S tvt.setCompoundDrawablePadding(30);
-                    // S tvt.setPadding(10, 10, 10, 10);
                     tvt.setEllipsize(TextUtils.TruncateAt.END);
                     tvt.setMaxLines(1);
                 }
@@ -282,10 +298,9 @@ public class FavoritesActivity extends AppCompatActivity {
                 appFList2.add("");
             }
         } else {
-            ListView t1 = findViewById(R.id.favAppList1);
             int dp = 30;
             int pixeldp = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, Resources.getSystem().getDisplayMetrics());
-            t1.setPadding(pixeldp, 0, 0, 0);
+            favTable1.setPadding(pixeldp, 0, 0, 0);
             ListView t2 = findViewById(R.id.favAppList2);
             t2.setVisibility(INVISIBLE);
             t2.setVisibility(GONE);
@@ -299,11 +314,6 @@ public class FavoritesActivity extends AppCompatActivity {
         favTable1.setAdapter(adapter1);
         favTable2.setAdapter(adapter2);
 
-        // Kattintáskezelők (megmaradnak)
-        //View.OnClickListener itemClickListener = (view) -> {
-            // ... (kattintás logika)
-        //};
-
         favTable1.setOnItemClickListener((parent, view, position, id) -> {
             String selectedP = (String) (favTable1.getItemAtPosition(position));
             launchApp(selectedP);
@@ -314,7 +324,6 @@ public class FavoritesActivity extends AppCompatActivity {
             launchApp(selectedP);
         });
     }
-
     private void launchApp(String selectedP) {
         if (TextUtils.isEmpty(selectedP)) return;
         for (String[] allAppDatum : allAppData) {

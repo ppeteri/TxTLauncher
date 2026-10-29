@@ -11,6 +11,7 @@ import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultPlusFontSizeTitle;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultSelectColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultTextColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.homeStartAppIcon;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.iconCache;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.iconSize;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.packageMan;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.sharedPreferences;
@@ -157,9 +158,8 @@ public class AddAppActivity extends AppCompatActivity {
         super.onStop();
     }
 
-
     //
-    // App választás lista készítése
+    // App választás lista készítése (Cache-elve)
     //
     @SuppressLint("QueryPermissionsNeeded")
     public void appListSelect() {
@@ -186,13 +186,26 @@ public class AddAppActivity extends AppCompatActivity {
                     }
                     if (homeStartAppIcon) {
                         int padding = iconSize / 2;
-                        ResolveInfo info = allApplicationsList.get(position);
-                        Drawable appI = info.loadIcon(packageMan);
-                        Drawable ic = MainActivity.getDrawableTxT(row, appI, iconSize);
-                        tvt.setCompoundDrawablesRelative(ic, null, null, null);
-                        tvt.setCompoundDrawablePadding(padding);
+                        if (position < allApplicationsList.size()) {
+                            ResolveInfo info = allApplicationsList.get(position);
+                            if (info != null && info.activityInfo != null) {
+                                // Gyorsítótár kulcs generálása a csomagnév alapján
+                                String cacheKey = info.activityInfo.packageName;
+                                Drawable ic = iconCache.get(cacheKey);
+
+                                if (ic == null) {
+                                    // Ha nincs a cache-ben, legyártjuk és eltároljuk
+                                    Drawable appI = info.loadIcon(packageMan);
+                                    ic = MainActivity.getDrawableTxT(row, appI, iconSize);
+                                    iconCache.put(cacheKey, ic);
+                                }
+
+                                tvt.setCompoundDrawablesRelative(ic, null, null, null);
+                                tvt.setCompoundDrawablePadding(padding);
+                            }
+                        }
                     }
-                    // ! tvt.setTextSize(TypedValue.COMPLEX_UNIT_PX, defaultFontSize + defaultPlusFontSize);
+
                     if (selApp.contains(appN)) {
                         tvt.setBackgroundColor(defaultSelectColor);
                     } else {
@@ -201,7 +214,6 @@ public class AddAppActivity extends AppCompatActivity {
                 }
                 return row;
             }
-
         };
 
         for (String[] allAppDatum : allAppData) {
@@ -242,10 +254,8 @@ public class AddAppActivity extends AppCompatActivity {
             TextView tv = findViewById(R.id.addappInfo);
             String st1 =  HOME_APP_NUM + " / " + selectedAppNum;
             tv.setText(st1);
-            // - String selectedP = (String) (appTable.getItemAtPosition(position));
         });
     }
-
 
     //
     // App választás bezárása
