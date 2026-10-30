@@ -26,6 +26,7 @@ import static com.wswdteam.txtlauncher.TxTLauncherApp.allApplicationsList;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultBackGroundColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultIcons;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.extraTools;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.getDrawableTxT;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.getSettingsAppList;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.iconCache;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.lockApp;
@@ -68,11 +69,7 @@ import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
 import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Rect;
-import android.graphics.RectF;
 import android.graphics.drawable.AdaptiveIconDrawable;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -102,7 +99,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
-import androidx.core.graphics.ColorUtils;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
@@ -333,6 +329,7 @@ public class MainActivity extends AppCompatActivity {
         startClock();
 
         if (startedSettingsAct) {
+            iconCache.evictAll();
             if (startedAppSelect) {
                 getSettingsAppList();
             }
@@ -543,7 +540,7 @@ public class MainActivity extends AppCompatActivity {
         // teljes háttér színe
         getWindow().getDecorView().setBackgroundColor(defaultBackGroundColor);
 
-        if (adaptiveIcon || textColorMode) {
+        if (textColorMode) {
             setIconColor(this, R.id.applistButton, adaptiveIconColor);
             setIconColor(this, R.id.searchButton, adaptiveIconColor);
             setIconColor(this, R.id.weatherButton, adaptiveIconColor);
@@ -788,171 +785,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
-    //
-    // ikonok kiszedése és szinezáse
-    //
-    static Drawable getDrawableTxT(View view, Drawable appI, int iconSize) {
-        Drawable iconToDisplay;
-        Drawable base = appI != null ? appI.mutate() : null;
-
-        if (adaptiveIcon && base instanceof AdaptiveIconDrawable) {
-            AdaptiveIconDrawable adaptI = (AdaptiveIconDrawable) base;
-            Drawable monoIcon = adaptI.getMonochrome();
-            if (monoIcon == null) {
-                monoIcon = ContextCompat.getDrawable(view.getContext(), R.drawable.app);
-            }
-            iconToDisplay = getDefaultMonoIcon(view, monoIcon, iconSize);
-            if (iconToDisplay == null) {
-                iconToDisplay = getDefaultIconAsLayer(view, iconSize);
-            }
-        } else {
-            if (adaptiveIcon) {
-                iconToDisplay = getDefaultIconAsLayer(view, iconSize);
-            } else {
-                if (base == null) {
-                    iconToDisplay = getDefaultIconAsLayer(view, iconSize);
-                } else {
-                    LayerDrawable layer = new LayerDrawable(new Drawable[]{base});
-                    layer.setLayerSize(0, iconSize, iconSize);
-                    layer.setBounds(0, 0, iconSize, iconSize);
-                    iconToDisplay = layer;
-                }
-            }
-        }
-        assert iconToDisplay != null;
-        iconToDisplay.setBounds(0, 0, iconSize, iconSize);
-        return iconToDisplay;
-    }
-
-    // alapértelmezett app ikon
-    private static Drawable getDefaultIconAsLayer(View view, int iconSize) {
-        try {
-            Drawable d = ContextCompat.getDrawable(view.getContext(), R.drawable.app);
-            if (d != null) {
-                d = d.mutate();
-                d.setTint(adaptiveIconColor);
-                LayerDrawable layer = new LayerDrawable(new Drawable[]{d});
-                layer.setLayerSize(0, iconSize, iconSize);
-                layer.setBounds(0, 0, iconSize, iconSize);
-                return layer;
-            }
-        } catch (Exception e) {
-            // Hiba kezelése
-        }
-        return null;
-    }
-
-    // mono app ikon
-    public static Drawable getDefaultMonoIcon(View view, Drawable monoIcon, int iconSize) {
-        try {
-            if (monoIcon != null) {
-                monoIcon = monoIcon.mutate();
-                monoIcon.setTint(adaptiveIconColor);
-                monoIcon.setBounds(0, 0, iconSize, iconSize);
-                // 1
-                // - float negInset = -0.50f; // -50%
-                // - InsetDrawable insetIcon = new InsetDrawable(monoIcon, negInset);
-                // - LayerDrawable layer = new LayerDrawable(new Drawable[]{insetIcon});
-                // - layer.setLayerSize(0, iconSize, iconSize);
-                // - layer.setBounds(0, 0, iconSize, iconSize);
-                // 2 - nagyított ikon, de drive eltűnik
-                // - int largerSize = (int) (iconSize * 1.5f);
-                // - int offset = (largerSize - iconSize) / 2;
-                // - LayerDrawable layer = new LayerDrawable(new Drawable[]{monoIcon});
-                // - layer.setLayerSize(0, largerSize, largerSize);
-                // - layer.setLayerInset(0, -offset, -offset, -offset, -offset);
-                // - layer.setBounds(0, 0, iconSize, iconSize);
-                // 3 - teljes háttér
-                // - GradientDrawable background = new GradientDrawable();
-                // - int baseColor = ContextCompat.getColor(view.getContext(), R.color.transparentgray);
-                // - int translucentColor = ColorUtils.setAlphaComponent(baseColor, 180);
-                // - background.setColor(translucentColor);
-                // - background.setShape(GradientDrawable.OVAL);
-                // - background.setCornerRadius(iconSize * 0.22f);
-                // 4
-                // - GradientDrawable background = new GradientDrawable();
-                // - background.setColor(Color.TRANSPARENT);
-                // - int baseColor = ContextCompat.getColor(view.getContext(), R.color.transparentgray);
-                // - int translucentColor = ColorUtils.setAlphaComponent(baseColor, 180);
-                // - background.setStroke(iconPadding, translucentColor);
-                // - background.setShape(GradientDrawable.OVAL);
-                // - int inset = iconPadding;
-                // - if (full) {
-                // -   inset = inset * 4;
-                // - }
-                // - LayerDrawable layer = new LayerDrawable(new Drawable[]{background, monoIcon});
-                // - layer.setLayerSize(0, iconSize, iconSize);
-                // - layer.setLayerInset(1, inset, inset, inset, inset);
-                // - return layer;
-
-                //  Nagyobb ideiglenes Bitmap az elemzéshez és vágáshoz
-                int rawSize = iconSize * 2;
-                Bitmap rawBitmap = Bitmap.createBitmap(rawSize, rawSize, Bitmap.Config.ARGB_8888);
-                Canvas rawCanvas = new Canvas(rawBitmap);
-                monoIcon.setBounds(0, 0, rawSize, rawSize);
-                monoIcon.draw(rawCanvas);
-                // Automatikus margóvágás (tartalom határainak keresése)
-                int minX = rawSize, minY = rawSize, maxX = 0, maxY = 0;
-                boolean hasContent = false;
-                for (int y = 0; y < rawSize; y++) {
-                    for (int x = 0; x < rawSize; x++) {
-                        int pixel = rawBitmap.getPixel(x, y);
-                        int r = Color.red(pixel);
-                        int g = Color.green(pixel);
-                        int b = Color.blue(pixel);
-                        int a = Color.alpha(pixel);
-                        if (!(r > 240 && g > 240 && b > 240) && a > 50) {
-                            if (x < minX) minX = x;
-                            if (x > maxX) maxX = x;
-                            if (y < minY) minY = y;
-                            if (y > maxY) maxY = y;
-                            hasContent = true;
-                        }
-                    }
-                }
-                if (!hasContent || minX >= maxX || minY >= maxY) {
-                    minX = 0; minY = 0; maxX = rawSize; maxY = rawSize;
-                }
-                int croppedWidth = maxX - minX;
-                int croppedHeight = maxY - minY;
-                Bitmap croppedBitmap = Bitmap.createBitmap(rawBitmap, minX, minY, croppedWidth, croppedHeight);
-                // Aránytartó méretezés és középre igazítás belső paddinggel
-                Bitmap finalBitmap = Bitmap.createBitmap(iconSize, iconSize, Bitmap.Config.ARGB_8888);
-                Canvas finalCanvas = new Canvas(finalBitmap);
-                //float paddingPercentage = 0.3f;
-                float paddingPercentage = 0.3f;
-                float maxAvailableSize = iconSize * (1.0f - (paddingPercentage * 2));
-                float scale = Math.min(maxAvailableSize / croppedWidth, maxAvailableSize / croppedHeight);
-                float scaledWidth = croppedWidth * scale;
-                float scaledHeight = croppedHeight * scale;
-                float left = (iconSize - scaledWidth) / 2f;
-                float top = (iconSize - scaledHeight) / 2f;
-                Rect srcRect = new Rect(0, 0, croppedWidth, croppedHeight);
-                RectF dstRect = new RectF(left, top, left + scaledWidth, top + scaledHeight);
-                Paint tintPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-                finalCanvas.drawBitmap(croppedBitmap, srcRect, dstRect, tintPaint);
-                int baseColor = ContextCompat.getColor(view.getContext(), R.color.transparentgray);
-                int translucentColor = ColorUtils.setAlphaComponent(baseColor, 180);
-                // A keret távolsága a szélektől
-                int frameMargin = (int) (iconSize * 0.1f);
-                GradientDrawable background = new GradientDrawable();
-                background.setShape(GradientDrawable.OVAL);
-                background.setStroke((int) (iconSize * 0.05f), translucentColor);
-                // Keret vastagsága
-                background.setColor(Color.TRANSPARENT);
-                // Itt állítjuk be a margót, hogy a keret ne érjen ki teljesen a szélére
-                background.setBounds(frameMargin, frameMargin, iconSize - frameMargin, iconSize - frameMargin);
-                background.draw(finalCanvas);
-                return new BitmapDrawable(view.getContext().getResources(), finalBitmap);
-
-            }
-        } catch (Exception e) {
-            // Hiba kezelése
-        }
-        return null;
-    }
-
-
 
     // fő ikonok kirajzolása
     private Drawable mainDrawable(Drawable appI, Drawable drI) {
@@ -962,18 +794,17 @@ public class MainActivity extends AppCompatActivity {
             Drawable monoIcon = adaptI.getMonochrome();
             if (monoIcon != null) {
                 monoIcon.mutate();
-                monoIcon.setTint(adaptiveIconColor);
                 int negPadding = -(iconSize/2);
                 InsetDrawable insetIcon = new InsetDrawable(monoIcon, negPadding);
                 LayerDrawable layer = new LayerDrawable(new Drawable[]{insetIcon});
                 layer.setLayerSize(0, iconSize, iconSize);
                 iconToDisplay = layer;
             } else {
-                iconToDisplay = getDefaultIconMain(iconSize);
+                iconToDisplay = getDefaultIconMain(iconSize, drI);
             }
         } else {
             if (adaptiveIcon) {
-                iconToDisplay = getDefaultIconMain(iconSize);
+                iconToDisplay = getDefaultIconMain(iconSize, drI);
             } else {
                 LayerDrawable layer = new LayerDrawable(new Drawable[]{appI});
                 layer.setLayerSize(0, iconSize, iconSize);
@@ -994,13 +825,12 @@ public class MainActivity extends AppCompatActivity {
 
 
     // Segédfüggvény a kód tisztaságáért
-    private Drawable getDefaultIconMain(int iconSize) {
-        Drawable d = ContextCompat.getDrawable(this, R.drawable.app);
-        if (d != null) {
-            d.mutate();
-            d.setTint(adaptiveIconColor);
-            d.setBounds(0, 0, iconSize, iconSize);
-            LayerDrawable layer = new LayerDrawable(new Drawable[]{d});
+    private Drawable getDefaultIconMain(int iconSize, Drawable drI) {
+        if (drI != null) {
+            drI.mutate();
+            drI.setTint(adaptiveIconColor);
+            drI.setBounds(0, 0, iconSize, iconSize);
+            LayerDrawable layer = new LayerDrawable(new Drawable[]{drI});
             layer.setLayerSize(0, iconSize, iconSize);
             return layer;
         }
@@ -1042,14 +872,18 @@ public class MainActivity extends AppCompatActivity {
             appF.setPadding(0, 0, 0, 0);
         }
         //appF.setImageDrawable(defaultIcons.get(2));
-        if (adaptiveIcon) {
-            appF.setColorFilter(adaptiveIconColor);
-        } else {
-            if (textColorMode) {
-                appF.setColorFilter(adaptiveIconColor);
+        if (textColorMode) {
+            if (homeSysIcon) {
+                if (adaptiveIcon) {
+                    appF.setColorFilter(adaptiveIconColor);
+                } else {
+                    appF.setColorFilter(defaultIconColor);
+                }
             } else {
-                appF.setColorFilter(defaultIconColor);
+                appF.setColorFilter(adaptiveIconColor);
             }
+        } else {
+            appF.setColorFilter(defaultIconColor);
         }
 
         // browser
@@ -1073,22 +907,29 @@ public class MainActivity extends AppCompatActivity {
     public void imageButtonColorize(Intent in, ImageView iv, Drawable dr, int deficon) {
         List<ResolveInfo> appDL = getPackageManager().queryIntentActivities(in, 0);
         ResolveInfo appD = appDL.get(0);
-        iv.clearColorFilter();
         if (homeSysIcon) {
             Drawable appI = appD.loadIcon(packageMan);
             @SuppressLint("UseCompatLoadingForDrawables")
             Drawable appI2 = mainDrawable(appI, dr);
+            iv.setImageDrawable(appI2);
+            iv.clearColorFilter();
             if (adaptiveIcon) {
-                iv.setImageDrawable(appI2);
-            } else {
-                iv.setImageDrawable(appI);
+                if (textColorMode) {
+                    iv.setColorFilter(adaptiveIconColor);
+                } else {
+                    iv.setColorFilter(defaultIconColor);
+                }
             }
         } else {
             iv.setImageDrawable(defaultIcons.get(deficon));
-            if (adaptiveIcon || textColorMode) {
+            if (textColorMode) {
+                iv.clearColorFilter();
                 iv.setColorFilter(adaptiveIconColor);
             } else {
-                iv.setColorFilter(defaultIconColor);
+                if (!homeSysIcon) {
+                    iv.clearColorFilter();
+                    iv.setColorFilter(defaultIconColor);
+                }
             }
         }
     }

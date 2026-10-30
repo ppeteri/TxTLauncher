@@ -1,6 +1,5 @@
 package com.wswdteam.txtlauncher;
 
-import static com.wswdteam.txtlauncher.MainActivity.getDrawableTxT;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.adaptiveIconColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.allAppData;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.allApplicationsList;
@@ -9,6 +8,7 @@ import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultFontSize;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultLetterColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultPlusFontSize;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultTextColor;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.getDrawableTxT;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.hideKeyboard;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.homeStartAppIcon;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.iconCache;

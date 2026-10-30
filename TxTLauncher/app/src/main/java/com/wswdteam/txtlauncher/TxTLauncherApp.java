@@ -11,7 +11,17 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
+import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Rect;
+import android.graphics.RectF;
+import android.graphics.drawable.AdaptiveIconDrawable;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.LayerDrawable;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
@@ -27,6 +37,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.content.ContextCompat;
+import androidx.core.graphics.ColorUtils;
 import androidx.core.graphics.drawable.DrawableCompat;
 
 import java.util.ArrayList;
@@ -473,15 +484,15 @@ public class TxTLauncherApp extends android.app.Application {
     //  Fő nézet: alapértelmezett gombok beállítása
     //
     public static void setIconColor(Activity act, int id, int color) {
-        ImageView btn;
-        Drawable drw;
-        btn = act.findViewById(id);
-        drw =btn.getDrawable();
-        if(drw !=null) {
-            drw = DrawableCompat.wrap(drw).mutate();
-            DrawableCompat.setTint(drw, color);
-            btn.setImageDrawable(drw);
-        }
+            ImageView btn;
+            Drawable drw;
+            btn = act.findViewById(id);
+            drw = btn.getDrawable();
+            if (drw != null) {
+                drw = DrawableCompat.wrap(drw).mutate();
+                DrawableCompat.setTint(drw, color);
+                btn.setImageDrawable(drw);
+            }
     }
 
 
@@ -821,6 +832,178 @@ public class TxTLauncherApp extends android.app.Application {
                 break;
         }
         return true;
+    }
+
+
+
+    //
+    // ikonok kiszedése és szinezáse
+    //
+    static Drawable getDrawableTxT(View view, Drawable appI, int iconSize) {
+        Drawable iconToDisplay;
+        Drawable base = appI != null ? appI.mutate() : null;
+
+        if (adaptiveIcon && base instanceof AdaptiveIconDrawable) {
+            AdaptiveIconDrawable adaptI = (AdaptiveIconDrawable) base;
+            Drawable monoIcon = adaptI.getMonochrome();
+            if (monoIcon == null) {
+                monoIcon = ContextCompat.getDrawable(view.getContext(), R.drawable.app);
+            }
+            iconToDisplay = getDefaultMonoIcon(view, monoIcon, iconSize);
+            if (iconToDisplay == null) {
+                iconToDisplay = getDefaultIconAsLayer(view, iconSize);
+            }
+        } else {
+            if (adaptiveIcon) {
+                iconToDisplay = getDefaultIconAsLayer(view, iconSize);
+            } else {
+                if (base == null) {
+                    iconToDisplay = getDefaultIconAsLayer(view, iconSize);
+                } else {
+                    LayerDrawable layer = new LayerDrawable(new Drawable[]{base});
+                    layer.setLayerSize(0, iconSize, iconSize);
+                    layer.setBounds(0, 0, iconSize, iconSize);
+                    iconToDisplay = layer;
+                }
+            }
+        }
+        assert iconToDisplay != null;
+        iconToDisplay.setBounds(0, 0, iconSize, iconSize);
+        return iconToDisplay;
+    }
+
+    // alapértelmezett app ikon
+    private static Drawable getDefaultIconAsLayer(View view, int iconSize) {
+        try {
+            Drawable d = ContextCompat.getDrawable(view.getContext(), R.drawable.app);
+            if (d != null) {
+                d = d.mutate();
+                if (textColorMode) {
+                    d.setTint(adaptiveIconColor);
+                }
+                LayerDrawable layer = new LayerDrawable(new Drawable[]{d});
+                layer.setLayerSize(0, iconSize, iconSize);
+                layer.setBounds(0, 0, iconSize, iconSize);
+                return layer;
+            }
+        } catch (Exception e) {
+            // Hiba kezelése
+        }
+        return null;
+    }
+
+    // mono app ikon
+    public static Drawable getDefaultMonoIcon(View view, Drawable monoIcon, int iconSize) {
+        try {
+            if (monoIcon != null) {
+                monoIcon = monoIcon.mutate();
+                monoIcon.setTint(adaptiveIconColor);
+                monoIcon.setBounds(0, 0, iconSize, iconSize);
+                // 1
+                // - float negInset = -0.50f; // -50%
+                // - InsetDrawable insetIcon = new InsetDrawable(monoIcon, negInset);
+                // - LayerDrawable layer = new LayerDrawable(new Drawable[]{insetIcon});
+                // - layer.setLayerSize(0, iconSize, iconSize);
+                // - layer.setBounds(0, 0, iconSize, iconSize);
+                // 2 - nagyított ikon, de drive eltűnik
+                // - int largerSize = (int) (iconSize * 1.5f);
+                // - int offset = (largerSize - iconSize) / 2;
+                // - LayerDrawable layer = new LayerDrawable(new Drawable[]{monoIcon});
+                // - layer.setLayerSize(0, largerSize, largerSize);
+                // - layer.setLayerInset(0, -offset, -offset, -offset, -offset);
+                // - layer.setBounds(0, 0, iconSize, iconSize);
+                // 3 - teljes háttér
+                // - GradientDrawable background = new GradientDrawable();
+                // - int baseColor = ContextCompat.getColor(view.getContext(), R.color.transparentgray);
+                // - int translucentColor = ColorUtils.setAlphaComponent(baseColor, 180);
+                // - background.setColor(translucentColor);
+                // - background.setShape(GradientDrawable.OVAL);
+                // - background.setCornerRadius(iconSize * 0.22f);
+                // 4
+                // - GradientDrawable background = new GradientDrawable();
+                // - background.setColor(Color.TRANSPARENT);
+                // - int baseColor = ContextCompat.getColor(view.getContext(), R.color.transparentgray);
+                // - int translucentColor = ColorUtils.setAlphaComponent(baseColor, 180);
+                // - background.setStroke(iconPadding, translucentColor);
+                // - background.setShape(GradientDrawable.OVAL);
+                // - int inset = iconPadding;
+                // - if (full) {
+                // -   inset = inset * 4;
+                // - }
+                // - LayerDrawable layer = new LayerDrawable(new Drawable[]{background, monoIcon});
+                // - layer.setLayerSize(0, iconSize, iconSize);
+                // - layer.setLayerInset(1, inset, inset, inset, inset);
+                // - return layer;
+
+                //  Nagyobb ideiglenes Bitmap az elemzéshez és vágáshoz
+                int rawSize = iconSize * 2;
+                Bitmap rawBitmap = Bitmap.createBitmap(rawSize, rawSize, Bitmap.Config.ARGB_8888);
+                Canvas rawCanvas = new Canvas(rawBitmap);
+                monoIcon.setBounds(0, 0, rawSize, rawSize);
+                monoIcon.draw(rawCanvas);
+                // Automatikus margóvágás (tartalom határainak keresése)
+                int minX = rawSize, minY = rawSize, maxX = 0, maxY = 0;
+                boolean hasContent = false;
+                for (int y = 0; y < rawSize; y++) {
+                    for (int x = 0; x < rawSize; x++) {
+                        int pixel = rawBitmap.getPixel(x, y);
+                        int r = Color.red(pixel);
+                        int g = Color.green(pixel);
+                        int b = Color.blue(pixel);
+                        int a = Color.alpha(pixel);
+                        if (!(r > 240 && g > 240 && b > 240) && a > 50) {
+                            if (x < minX) minX = x;
+                            if (x > maxX) maxX = x;
+                            if (y < minY) minY = y;
+                            if (y > maxY) maxY = y;
+                            hasContent = true;
+                        }
+                    }
+                }
+                if (!hasContent || minX >= maxX || minY >= maxY) {
+                    minX = 0; minY = 0; maxX = rawSize; maxY = rawSize;
+                }
+                int croppedWidth = maxX - minX;
+                int croppedHeight = maxY - minY;
+                Bitmap croppedBitmap = Bitmap.createBitmap(rawBitmap, minX, minY, croppedWidth, croppedHeight);
+                // Aránytartó méretezés és középre igazítás belső paddinggel
+                Bitmap finalBitmap = Bitmap.createBitmap(iconSize, iconSize, Bitmap.Config.ARGB_8888);
+                Canvas finalCanvas = new Canvas(finalBitmap);
+                //float paddingPercentage = 0.3f;
+                float paddingPercentage = 0.3f;
+                float maxAvailableSize = iconSize * (1.0f - (paddingPercentage * 2));
+                float scale = Math.min(maxAvailableSize / croppedWidth, maxAvailableSize / croppedHeight);
+                float scaledWidth = croppedWidth * scale;
+                float scaledHeight = croppedHeight * scale;
+                float left = (iconSize - scaledWidth) / 2f;
+                float top = (iconSize - scaledHeight) / 2f;
+                Rect srcRect = new Rect(0, 0, croppedWidth, croppedHeight);
+                RectF dstRect = new RectF(left, top, left + scaledWidth, top + scaledHeight);
+                Paint tintPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+                finalCanvas.drawBitmap(croppedBitmap, srcRect, dstRect, tintPaint);
+                int baseColor = ContextCompat.getColor(view.getContext(), R.color.transparentgray);
+                int translucentColor = ColorUtils.setAlphaComponent(baseColor, 180);
+                // A keret távolsága a szélektől
+                int frameMargin = (int) (iconSize * 0.1f);
+                GradientDrawable background = new GradientDrawable();
+                background.setShape(GradientDrawable.OVAL);
+                background.setStroke((int) (iconSize * 0.05f), translucentColor);
+                // Keret vastagsága
+                background.setColor(Color.TRANSPARENT);
+                // Itt állítjuk be a margót, hogy a keret ne érjen ki teljesen a szélére
+                background.setBounds(frameMargin, frameMargin, iconSize - frameMargin, iconSize - frameMargin);
+                background.draw(finalCanvas);
+                Drawable mi = new BitmapDrawable(view.getContext().getResources(), finalBitmap);
+                if (!textColorMode) {
+                    mi.setTint(defaultIconColor);
+                }
+                return mi;
+
+            }
+        } catch (Exception e) {
+            // Hiba kezelése
+        }
+        return null;
     }
 
 

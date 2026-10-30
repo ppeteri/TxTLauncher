@@ -196,7 +196,7 @@ public class AddAppActivity extends AppCompatActivity {
                                 if (ic == null) {
                                     // Ha nincs a cache-ben, legyártjuk és eltároljuk
                                     Drawable appI = info.loadIcon(packageMan);
-                                    ic = MainActivity.getDrawableTxT(row, appI, iconSize);
+                                    ic = TxTLauncherApp.getDrawableTxT(row, appI, iconSize);
                                     iconCache.put(cacheKey, ic);
                                 }
 

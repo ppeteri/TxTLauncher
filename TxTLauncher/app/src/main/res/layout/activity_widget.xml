@@ -376,7 +376,7 @@
                         android:contentDescription="@string/button_ai"
                         android:onClick="startButtonAppAI"
                         app:layout_constraintBottom_toBottomOf="parent"
-                        app:srcCompat="@drawable/ai"
+                        app:srcCompat="@drawable/ai2"
                         tools:layout_editor_absoluteX="194dp" />
                     <TextView
                         android:id="@+id/waiButtonTitle"

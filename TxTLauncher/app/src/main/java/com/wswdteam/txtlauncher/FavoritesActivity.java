@@ -15,6 +15,7 @@ import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultIconColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultPlusFontSizeTitle;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultTextColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.extraTools;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.getDrawableTxT;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.homeStartAppIcon;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.iconCache;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.iconSize;
@@ -199,7 +200,7 @@ public class FavoritesActivity extends AppCompatActivity {
                             if (iconToDisplay == null) {
                                 // Ha nincs a cache-ben, legyártjuk és eltároljuk
                                 Drawable appI = app.loadIcon(packageMan);
-                                iconToDisplay = MainActivity.getDrawableTxT(row, appI, iconSize);
+                                iconToDisplay = getDrawableTxT(row, appI, iconSize);
                                 iconCache.put(cacheKey, iconToDisplay);
                             }
 
@@ -248,7 +249,7 @@ public class FavoritesActivity extends AppCompatActivity {
                             if (iconToDisplay == null) {
                                 // Ha nincs a cache-ben, legyártjuk és eltároljuk
                                 Drawable appI = app.loadIcon(packageMan);
-                                iconToDisplay = MainActivity.getDrawableTxT(row, appI, iconSize);
+                                iconToDisplay = getDrawableTxT(row, appI, iconSize);
                                 iconCache.put(cacheKey, iconToDisplay);
                             }
 

@@ -188,7 +188,7 @@
                 android:background="@android:color/transparent"
                 android:contentDescription="@string/button_aiapp"
                 android:onClick="openAI"
-                app:srcCompat="@drawable/ai" />
+                app:srcCompat="@drawable/ai2" />
         </LinearLayout>
     </LinearLayout>
 
