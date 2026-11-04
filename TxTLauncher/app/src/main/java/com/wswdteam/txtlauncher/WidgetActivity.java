@@ -18,7 +18,6 @@ import static com.wswdteam.txtlauncher.TxTLauncherApp.START_SEARCH;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.START_SETTINGS_LONG;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.START_WEATHER;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.SETTINGS_NOTE_TAG;
-import static com.wswdteam.txtlauncher.TxTLauncherApp.adaptiveIcon;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.adaptiveIconColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultBackGroundColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultFontSize;
@@ -171,7 +170,7 @@ public class WidgetActivity extends AppCompatActivity {
             }
         });
 
-        if (adaptiveIcon) {
+        if (textColorMode) {
             setIconColor(this, R.id.wsettingsButton, adaptiveIconColor);
             setIconColor(this, R.id.wwetButton, adaptiveIconColor);
             setIconColor(this, R.id.whelpButton, adaptiveIconColor);
@@ -202,11 +201,7 @@ public class WidgetActivity extends AppCompatActivity {
             iconColor = adaptiveIconColor;
         } else {
             textColor = defaultTextColor;
-            if (adaptiveIcon) {
-                iconColor = adaptiveIconColor;
-            } else {
-                iconColor = defaultTextColor;
-            }
+            iconColor = defaultTextColor;
         }
         TextView tvx;
         setIconColor(this, R.id.wsettingsButton, iconColor);
@@ -358,6 +353,16 @@ public class WidgetActivity extends AppCompatActivity {
     public void onStop(){
         super.onStop();
         //appWidgetHost.stopListening();
+    }
+
+
+
+    //
+    // Widget nézet leállítása
+    //
+    @Override
+    public void onPause(){
+        super.onPause();
 
         var settings = TxTLauncherApp.sharedPreferences.edit();
         EditText tv = findViewById(R.id.widgetTextNote);

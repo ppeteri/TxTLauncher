@@ -98,5 +98,8 @@
     <string name="settings_decor">Other visual elements</string>
     <string name="settings_experimental">Experimental tools</string>
     <string name="widget_calendar">Calendar app</string>
+    <string name="settings_focus_mode">Focus mode</string>
+    <string name="focus_mode_message">Focus mode activated</string>
+    <string name="focus_mode_message_off">Focus mode deactivated</string>
 
 </resources>

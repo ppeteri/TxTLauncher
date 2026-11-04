@@ -3,9 +3,9 @@ package com.wswdteam.txtlauncher;
 import static android.view.View.GONE;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
+import static com.wswdteam.txtlauncher.IconManagement.getDrawableTxT;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.START_ACT_APPLIST;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.FAV_APP_NUM;
-import static com.wswdteam.txtlauncher.TxTLauncherApp.adaptiveIcon;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.adaptiveIconColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.allAppData;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.allApplicationsList;
@@ -15,7 +15,7 @@ import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultIconColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultPlusFontSizeTitle;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultTextColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.extraTools;
-import static com.wswdteam.txtlauncher.TxTLauncherApp.getDrawableTxT;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.focusMode;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.homeStartAppIcon;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.iconCache;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.iconSize;
@@ -25,6 +25,7 @@ import static com.wswdteam.txtlauncher.TxTLauncherApp.setIconColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.startLocalActivity;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.startNewTaskActivity;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.syslog;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.systemMessage;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.textColorMode;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.startedAndroidApp;
 
@@ -124,7 +125,7 @@ public class FavoritesActivity extends AppCompatActivity {
             ll.setVisibility(INVISIBLE);
         }
 
-        if (adaptiveIcon || textColorMode) {
+        if (textColorMode) {
             setIconColor(this, R.id.menuIconF, adaptiveIconColor);
         } else {
             setIconColor(this, R.id.menuIconF, defaultIconColor);
@@ -145,6 +146,10 @@ public class FavoritesActivity extends AppCompatActivity {
         overrideActivityTransition(OVERRIDE_TRANSITION_OPEN, R.anim.enter_from_top, R.anim.exit_to_bottom);
         overrideActivityTransition(OVERRIDE_TRANSITION_CLOSE, R.anim.enter_from_bottom, R.anim.exit_to_top);
         super.onStart();
+        if (focusMode) {
+            systemMessage(getString(R.string.focus_mode_message));
+            finish();
+        }
 
         setFavApp();
         syslog(getString(R.string.started_activity) + ": "+ this.getClass().getSimpleName());

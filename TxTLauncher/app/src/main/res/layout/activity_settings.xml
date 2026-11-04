@@ -86,11 +86,28 @@
                 app:layout_constraintTop_toBottomOf="@+id/addAppButton" />
 
             <Switch
-                android:id="@+id/sysIconCheck"
+                android:id="@+id/focusModeCheck"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="32dp"
+                android:layout_marginEnd="16dp"
+                android:background="@android:color/transparent"
+                android:checkable="true"
+                android:text="@string/settings_focus_mode"
+                android:textAlignment="viewStart"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/addFavAppButton"
+                tools:ignore="UseSwitchCompatOrMaterialXml" />
+
+            <Switch
+                android:id="@+id/sysIconCheck"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
                 android:layout_marginEnd="16dp"
                 android:background="@android:color/transparent"
                 android:checkable="true"
@@ -99,7 +116,7 @@
                 android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/addFavAppButton"
+                app:layout_constraintTop_toBottomOf="@+id/focusModeCheck"
                 tools:ignore="UseSwitchCompatOrMaterialXml" />
 
             <Switch

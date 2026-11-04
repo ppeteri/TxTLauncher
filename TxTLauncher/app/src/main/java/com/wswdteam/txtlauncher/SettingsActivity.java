@@ -1,6 +1,9 @@
 package com.wswdteam.txtlauncher;
 
 import static android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.SETTINGS_EXTRA_TOOLS_TAG;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.SETTINGS_FOCUS_TAG;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.SETTINGS_SHOW_MAIN_CONTROL_ICONS_TAG;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.START_ACT_APPLIST_SEL;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.START_ACT_FAVAPP_SEL;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.START_ACT_HELP;
@@ -8,17 +11,16 @@ import static com.wswdteam.txtlauncher.TxTLauncherApp.SETTINGS_ADAPTIVE_ICON_COL
 import static com.wswdteam.txtlauncher.TxTLauncherApp.SETTINGS_ADAPTIVE_ICON_TAG;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.SETTINGS_BACKGROUND_IMAGE_TAG;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.SETTINGS_DARK_MODE_TAG;
-import static com.wswdteam.txtlauncher.TxTLauncherApp.SETTINGS_EXTRA_TOOLS;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.SETTINGS_HOME_ICON_TAG;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.SETTINGS_ONE_COLUMN_FAVORITES_TAG;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.SETTINGS_SHOW_ARROWS_TAG;
-import static com.wswdteam.txtlauncher.TxTLauncherApp.SETTINGS_SHOW_MAIN_CONTROL_ICONS;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.SETTINGS_SYS_ICON_TAG;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.SETTINGS_TEXT_COLOR_MODE_TAG;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.SETTINGS_URL_PRIVATEAI_TAG;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.SETTINGS_URL_SEARCH_TAG;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.SETTINGS_WEATHER_URL_TAG;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.adaptiveIcon;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.backgroundChanged;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.backgroundImageOrig;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.darkMode;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultBackGroundColor;
@@ -26,6 +28,7 @@ import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultFontSize;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultPlusFontSizeTitle;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultTextColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.extraTools;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.focusMode;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.homeStartAppIcon;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.homeSysIcon;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.onecolFavorites;
@@ -46,8 +49,6 @@ import static com.wswdteam.txtlauncher.TxTLauncherApp.weatherUrlOrig;
 import android.annotation.SuppressLint;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.TypedValue;
 import android.view.GestureDetector;
 import android.view.Gravity;
@@ -74,6 +75,7 @@ import java.io.File;
 //
 public class SettingsActivity extends AppCompatActivity {
     private GestureDetector gestureDetector;
+    private String bckgOrig = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -155,6 +157,7 @@ public class SettingsActivity extends AppCompatActivity {
         @SuppressLint("UseSwitchCompatOrMaterialCode") Switch c7 = findViewById(R.id.showArrows);
         @SuppressLint("UseSwitchCompatOrMaterialCode") Switch c8 = findViewById(R.id.showMainIcons);
         @SuppressLint("UseSwitchCompatOrMaterialCode") Switch c9 = findViewById(R.id.extraTools);
+        @SuppressLint("UseSwitchCompatOrMaterialCode") Switch c10 = findViewById(R.id.focusModeCheck);
 
         val = TxTLauncherApp.sharedPreferences.getString(SETTINGS_SYS_ICON_TAG, "");
         if (!val.isEmpty()) {
@@ -198,17 +201,23 @@ public class SettingsActivity extends AppCompatActivity {
         } else {
             c7.setChecked(showArrows);
         }
-        val = TxTLauncherApp.sharedPreferences.getString(SETTINGS_SHOW_MAIN_CONTROL_ICONS, "");
+        val = TxTLauncherApp.sharedPreferences.getString(SETTINGS_SHOW_MAIN_CONTROL_ICONS_TAG, "");
         if (!val.isEmpty()) {
             c8.setChecked(!val.equals("0"));
         } else {
             c8.setChecked(showMainIcons);
         }
-        val = TxTLauncherApp.sharedPreferences.getString(SETTINGS_EXTRA_TOOLS, "");
+        val = TxTLauncherApp.sharedPreferences.getString(SETTINGS_EXTRA_TOOLS_TAG, "");
         if (!val.isEmpty()) {
             c9.setChecked(!val.equals("0"));
         } else {
             c9.setChecked(extraTools);
+        }
+        val = TxTLauncherApp.sharedPreferences.getString(SETTINGS_FOCUS_TAG, "");
+        if (!val.isEmpty()) {
+            c10.setChecked(!val.equals("0"));
+        } else {
+            c10.setChecked(focusMode);
         }
 
         c1.setOnCheckedChangeListener((buttonView, isChecked) -> {
@@ -277,18 +286,27 @@ public class SettingsActivity extends AppCompatActivity {
         c8.setOnCheckedChangeListener((buttonView, isChecked) -> {
             var settings = TxTLauncherApp.sharedPreferences.edit();
             if (isChecked) {
-                settings.putString(SETTINGS_SHOW_MAIN_CONTROL_ICONS, "1");
+                settings.putString(SETTINGS_SHOW_MAIN_CONTROL_ICONS_TAG, "1");
             } else {
-                settings.putString(SETTINGS_SHOW_MAIN_CONTROL_ICONS, "0");
+                settings.putString(SETTINGS_SHOW_MAIN_CONTROL_ICONS_TAG, "0");
             }
             settings.apply();
         });
         c9.setOnCheckedChangeListener((buttonView, isChecked) -> {
             var settings = TxTLauncherApp.sharedPreferences.edit();
             if (isChecked) {
-                settings.putString(SETTINGS_EXTRA_TOOLS, "1");
+                settings.putString(SETTINGS_EXTRA_TOOLS_TAG, "1");
             } else {
-                settings.putString(SETTINGS_EXTRA_TOOLS, "0");
+                settings.putString(SETTINGS_EXTRA_TOOLS_TAG, "0");
+            }
+            settings.apply();
+        });
+        c10.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            var settings = TxTLauncherApp.sharedPreferences.edit();
+            if (isChecked) {
+                settings.putString(SETTINGS_FOCUS_TAG, "1");
+            } else {
+                settings.putString(SETTINGS_FOCUS_TAG, "0");
             }
             settings.apply();
         });
@@ -300,43 +318,6 @@ public class SettingsActivity extends AppCompatActivity {
         EditText v2 = findViewById(R.id.editUrlSearch);
         EditText v3 = findViewById(R.id.editWeatherLink);
         EditText v4 = findViewById(R.id.editBackgroundImage);
-
-        v1.addTextChangedListener(new TextWatcher() {
-            public void afterTextChanged(Editable s) {
-                var settings = TxTLauncherApp.sharedPreferences.edit();
-                settings.putString(SETTINGS_URL_PRIVATEAI_TAG, String.valueOf(s).trim());
-                settings.apply();
-            }
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            public void onTextChanged(CharSequence s, int start, int before, int count) {}
-        });
-        v2.addTextChangedListener(new TextWatcher() {
-            public void afterTextChanged(Editable s) {
-                var settings = TxTLauncherApp.sharedPreferences.edit();
-                settings.putString(SETTINGS_URL_SEARCH_TAG, String.valueOf(s).trim());
-                settings.apply();
-            }
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            public void onTextChanged(CharSequence s, int start, int before, int count) {}
-        });
-        v3.addTextChangedListener(new TextWatcher() {
-            public void afterTextChanged(Editable s) {
-                var settings = TxTLauncherApp.sharedPreferences.edit();
-                settings.putString(SETTINGS_WEATHER_URL_TAG, String.valueOf(s).trim());
-                settings.apply();
-            }
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            public void onTextChanged(CharSequence s, int start, int before, int count) {}
-        });
-        v4.addTextChangedListener(new TextWatcher() {
-            public void afterTextChanged(Editable s) {
-                var settings = TxTLauncherApp.sharedPreferences.edit();
-                settings.putString(SETTINGS_BACKGROUND_IMAGE_TAG, String.valueOf(s).trim());
-                settings.apply();
-            }
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-            public void onTextChanged(CharSequence s, int start, int before, int count) {}
-        });
 
         val = TxTLauncherApp.sharedPreferences.getString(SETTINGS_URL_PRIVATEAI_TAG, "");
         if (!val.isEmpty()) {
@@ -362,6 +343,7 @@ public class SettingsActivity extends AppCompatActivity {
         } else {
             v4.setText(TxTLauncherApp.backgroundImage);
         }
+        bckgOrig = val;
 
         if (buttonId > 0) {
             RadioButton rb = findViewById(buttonId);
@@ -404,6 +386,29 @@ public class SettingsActivity extends AppCompatActivity {
 
 
     //
+    // Beállítások mentése
+    //
+    public void onPause() {
+        super.onPause();
+        EditText v1 = findViewById(R.id.editPrivateAI);
+        EditText v2 = findViewById(R.id.editUrlSearch);
+        EditText v3 = findViewById(R.id.editWeatherLink);
+        EditText v4 = findViewById(R.id.editBackgroundImage);
+
+        var settings = sharedPreferences.edit();
+        settings.putString(SETTINGS_URL_PRIVATEAI_TAG, v1.getText().toString().trim());
+        settings.putString(SETTINGS_URL_SEARCH_TAG, v2.getText().toString().trim());
+        settings.putString(SETTINGS_WEATHER_URL_TAG, v3.getText().toString().trim());
+        settings.putString(SETTINGS_BACKGROUND_IMAGE_TAG, v4.getText().toString().trim());
+        settings.apply();
+
+        if (!bckgOrig.equals(v4.getText().toString().trim())) {
+            backgroundChanged = true;
+        }
+    }
+
+
+    //
     // App választás indítása
     //
     public void openAddAppList(View view){
@@ -442,11 +447,15 @@ public class SettingsActivity extends AppCompatActivity {
     public void resetButtonBackground(View view) {
         EditText v4 = findViewById(R.id.editBackgroundImage);
         v4.setText(backgroundImageOrig);
-        File imgFile = new File(savedBackgroundImage);
-        if (imgFile.exists()) {
-            if (!imgFile.delete()) {
-                systemMessage(getString(R.string.background_file_not_found));
+        try {
+            File imgFile = new File(savedBackgroundImage);
+            if (imgFile.exists()) {
+                if (!imgFile.delete()) {
+                    systemMessage(getString(R.string.background_file_not_found));
+                }
             }
+        } catch (Exception e) {
+            systemMessage(getString(R.string.background_file_not_found));
         }
     }
 

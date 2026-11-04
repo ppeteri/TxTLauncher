@@ -98,4 +98,7 @@
     <string name="settings_decor">Egyéb vizuális elemek</string>
     <string name="settings_experimental">Kísérleti eszközök</string>
     <string name="widget_calendar">Naptár</string>
+    <string name="settings_focus_mode">Fókusz mód</string>
+    <string name="focus_mode_message">Fókusz mód bekapcsolva</string>
+    <string name="focus_mode_message_off">Fókusz mód kikapcsolva</string>
 </resources>

@@ -2,8 +2,8 @@ package com.wswdteam.txtlauncher;
 
 import static com.wswdteam.txtlauncher.FavoritesActivity.favAppName;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.SearchManager;
 import android.content.ComponentName;
 import android.content.Context;
@@ -11,17 +11,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Rect;
-import android.graphics.RectF;
-import android.graphics.drawable.AdaptiveIconDrawable;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.GradientDrawable;
-import android.graphics.drawable.LayerDrawable;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
@@ -37,7 +27,6 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.content.ContextCompat;
-import androidx.core.graphics.ColorUtils;
 import androidx.core.graphics.drawable.DrawableCompat;
 
 import java.util.ArrayList;
@@ -111,14 +100,15 @@ public class TxTLauncherApp extends android.app.Application {
     public static String SETTINGS_TEXT_COLOR_MODE_TAG = "TextColorMode";
     public static String SETTINGS_DARK_MODE_TAG = "DarkMode";
     public static String SETTINGS_SHOW_ARROWS_TAG = "ShowArrows";
-    public static String SETTINGS_SHOW_MAIN_CONTROL_ICONS = "ShowMainIcons";
-    public static String SETTINGS_EXTRA_TOOLS = "ExtraTools";
+    public static String SETTINGS_SHOW_MAIN_CONTROL_ICONS_TAG = "ShowMainIcons";
+    public static String SETTINGS_EXTRA_TOOLS_TAG = "ExtraTools";
     public static String SETTINGS_ONE_COLUMN_FAVORITES_TAG = "oneColFavorites";
     public static String SETTINGS_URL_PRIVATEAI_TAG = "PrivateAI";
     public static String SETTINGS_URL_SEARCH_TAG = "Search";
     public static String SETTINGS_WEATHER_URL_TAG = "Weather";
     public static String SETTINGS_BACKGROUND_IMAGE_TAG = "BackgroundImage";
     public static String SETTINGS_NOTE_TAG = "AppNote";
+    public static String SETTINGS_FOCUS_TAG = "FocusMode";
 
     // beállítások alapértelmezett tartalma
     public static String AI_NAME_STRING = "gemini";
@@ -127,10 +117,11 @@ public class TxTLauncherApp extends android.app.Application {
     public static String privateAIUrlOrig = "https://duckduckgo.com/?q=DuckDuckGo+AI+Chat&ia=chat&duckai=1";
     public static String privateSearchUrlOrig = "https://duckduckgo.com/?q=";
     public static String weatherUrl = "";
-    public static String backgroundImage = "";
     public static String weatherUrlOrig = "";
+    public static String backgroundImage = "";
     public static String backgroundImageOrig = "";
     public static String savedBackgroundImage = "";
+    public static Boolean backgroundChanged = false;
 
     // rendszer változók
     public static SharedPreferences sharedPreferences;
@@ -148,6 +139,7 @@ public class TxTLauncherApp extends android.app.Application {
     public static boolean showArrows = false;
     public static boolean showMainIcons = true;
     public static boolean extraTools = false;
+    public static boolean focusMode = false;
     public static int adaptiveIconColor = 0;
     public static int defaultIconColor = 0;
 
@@ -188,7 +180,7 @@ public class TxTLauncherApp extends android.app.Application {
 
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
 
-        versionCheck();
+        VersionManagement.versionCheck();
 
         weatherUrl = getString(R.string.search_weather);
         weatherUrlOrig = getString(R.string.search_weather);
@@ -345,8 +337,32 @@ public class TxTLauncherApp extends android.app.Application {
     //
     //  Fő nézet: beállítások betöltése
     //
+    @SuppressLint("PrivateResource")
     public static void getSettingsMain(Context cont) {
         String val;
+
+        if (sharedPreferences.contains(SETTINGS_DARK_MODE_TAG)) {
+            val = sharedPreferences.getString(SETTINGS_DARK_MODE_TAG, null);
+            if (val != null) {
+                darkMode = !val.equals("0");
+            }
+        }
+        // szín beállítás a változókba
+        if (darkMode) {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
+            defaultBackGroundColor = cont.getColor(com.google.android.material.R.color.design_dark_default_color_background);
+            defaultTextColor = cont.getColor(com.google.android.material.R.color.design_dark_default_color_on_surface);
+            defaultSelectColor = cont.getColor(com.google.android.material.R.color.design_dark_default_color_primary_variant);
+            defaultLetterColor = cont.getColor(com.google.android.material.R.color.design_dark_default_color_secondary_variant);
+            defaultIconColor = cont.getColor(com.google.android.material.R.color.design_dark_default_color_on_surface);
+        } else {
+            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
+            defaultBackGroundColor = cont.getColor(com.google.android.material.R.color.design_default_color_background);
+            defaultTextColor = cont.getColor(com.google.android.material.R.color.design_default_color_on_surface);
+            defaultSelectColor = cont.getColor(com.google.android.material.R.color.design_default_color_secondary_variant);
+            defaultLetterColor = cont.getColor(com.google.android.material.R.color.design_default_color_secondary);
+            defaultIconColor = cont.getColor(com.google.android.material.R.color.design_default_color_on_surface);
+        }
 
         if (sharedPreferences.contains(SETTINGS_ADAPTIVE_ICON_TAG)) {
             val = sharedPreferences.getString(SETTINGS_ADAPTIVE_ICON_TAG, null);
@@ -414,13 +430,6 @@ public class TxTLauncherApp extends android.app.Application {
             }
         }
 
-        if (sharedPreferences.contains(SETTINGS_DARK_MODE_TAG)) {
-            val = sharedPreferences.getString(SETTINGS_DARK_MODE_TAG, null);
-            if (val != null) {
-                darkMode = !val.equals("0");
-            }
-        }
-
         if (sharedPreferences.contains(SETTINGS_SHOW_ARROWS_TAG)) {
             val = sharedPreferences.getString(SETTINGS_SHOW_ARROWS_TAG, null);
             if (val != null) {
@@ -428,15 +437,15 @@ public class TxTLauncherApp extends android.app.Application {
             }
         }
 
-        if (sharedPreferences.contains(SETTINGS_SHOW_MAIN_CONTROL_ICONS)) {
-            val = sharedPreferences.getString(SETTINGS_SHOW_MAIN_CONTROL_ICONS, null);
+        if (sharedPreferences.contains(SETTINGS_SHOW_MAIN_CONTROL_ICONS_TAG)) {
+            val = sharedPreferences.getString(SETTINGS_SHOW_MAIN_CONTROL_ICONS_TAG, null);
             if (val != null) {
                 showMainIcons = !val.equals("0");
             }
         }
 
-        if (sharedPreferences.contains(SETTINGS_EXTRA_TOOLS)) {
-            val = sharedPreferences.getString(SETTINGS_EXTRA_TOOLS, null);
+        if (sharedPreferences.contains(SETTINGS_EXTRA_TOOLS_TAG)) {
+            val = sharedPreferences.getString(SETTINGS_EXTRA_TOOLS_TAG, null);
             if (val != null) {
                 extraTools = !val.equals("0");
             }
@@ -475,6 +484,13 @@ public class TxTLauncherApp extends android.app.Application {
             val = sharedPreferences.getString(SETTINGS_BACKGROUND_IMAGE_TAG, null);
             if (val != null) {
                 backgroundImage = val;
+            }
+        }
+
+        if (sharedPreferences.contains(SETTINGS_FOCUS_TAG)) {
+            val = sharedPreferences.getString(SETTINGS_FOCUS_TAG, null);
+            if (val != null) {
+                focusMode = !val.equals("0");
             }
         }
     }
@@ -528,7 +544,7 @@ public class TxTLauncherApp extends android.app.Application {
 
 
     //
-    //
+    // külön task indítása
     //
     public static boolean startNewTaskActivity(Context cont, String pkg, String cls) {
         //Intent intent = new Intent();
@@ -832,281 +848,6 @@ public class TxTLauncherApp extends android.app.Application {
                 break;
         }
         return true;
-    }
-
-
-
-    //
-    // ikonok kiszedése és szinezáse
-    //
-    static Drawable getDrawableTxT(View view, Drawable appI, int iconSize) {
-        Drawable iconToDisplay;
-        Drawable base = appI != null ? appI.mutate() : null;
-
-        if (adaptiveIcon && base instanceof AdaptiveIconDrawable) {
-            AdaptiveIconDrawable adaptI = (AdaptiveIconDrawable) base;
-            Drawable monoIcon = adaptI.getMonochrome();
-            if (monoIcon == null) {
-                monoIcon = ContextCompat.getDrawable(view.getContext(), R.drawable.app);
-            }
-            iconToDisplay = getDefaultMonoIcon(view, monoIcon, iconSize);
-            if (iconToDisplay == null) {
-                iconToDisplay = getDefaultIconAsLayer(view, iconSize);
-            }
-        } else {
-            if (adaptiveIcon) {
-                iconToDisplay = getDefaultIconAsLayer(view, iconSize);
-            } else {
-                if (base == null) {
-                    iconToDisplay = getDefaultIconAsLayer(view, iconSize);
-                } else {
-                    LayerDrawable layer = new LayerDrawable(new Drawable[]{base});
-                    layer.setLayerSize(0, iconSize, iconSize);
-                    layer.setBounds(0, 0, iconSize, iconSize);
-                    iconToDisplay = layer;
-                }
-            }
-        }
-        assert iconToDisplay != null;
-        iconToDisplay.setBounds(0, 0, iconSize, iconSize);
-        return iconToDisplay;
-    }
-
-    // alapértelmezett app ikon
-    private static Drawable getDefaultIconAsLayer(View view, int iconSize) {
-        try {
-            Drawable d = ContextCompat.getDrawable(view.getContext(), R.drawable.app);
-            if (d != null) {
-                d = d.mutate();
-                if (textColorMode) {
-                    d.setTint(adaptiveIconColor);
-                }
-                LayerDrawable layer = new LayerDrawable(new Drawable[]{d});
-                layer.setLayerSize(0, iconSize, iconSize);
-                layer.setBounds(0, 0, iconSize, iconSize);
-                return layer;
-            }
-        } catch (Exception e) {
-            // Hiba kezelése
-        }
-        return null;
-    }
-
-    // mono app ikon
-    public static Drawable getDefaultMonoIcon(View view, Drawable monoIcon, int iconSize) {
-        try {
-            if (monoIcon != null) {
-                monoIcon = monoIcon.mutate();
-                monoIcon.setTint(adaptiveIconColor);
-                monoIcon.setBounds(0, 0, iconSize, iconSize);
-                // 1
-                // - float negInset = -0.50f; // -50%
-                // - InsetDrawable insetIcon = new InsetDrawable(monoIcon, negInset);
-                // - LayerDrawable layer = new LayerDrawable(new Drawable[]{insetIcon});
-                // - layer.setLayerSize(0, iconSize, iconSize);
-                // - layer.setBounds(0, 0, iconSize, iconSize);
-                // 2 - nagyított ikon, de drive eltűnik
-                // - int largerSize = (int) (iconSize * 1.5f);
-                // - int offset = (largerSize - iconSize) / 2;
-                // - LayerDrawable layer = new LayerDrawable(new Drawable[]{monoIcon});
-                // - layer.setLayerSize(0, largerSize, largerSize);
-                // - layer.setLayerInset(0, -offset, -offset, -offset, -offset);
-                // - layer.setBounds(0, 0, iconSize, iconSize);
-                // 3 - teljes háttér
-                // - GradientDrawable background = new GradientDrawable();
-                // - int baseColor = ContextCompat.getColor(view.getContext(), R.color.transparentgray);
-                // - int translucentColor = ColorUtils.setAlphaComponent(baseColor, 180);
-                // - background.setColor(translucentColor);
-                // - background.setShape(GradientDrawable.OVAL);
-                // - background.setCornerRadius(iconSize * 0.22f);
-                // 4
-                // - GradientDrawable background = new GradientDrawable();
-                // - background.setColor(Color.TRANSPARENT);
-                // - int baseColor = ContextCompat.getColor(view.getContext(), R.color.transparentgray);
-                // - int translucentColor = ColorUtils.setAlphaComponent(baseColor, 180);
-                // - background.setStroke(iconPadding, translucentColor);
-                // - background.setShape(GradientDrawable.OVAL);
-                // - int inset = iconPadding;
-                // - if (full) {
-                // -   inset = inset * 4;
-                // - }
-                // - LayerDrawable layer = new LayerDrawable(new Drawable[]{background, monoIcon});
-                // - layer.setLayerSize(0, iconSize, iconSize);
-                // - layer.setLayerInset(1, inset, inset, inset, inset);
-                // - return layer;
-
-                //  Nagyobb ideiglenes Bitmap az elemzéshez és vágáshoz
-                int rawSize = iconSize * 2;
-                Bitmap rawBitmap = Bitmap.createBitmap(rawSize, rawSize, Bitmap.Config.ARGB_8888);
-                Canvas rawCanvas = new Canvas(rawBitmap);
-                monoIcon.setBounds(0, 0, rawSize, rawSize);
-                monoIcon.draw(rawCanvas);
-                // Automatikus margóvágás (tartalom határainak keresése)
-                int minX = rawSize, minY = rawSize, maxX = 0, maxY = 0;
-                boolean hasContent = false;
-                for (int y = 0; y < rawSize; y++) {
-                    for (int x = 0; x < rawSize; x++) {
-                        int pixel = rawBitmap.getPixel(x, y);
-                        int r = Color.red(pixel);
-                        int g = Color.green(pixel);
-                        int b = Color.blue(pixel);
-                        int a = Color.alpha(pixel);
-                        if (!(r > 240 && g > 240 && b > 240) && a > 50) {
-                            if (x < minX) minX = x;
-                            if (x > maxX) maxX = x;
-                            if (y < minY) minY = y;
-                            if (y > maxY) maxY = y;
-                            hasContent = true;
-                        }
-                    }
-                }
-                if (!hasContent || minX >= maxX || minY >= maxY) {
-                    minX = 0; minY = 0; maxX = rawSize; maxY = rawSize;
-                }
-                int croppedWidth = maxX - minX;
-                int croppedHeight = maxY - minY;
-                Bitmap croppedBitmap = Bitmap.createBitmap(rawBitmap, minX, minY, croppedWidth, croppedHeight);
-                // Aránytartó méretezés és középre igazítás belső paddinggel
-                Bitmap finalBitmap = Bitmap.createBitmap(iconSize, iconSize, Bitmap.Config.ARGB_8888);
-                Canvas finalCanvas = new Canvas(finalBitmap);
-                //float paddingPercentage = 0.3f;
-                float paddingPercentage = 0.3f;
-                float maxAvailableSize = iconSize * (1.0f - (paddingPercentage * 2));
-                float scale = Math.min(maxAvailableSize / croppedWidth, maxAvailableSize / croppedHeight);
-                float scaledWidth = croppedWidth * scale;
-                float scaledHeight = croppedHeight * scale;
-                float left = (iconSize - scaledWidth) / 2f;
-                float top = (iconSize - scaledHeight) / 2f;
-                Rect srcRect = new Rect(0, 0, croppedWidth, croppedHeight);
-                RectF dstRect = new RectF(left, top, left + scaledWidth, top + scaledHeight);
-                Paint tintPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-                finalCanvas.drawBitmap(croppedBitmap, srcRect, dstRect, tintPaint);
-                int baseColor = ContextCompat.getColor(view.getContext(), R.color.transparentgray);
-                int translucentColor = ColorUtils.setAlphaComponent(baseColor, 180);
-                // A keret távolsága a szélektől
-                int frameMargin = (int) (iconSize * 0.1f);
-                GradientDrawable background = new GradientDrawable();
-                background.setShape(GradientDrawable.OVAL);
-                background.setStroke((int) (iconSize * 0.05f), translucentColor);
-                // Keret vastagsága
-                background.setColor(Color.TRANSPARENT);
-                // Itt állítjuk be a margót, hogy a keret ne érjen ki teljesen a szélére
-                background.setBounds(frameMargin, frameMargin, iconSize - frameMargin, iconSize - frameMargin);
-                background.draw(finalCanvas);
-                Drawable mi = new BitmapDrawable(view.getContext().getResources(), finalBitmap);
-                if (!textColorMode) {
-                    mi.setTint(defaultIconColor);
-                }
-                return mi;
-
-            }
-        } catch (Exception e) {
-            // Hiba kezelése
-        }
-        return null;
-    }
-
-
-
-    //
-    // verzió ellenőrzése
-    //
-    public void versionCheck() {
-        // régi beállítások törlése
-        // - String valx = sharedPreferences.getString(SETTINGS_BACKGROUND_IMAGE, "");
-        // - if (!valx.isEmpty()) {
-        // -    var settings = sharedPreferences.edit();
-        // -    settings.remove(SETTINGS_BACKGROUND_IMAGE);
-        // -    settings.apply();
-        // - }
-
-        //newInstall();
-        String val = sharedPreferences.getString(SETTINGS_VERSION_TAG, "");
-        if (val.isEmpty()) {
-            newInstall();
-            //systemMessage(getString(R.string.new_install));
-        } else {
-            if (!val.equals(TXT_VERSION)) {
-                updateInstall();
-                //systemMessage(getString(R.string.update_install));
-            }
-        }
-    }
-
-
-
-    //
-    // Első indítás
-    //
-    public void newInstall() {
-        //
-        // első indítás: alap beállítások
-        //
-        // feladatok
-        var settings = TxTLauncherApp.sharedPreferences.edit();
-        settings.putString(SETTINGS_VERSION_TAG, TXT_VERSION);
-        settings.putString(SETTINGS_SYS_ICON_TAG, "0");
-        settings.putString(SETTINGS_HOME_ICON_TAG, "0");
-        settings.putString(SETTINGS_ADAPTIVE_ICON_TAG, "0");
-        settings.putString(SETTINGS_ONE_COLUMN_FAVORITES_TAG, "0");
-        settings.putString(SETTINGS_TEXT_COLOR_MODE_TAG, "0");
-        settings.putString(SETTINGS_SHOW_ARROWS_TAG, "0");
-        settings.putString(SETTINGS_SHOW_MAIN_CONTROL_ICONS, "1");
-        settings.putString(SETTINGS_EXTRA_TOOLS, "0");
-        if (darkMode) {
-            settings.putString(SETTINGS_DARK_MODE_TAG, "1");
-        } else {
-            settings.putString(SETTINGS_DARK_MODE_TAG, "0");
-        }
-        settings.apply();
-
-        verNewInstall = true;
-    }
-
-
-
-    //
-    // Frissítés utáni első indítás
-    //
-    public void updateInstall() {
-        //
-        // esetleges beállítások és egyebek módosítása az új verzióhoz
-        //
-        // feladatok
-        var settings = TxTLauncherApp.sharedPreferences.edit();
-        settings.putString(SETTINGS_VERSION_TAG, TXT_VERSION);
-        settings.apply();
-
-        verUpdate = true;
-    }
-
-
-
-    //
-    // üzenet
-    //
-    public static void verMessage(Context cont) {
-        if (verNewInstall) {
-            // üzenet
-            AlertDialog.Builder builder = new AlertDialog.Builder(cont);
-            String msg = cont.getString(R.string.news_firstrun);
-            builder.setTitle(cont.getString(R.string.news_firstrun_title))
-                    .setMessage(msg)
-                    .setPositiveButton(cont.getString(R.string.button_next), (dialog,
-                                      id) -> cont.startActivity(new Intent(cont, HelpActivity.class)));
-            AlertDialog alert = builder.create();
-            alert.show();
-        }
-        if (verUpdate) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(cont);
-            String msg = cont.getString(R.string.news_update);
-            builder.setTitle(cont.getString(R.string.news_update_title))
-                    .setMessage(msg)
-                    .setPositiveButton(cont.getString(R.string.button_next), (dialog,
-                                      id) -> cont.startActivity(new Intent(cont, HelpActivity.class)));
-            AlertDialog alert = builder.create();
-            alert.show();
-        }
     }
 
 

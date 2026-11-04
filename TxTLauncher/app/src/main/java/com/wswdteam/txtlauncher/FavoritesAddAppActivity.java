@@ -1,5 +1,6 @@
 package com.wswdteam.txtlauncher;
 
+import static com.wswdteam.txtlauncher.IconManagement.getDrawableTxT;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.SETTINGS_FAV_APP_TAG;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.adaptiveIconColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.allAppData;
@@ -10,7 +11,6 @@ import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultPlusFontSizeTitle;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultSelectColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultTextColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.FAV_APP_NUM;
-import static com.wswdteam.txtlauncher.TxTLauncherApp.getDrawableTxT;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.homeStartAppIcon;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.iconCache;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.iconSize;

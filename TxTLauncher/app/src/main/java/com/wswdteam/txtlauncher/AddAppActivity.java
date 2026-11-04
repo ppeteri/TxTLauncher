@@ -1,5 +1,6 @@
 package com.wswdteam.txtlauncher;
 
+import static com.wswdteam.txtlauncher.IconManagement.getDrawableTxT;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.HOME_APP_NUM;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.SETTINGS_APP_TAG;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.adaptiveIconColor;
@@ -196,7 +197,7 @@ public class AddAppActivity extends AppCompatActivity {
                                 if (ic == null) {
                                     // Ha nincs a cache-ben, legyártjuk és eltároljuk
                                     Drawable appI = info.loadIcon(packageMan);
-                                    ic = TxTLauncherApp.getDrawableTxT(row, appI, iconSize);
+                                    ic = getDrawableTxT(row, appI, iconSize);
                                     iconCache.put(cacheKey, ic);
                                 }
 

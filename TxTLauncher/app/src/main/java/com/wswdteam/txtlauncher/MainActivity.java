@@ -2,6 +2,9 @@ package com.wswdteam.txtlauncher;
 
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
+import static com.wswdteam.txtlauncher.IconManagement.getDrawableTxT;
+import static com.wswdteam.txtlauncher.IconManagement.iconMainApp;
+import static com.wswdteam.txtlauncher.IconManagement.imageButtonColorize;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.HOME_APP_NUM;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.START_ACT_APPLIST;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.START_ACT_FAVAPP;
@@ -20,13 +23,13 @@ import static com.wswdteam.txtlauncher.TxTLauncherApp.START_SEARCH;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.START_SEARCH_LONG;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.START_SETTINGS_LONG;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.START_WEATHER;
-import static com.wswdteam.txtlauncher.TxTLauncherApp.adaptiveIcon;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.adaptiveIconColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.allApplicationsList;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.backgroundChanged;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultBackGroundColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultIcons;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.extraTools;
-import static com.wswdteam.txtlauncher.TxTLauncherApp.getDrawableTxT;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.focusMode;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.getSettingsAppList;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.iconCache;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.lockApp;
@@ -41,9 +44,6 @@ import static com.wswdteam.txtlauncher.TxTLauncherApp.startNewTaskActivity;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.textColorMode;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.darkMode;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.homeStartAppIcon;
-import static com.wswdteam.txtlauncher.TxTLauncherApp.homeSysIcon;
-import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultLetterColor;
-import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultSelectColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.allAppData;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.backgroundImage;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultFontSize;
@@ -59,23 +59,19 @@ import static com.wswdteam.txtlauncher.TxTLauncherApp.syslog;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.systemMessage;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.generateAppList;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.getSettingsMain;
-import static com.wswdteam.txtlauncher.TxTLauncherApp.verMessage;
+import static com.wswdteam.txtlauncher.VersionManagement.verMessage;
 import static java.lang.Math.round;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
-import android.graphics.drawable.AdaptiveIconDrawable;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.GradientDrawable;
-import android.graphics.drawable.InsetDrawable;
-import android.graphics.drawable.LayerDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
@@ -96,7 +92,6 @@ import android.widget.TextView;
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.Insets;
@@ -109,9 +104,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.List;
 import java.util.Locale;
-import java.util.Objects;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -162,6 +155,17 @@ public class MainActivity extends AppCompatActivity {
         gestureDetector = GestureManagerMain.create(this, new GestureManagerMain.Callback() {
             @Override
             public void onLongPress() {
+                var settings = TxTLauncherApp.sharedPreferences.edit();
+                //if (focusMode) {
+                //    systemMessage(getString(R.string.focus_mode_message_off));
+                //    focusMode = false;
+                //    settings.putString(TxTLauncherApp.SETTINGS_FOCUS_TAG, "0");
+                //} else {
+                    systemMessage(getString(R.string.focus_mode_message));
+                    focusMode = true;
+                    settings.putString(TxTLauncherApp.SETTINGS_FOCUS_TAG, "1");
+                //}
+                settings.apply();
             }
             @Override
             public void onLeft() {
@@ -266,21 +270,13 @@ public class MainActivity extends AppCompatActivity {
             return true;
         });
 
-        LinearLayout ll = findViewById(R.id.AppFrame);
-        ll.setOnLongClickListener(v -> {
-            openFavActivity();
-            return true;
-        });
-
         // új telepítés vagy frissítési üzenet
         verMessage(this);
 
         // első indulás
-        startedAndroidApp = true;
         generateAppList();
         getSettingsMain(this);
         getSettingsAppList();
-        backgroundImage = backgroundImageBackup;
         saveButtonImages();
         backgroundPrepare();
         setColors();
@@ -334,7 +330,10 @@ public class MainActivity extends AppCompatActivity {
                 getSettingsAppList();
             }
             getSettingsMain(this);
-            backgroundPrepare();
+            if (backgroundChanged) {
+                setupBackground();
+                backgroundChanged = false;
+            }
             setColors();
             screenPrepare();
             buttonPrepare();
@@ -388,7 +387,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        timeHandler.removeCallbacks(timeRunnable);
+        stopClock();
     }
 
 
@@ -424,32 +423,24 @@ public class MainActivity extends AppCompatActivity {
     // a háttér előkészítése
     //
     private void backgroundPrepare() {
-        if (Objects.equals(backgroundImage, backgroundImageBackup)) {
-            View view = findViewById(R.id.mainView);
-            if (view == null) return;
-            // régi kép
-            File imgFile = new File(savedBackgroundImage);
-            if (imgFile.exists()) {
-                try {
-                    Bitmap bitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
-                    if (bitmap != null) {
-                        view.setBackground(new BitmapDrawable(getResources(), bitmap));
-                    } else {
-                        view.setBackground(null);
-                    }
-                } catch (OutOfMemoryError e) {
-                    //e.printStackTrace();
-                    systemMessage(getString(R.string.background_file_not_found));
+        View view = findViewById(R.id.mainView);
+        if (view == null) return;
+        // régi kép
+        File imgFile = new File(savedBackgroundImage);
+        if (imgFile.exists()) {
+            try {
+                Bitmap bitmap = BitmapFactory.decodeFile(imgFile.getAbsolutePath());
+                if (bitmap != null) {
+                    view.setBackground(new BitmapDrawable(getResources(), bitmap));
+                } else {
                     view.setBackground(null);
                 }
-            } else {
+            } catch (OutOfMemoryError e) {
+                systemMessage(getString(R.string.background_file_not_found));
                 view.setBackground(null);
             }
         } else {
-            // új kép
-            if (!backgroundImage.isEmpty()) {
-                setupBackground();
-            }
+            view.setBackground(null);
         }
     }
 
@@ -467,14 +458,18 @@ public class MainActivity extends AppCompatActivity {
                 firstPermissionRequest = false;
             }
         }
+        View view = findViewById(R.id.mainView);
+        if (backgroundImage.isEmpty()) {
+            view.setBackground(null);
+            return;
+        }
         File dir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
         File sourceFile = new File(dir + "/" + backgroundImage);
         if (!sourceFile.exists()) {
             systemMessage(getString(R.string.background_file_not_found));
-            backgroundImageBackup = backgroundImage;
+            backgroundPrepare();
             return;
         }
-        View view = findViewById(R.id.mainView);
         int screenWidth = view.getWidth();
         int screenHeight = view.getHeight();
         try {
@@ -520,23 +515,6 @@ public class MainActivity extends AppCompatActivity {
     //
     @SuppressLint("PrivateResource")
     public void setColors() {
-        // szín beállítás a változókba
-        if (darkMode) {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
-            defaultBackGroundColor = getColor(com.google.android.material.R.color.design_dark_default_color_background);
-            defaultTextColor = getColor(com.google.android.material.R.color.design_dark_default_color_on_surface);
-            defaultSelectColor = getColor(com.google.android.material.R.color.design_dark_default_color_primary_variant);
-            defaultLetterColor = getColor(com.google.android.material.R.color.design_dark_default_color_secondary_variant);
-            defaultIconColor = getColor(com.google.android.material.R.color.design_dark_default_color_on_surface);
-        } else {
-            AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO);
-            defaultBackGroundColor = getColor(com.google.android.material.R.color.design_default_color_background);
-            defaultTextColor = getColor(com.google.android.material.R.color.design_default_color_on_surface);
-            defaultSelectColor = getColor(com.google.android.material.R.color.design_default_color_secondary_variant);
-            defaultLetterColor = getColor(com.google.android.material.R.color.design_default_color_secondary);
-            defaultIconColor = getColor(com.google.android.material.R.color.design_default_color_on_surface);
-        }
-
         // teljes háttér színe
         getWindow().getDecorView().setBackgroundColor(defaultBackGroundColor);
 
@@ -786,152 +764,41 @@ public class MainActivity extends AppCompatActivity {
 
 
 
-    // fő ikonok kirajzolása
-    private Drawable mainDrawable(Drawable appI, Drawable drI) {
-        Drawable iconToDisplay;
-        if (adaptiveIcon && appI instanceof AdaptiveIconDrawable) {
-            AdaptiveIconDrawable adaptI = (AdaptiveIconDrawable) appI;
-            Drawable monoIcon = adaptI.getMonochrome();
-            if (monoIcon != null) {
-                monoIcon.mutate();
-                int negPadding = -(iconSize/2);
-                InsetDrawable insetIcon = new InsetDrawable(monoIcon, negPadding);
-                LayerDrawable layer = new LayerDrawable(new Drawable[]{insetIcon});
-                layer.setLayerSize(0, iconSize, iconSize);
-                iconToDisplay = layer;
-            } else {
-                iconToDisplay = getDefaultIconMain(iconSize, drI);
-            }
-        } else {
-            if (adaptiveIcon) {
-                iconToDisplay = getDefaultIconMain(iconSize, drI);
-            } else {
-                LayerDrawable layer = new LayerDrawable(new Drawable[]{appI});
-                layer.setLayerSize(0, iconSize, iconSize);
-                iconToDisplay = layer;
-            }
-        }
-        if (!adaptiveIcon) {
-            if (homeSysIcon) {
-                iconToDisplay = appI;
-            } else {
-                iconToDisplay = drI;
-            }
-        }
-        assert iconToDisplay != null;
-        iconToDisplay.setBounds(0, 0, iconSize, iconSize);
-        return iconToDisplay;
-    }
-
-
-    // Segédfüggvény a kód tisztaságáért
-    private Drawable getDefaultIconMain(int iconSize, Drawable drI) {
-        if (drI != null) {
-            drI.mutate();
-            drI.setTint(adaptiveIconColor);
-            drI.setBounds(0, 0, iconSize, iconSize);
-            LayerDrawable layer = new LayerDrawable(new Drawable[]{drI});
-            layer.setLayerSize(0, iconSize, iconSize);
-            return layer;
-        }
-        return null;
-    }
-
-
-
     //
     //  Fő nézet: alapértelmezett gombok előkészítése, alapértelmezett app kéeresése
     //
     @SuppressLint("UseCompatLoadingForDrawables")
     public void buttonPrepare() {
+        View view = findViewById(R.id.buttonsFrame);
+        Context cont = getBaseContext();
+
         // dial
         Intent intent = new Intent(Intent.ACTION_DIAL, null);
         ImageView iv = findViewById(R.id.dialButton);
         Drawable dr = getDrawable(R.drawable.call);
-        imageButtonColorize(intent, iv, dr, 0);
+        imageButtonColorize(cont, view, intent, iv, dr, 0);
 
         // mail
         intent = new Intent(Intent.ACTION_MAIN, null);
         intent.addCategory(Intent.CATEGORY_APP_EMAIL);
         iv = findViewById(R.id.mailButton);
         dr = getDrawable(R.drawable.email);
-        imageButtonColorize(intent, iv, dr, 1);
+        imageButtonColorize(cont, view, intent, iv, dr, 1);
 
-        // app list
-        ImageView appF = findViewById(R.id.applistButton);
-        appF.clearColorFilter();
-        if ((homeSysIcon) && (!adaptiveIcon)) {
-            GradientDrawable border = new GradientDrawable();
-            border.setColor(Color.TRANSPARENT);
-            border.setStroke(2, Color.WHITE);
-            border.setCornerRadius(10);
-            appF.setBackground(border);
-            appF.setPadding(15, 15, 15, 15);
-        } else {
-            appF.setBackground(null);
-            appF.setPadding(0, 0, 0, 0);
-        }
-        //appF.setImageDrawable(defaultIcons.get(2));
-        if (textColorMode) {
-            if (homeSysIcon) {
-                if (adaptiveIcon) {
-                    appF.setColorFilter(adaptiveIconColor);
-                } else {
-                    appF.setColorFilter(defaultIconColor);
-                }
-            } else {
-                appF.setColorFilter(adaptiveIconColor);
-            }
-        } else {
-            appF.setColorFilter(defaultIconColor);
-        }
+        // app list icon
+        iconMainApp(view);
 
         // browser
         intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://"));
         iv = findViewById(R.id.browserButton);
         dr = getDrawable(R.drawable.internet);
-        imageButtonColorize(intent, iv, dr, 3);
+        imageButtonColorize(cont, view, intent, iv, dr, 3);
 
         // camera
         intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         iv = findViewById(R.id.cameraButton);
         dr = getDrawable(R.drawable.photo);
-        imageButtonColorize(intent, iv, dr, 4);
-    }
-
-
-
-    //
-    // gomb szinezése
-    //
-    public void imageButtonColorize(Intent in, ImageView iv, Drawable dr, int deficon) {
-        List<ResolveInfo> appDL = getPackageManager().queryIntentActivities(in, 0);
-        ResolveInfo appD = appDL.get(0);
-        if (homeSysIcon) {
-            Drawable appI = appD.loadIcon(packageMan);
-            @SuppressLint("UseCompatLoadingForDrawables")
-            Drawable appI2 = mainDrawable(appI, dr);
-            iv.setImageDrawable(appI2);
-            iv.clearColorFilter();
-            if (adaptiveIcon) {
-                if (textColorMode) {
-                    iv.setColorFilter(adaptiveIconColor);
-                } else {
-                    iv.setColorFilter(defaultIconColor);
-                }
-            }
-        } else {
-            iv.setImageDrawable(defaultIcons.get(deficon));
-            if (textColorMode) {
-                iv.clearColorFilter();
-                iv.setColorFilter(adaptiveIconColor);
-            } else {
-                if (!homeSysIcon) {
-                    iv.clearColorFilter();
-                    iv.setColorFilter(defaultIconColor);
-                }
-            }
-        }
+        imageButtonColorize(cont, view, intent, iv, dr, 4);
     }
 
 
@@ -1014,7 +881,6 @@ public class MainActivity extends AppCompatActivity {
     //
     public void startSearch(View view) {
         startInsideFunctionApp(this, START_SEARCH);
-        //syslog("Button start: search");
     }
 
 
@@ -1023,7 +889,6 @@ public class MainActivity extends AppCompatActivity {
     //
     public void openGoogleDiscovery() {
         startInsideFunctionApp(this, START_DISCOVERY);
-        //syslog("Button start: search");
     }
 
 
@@ -1114,8 +979,8 @@ public class MainActivity extends AppCompatActivity {
     //
     public void startButtonWidgetActivity(View v) {
         startLocalActivity(this, START_ACT_WIDGET);
-        //syslog("Action swipe right: open widgets");
         startedWidgetAct = true;
+        //syslog("Action swipe right: open widgets");
     }
 
 
