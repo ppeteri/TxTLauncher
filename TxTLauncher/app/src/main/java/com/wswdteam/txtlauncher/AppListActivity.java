@@ -9,7 +9,6 @@ import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultFontSize;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultLetterColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultPlusFontSize;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultTextColor;
-import static com.wswdteam.txtlauncher.TxTLauncherApp.focusMode;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.hideKeyboard;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.homeStartAppIcon;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.iconCache;
@@ -17,7 +16,6 @@ import static com.wswdteam.txtlauncher.TxTLauncherApp.iconSize;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.packageMan;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.startNewTaskActivity;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.syslog;
-import static com.wswdteam.txtlauncher.TxTLauncherApp.systemMessage;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.textColorMode;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.startedAndroidApp;
 
@@ -132,10 +130,6 @@ public class AppListActivity extends AppCompatActivity {
         overrideActivityTransition(OVERRIDE_TRANSITION_OPEN, R.anim.enter_from_bottom, R.anim.exit_to_top);
         overrideActivityTransition(OVERRIDE_TRANSITION_CLOSE, R.anim.enter_from_top, R.anim.exit_to_bottom);
         super.onStart();
-        if (focusMode) {
-            systemMessage(getString(R.string.focus_mode_message));
-            finish();
-        }
 
         appListView();
         SearchView sv = findViewById(R.id.allAppListSearch);

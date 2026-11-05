@@ -22,12 +22,10 @@ import android.util.Log;
 import android.util.LruCache;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.content.ContextCompat;
-import androidx.core.graphics.drawable.DrawableCompat;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -458,7 +456,6 @@ public class TxTLauncherApp extends android.app.Application {
             }
         }
 
-
         if (sharedPreferences.contains(SETTINGS_URL_PRIVATEAI_TAG)) {
             val = sharedPreferences.getString(SETTINGS_URL_PRIVATEAI_TAG, null);
             if (val != null) {
@@ -490,26 +487,15 @@ public class TxTLauncherApp extends android.app.Application {
         if (sharedPreferences.contains(SETTINGS_FOCUS_TAG)) {
             val = sharedPreferences.getString(SETTINGS_FOCUS_TAG, null);
             if (val != null) {
-                focusMode = !val.equals("0");
+               focusMode = !val.equals("0");
             }
         }
+        // x focusMode = false;
+        // x var settings = TxTLauncherApp.sharedPreferences.edit();
+        // x settings.putString(TxTLauncherApp.SETTINGS_FOCUS_TAG, "0");
+        // x                               settings.apply();
     }
 
-
-    //
-    //  Fő nézet: alapértelmezett gombok beállítása
-    //
-    public static void setIconColor(Activity act, int id, int color) {
-            ImageView btn;
-            Drawable drw;
-            btn = act.findViewById(id);
-            drw = btn.getDrawable();
-            if (drw != null) {
-                drw = DrawableCompat.wrap(drw).mutate();
-                DrawableCompat.setTint(drw, color);
-                btn.setImageDrawable(drw);
-            }
-    }
 
 
     //
@@ -574,17 +560,25 @@ public class TxTLauncherApp extends android.app.Application {
     public static boolean startLocalActivity(Context cont, int marker) {
         switch (marker) {
             case START_ACT_APPLIST:
-                try {
-                    cont.startActivity(new Intent(cont, AppListActivity.class));
-                } catch (Exception e) {
-                    systemMessage(cont.getString(R.string.error_startapp));
+                if (focusMode) {
+                    systemMessage(cont.getString(R.string.focus_mode_message));
+                } else {
+                    try {
+                        cont.startActivity(new Intent(cont, AppListActivity.class));
+                    } catch (Exception e) {
+                        systemMessage(cont.getString(R.string.error_startapp));
+                    }
                 }
                 break;
             case START_ACT_FAVAPP:
-                try {
-                cont.startActivity(new Intent(cont, FavoritesActivity.class));
-                } catch (Exception e) {
-                    systemMessage(cont.getString(R.string.error_startapp));
+                if (focusMode) {
+                    systemMessage(cont.getString(R.string.focus_mode_message));
+                } else {
+                    try {
+                        cont.startActivity(new Intent(cont, FavoritesActivity.class));
+                    } catch (Exception e) {
+                        systemMessage(cont.getString(R.string.error_startapp));
+                    }
                 }
                 break;
             case START_ACT_HELP:
@@ -609,17 +603,25 @@ public class TxTLauncherApp extends android.app.Application {
                 }
                 break;
             case START_ACT_FAVAPP_SEL:
-                try {
-                cont.startActivity(new Intent(cont, FavoritesAddAppActivity.class));
-                } catch (Exception e) {
-                    systemMessage(cont.getString(R.string.error_startapp));
+                if (focusMode) {
+                    systemMessage(cont.getString(R.string.focus_mode_message));
+                } else {
+                    try {
+                        cont.startActivity(new Intent(cont, FavoritesAddAppActivity.class));
+                    } catch (Exception e) {
+                        systemMessage(cont.getString(R.string.error_startapp));
+                    }
                 }
                 break;
             case START_ACT_APPLIST_SEL:
-                try {
-                cont.startActivity(new Intent(cont, AddAppActivity.class));
-                } catch (Exception e) {
-                    systemMessage(cont.getString(R.string.error_startapp));
+                if (focusMode) {
+                    systemMessage(cont.getString(R.string.focus_mode_message));
+                } else {
+                    try {
+                        cont.startActivity(new Intent(cont, AddAppActivity.class));
+                    } catch (Exception e) {
+                        systemMessage(cont.getString(R.string.error_startapp));
+                    }
                 }
                 break;
         }
@@ -651,44 +653,56 @@ public class TxTLauncherApp extends android.app.Application {
                 }
                 break;
             case START_MAIL:
-                try {
-                    Intent mailIn = cont.getPackageManager().getLaunchIntentForPackage("com.google.android.gm");
-                    if (mailIn == null) {
-                        mailIn = new Intent(Intent.ACTION_MAIN, null);
-                        mailIn.addCategory(Intent.CATEGORY_APP_EMAIL);
+                if (!focusMode) {
+                    try {
+                        Intent mailIn = cont.getPackageManager().getLaunchIntentForPackage("com.google.android.gm");
+                        if (mailIn == null) {
+                            mailIn = new Intent(Intent.ACTION_MAIN, null);
+                            mailIn.addCategory(Intent.CATEGORY_APP_EMAIL);
+                        }
+                        mailIn.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        cont.startActivity(mailIn);
+                        startedAndroidApp = true;
+                    } catch (Exception e) {
+                        systemMessage(cont.getString(R.string.error_startapp));
                     }
-                    mailIn.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    cont.startActivity(mailIn);
-                    startedAndroidApp = true;
-                } catch (Exception e) {
-                    systemMessage(cont.getString(R.string.error_startapp));
+                } else {
+                    systemMessage(cont.getString(R.string.focus_mode_message));
                 }
                 break;
             case START_BROWSER:
-                try {
-                    Intent broIn = new Intent(Intent.ACTION_VIEW, Uri.parse("https://"));
-                    broIn.addCategory(Intent.CATEGORY_DEFAULT);
-                    broIn.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    cont.startActivity(broIn);
-                    startedAndroidApp = true;
-                } catch (Exception e) {
-                    systemMessage(cont.getString(R.string.error_startapp));
+                if (!focusMode) {
+                    try {
+                        Intent broIn = new Intent(Intent.ACTION_VIEW, Uri.parse("https://"));
+                        broIn.addCategory(Intent.CATEGORY_DEFAULT);
+                        broIn.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        cont.startActivity(broIn);
+                        startedAndroidApp = true;
+                    } catch (Exception e) {
+                        systemMessage(cont.getString(R.string.error_startapp));
+                    }
+                } else {
+                    systemMessage(cont.getString(R.string.focus_mode_message));
                 }
                 break;
             case START_BROWSER_LONG:
-                try {
-                    Intent broIn;
-                    if (privateSearchUrl.isEmpty()) {
-                        broIn = new Intent(Intent.ACTION_VIEW, Uri.parse("https://"));
-                    } else {
-                        broIn = new Intent(Intent.ACTION_VIEW, Uri.parse(privateSearchUrl));
+                if (!focusMode) {
+                    try {
+                        Intent broIn;
+                        if (privateSearchUrl.isEmpty()) {
+                            broIn = new Intent(Intent.ACTION_VIEW, Uri.parse("https://"));
+                        } else {
+                            broIn = new Intent(Intent.ACTION_VIEW, Uri.parse(privateSearchUrl));
+                        }
+                        broIn.addCategory(Intent.CATEGORY_DEFAULT);
+                        broIn.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        cont.startActivity(broIn);
+                        startedAndroidApp = true;
+                    } catch (Exception e) {
+                        systemMessage(cont.getString(R.string.error_startapp));
                     }
-                    broIn.addCategory(Intent.CATEGORY_DEFAULT);
-                    broIn.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    cont.startActivity(broIn);
-                    startedAndroidApp = true;
-                } catch (Exception e) {
-                    systemMessage(cont.getString(R.string.error_startapp));
+                } else {
+                    systemMessage(cont.getString(R.string.focus_mode_message));
                 }
                 break;
             case START_CAMERA:
@@ -703,50 +717,62 @@ public class TxTLauncherApp extends android.app.Application {
                 }
                 break;
             case START_SEARCH:
-                try {
-                    Intent se = new Intent(SearchManager.INTENT_ACTION_GLOBAL_SEARCH);
-                    se.addCategory(Intent.CATEGORY_DEFAULT);
-                    se.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    cont.startActivity(se);
-                    startedAndroidApp = true;
-                } catch (Exception e) {
-                    systemMessage(cont.getString(R.string.error_startapp));
+                if (!focusMode) {
+                    try {
+                        Intent se = new Intent(SearchManager.INTENT_ACTION_GLOBAL_SEARCH);
+                        se.addCategory(Intent.CATEGORY_DEFAULT);
+                        se.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        cont.startActivity(se);
+                        startedAndroidApp = true;
+                    } catch (Exception e) {
+                        systemMessage(cont.getString(R.string.error_startapp));
+                    }
+                } else {
+                    systemMessage(cont.getString(R.string.focus_mode_message));
                 }
                 break;
             case START_SEARCH_LONG:
-                try {
-                    Intent lIntent;
-                    if (privateSearchUrl.isEmpty()) {
-                        lIntent = new Intent(SearchManager.INTENT_ACTION_GLOBAL_SEARCH);
-                    } else {
-                        lIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(privateSearchUrl));
+                if (!focusMode) {
+                    try {
+                        Intent lIntent;
+                        if (privateSearchUrl.isEmpty()) {
+                            lIntent = new Intent(SearchManager.INTENT_ACTION_GLOBAL_SEARCH);
+                        } else {
+                            lIntent = new Intent(Intent.ACTION_VIEW, Uri.parse(privateSearchUrl));
+                        }
+                        lIntent.addCategory(Intent.CATEGORY_DEFAULT);
+                        lIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        cont.startActivity(lIntent);
+                        startedAndroidApp = true;
+                    } catch (Exception e) {
+                        systemMessage(cont.getString(R.string.error_startapp));
                     }
-                    lIntent.addCategory(Intent.CATEGORY_DEFAULT);
-                    lIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    cont.startActivity(lIntent);
-                    startedAndroidApp = true;
-                } catch (Exception e) {
-                    systemMessage(cont.getString(R.string.error_startapp));
+                } else {
+                    systemMessage(cont.getString(R.string.focus_mode_message));
                 }
                 break;
             case START_WEATHER:
-                try {
-                    Intent searchIntent;
-                    if (weatherUrl.contains("://")) {
-                        searchIntent = new Intent(Intent.ACTION_VIEW);
-                        searchIntent.setData(Uri.parse(weatherUrl));
-                        searchIntent.addCategory(Intent.CATEGORY_DEFAULT);
-                    } else {
-                        searchIntent = new Intent(Intent.ACTION_WEB_SEARCH);
-                        searchIntent.putExtra(SearchManager.QUERY, weatherUrl + "\n");
-                        searchIntent.setComponent(new ComponentName("com.google.android.googlequicksearchbox", "com.google.android.googlequicksearchbox.SearchActivity"));
-                        //searchIntent.setPackage("com.google.android.googlequicksearchbox");
+                if (!focusMode) {
+                    try {
+                        Intent searchIntent;
+                        if (weatherUrl.contains("://")) {
+                            searchIntent = new Intent(Intent.ACTION_VIEW);
+                            searchIntent.setData(Uri.parse(weatherUrl));
+                            searchIntent.addCategory(Intent.CATEGORY_DEFAULT);
+                        } else {
+                            searchIntent = new Intent(Intent.ACTION_WEB_SEARCH);
+                            searchIntent.putExtra(SearchManager.QUERY, weatherUrl + "\n");
+                            searchIntent.setComponent(new ComponentName("com.google.android.googlequicksearchbox", "com.google.android.googlequicksearchbox.SearchActivity"));
+                            //searchIntent.setPackage("com.google.android.googlequicksearchbox");
+                        }
+                        searchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        cont.startActivity(searchIntent);
+                        startedAndroidApp = true;
+                    } catch (Exception e) {
+                        systemMessage(cont.getString(R.string.error_startapp));
                     }
-                    searchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    cont.startActivity(searchIntent);
-                    startedAndroidApp = true;
-                } catch (Exception e) {
-                    systemMessage(cont.getString(R.string.error_startapp));
+                } else {
+                    systemMessage(cont.getString(R.string.focus_mode_message));
                 }
                 break;
             case START_SETTINGS:
@@ -764,86 +790,106 @@ public class TxTLauncherApp extends android.app.Application {
                 }
                 break;
             case START_AI:
-                try {
-                    Intent intent;
-                    if (privateAIUrl != null && !privateAIUrl.trim().isEmpty()) {
-                        String url = privateAIUrl.trim();
-                        if (!url.contains("://")) {
-                            url = "https://" + url;
-                        }
-                        intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
-                    } else {
-                        intent = new Intent(Intent.ACTION_ASSIST);
-                        intent.addCategory(Intent.CATEGORY_DEFAULT);
-                    }
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    cont.startActivity(intent);
-                    startedAndroidApp = true;
-                } catch (Exception e) {
-                    systemMessage(cont.getString(R.string.error_startapp));
-                }
-                break;
-            case START_AI_LONG:
-                try {
-                    String appName;
-                    for (String[] allAppDatum : allAppData) {
-                        appName = allAppDatum[0];
-                        syslog(appName);
-                        if (appName != null && appName.toLowerCase().contains(AI_NAME_STRING.toLowerCase())) {
-                            String pkg = allAppDatum[1];
-                            String cls = allAppDatum[2];
-                            if (startNewTaskActivity(cont, pkg, cls)) {
-                                startedAndroidApp = true;
+                if (!focusMode) {
+                    try {
+                        Intent intent;
+                        if (privateAIUrl != null && !privateAIUrl.trim().isEmpty()) {
+                            String url = privateAIUrl.trim();
+                            if (!url.contains("://")) {
+                                url = "https://" + url;
                             }
-                            break;
+                            intent = new Intent(Intent.ACTION_VIEW, Uri.parse(url));
+                        } else {
+                            intent = new Intent(Intent.ACTION_ASSIST);
+                            intent.addCategory(Intent.CATEGORY_DEFAULT);
                         }
-                    }
-                    if (!startedAndroidApp) {
-                        Intent intent = new Intent(Intent.ACTION_VOICE_COMMAND);
-                        intent.addCategory(Intent.CATEGORY_DEFAULT);
                         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         cont.startActivity(intent);
                         startedAndroidApp = true;
+                    } catch (Exception e) {
+                        systemMessage(cont.getString(R.string.error_startapp));
                     }
-                } catch (Exception e) {
-                    systemMessage(cont.getString(R.string.error_startapp));
+                } else {
+                    systemMessage(cont.getString(R.string.focus_mode_message));
+                }
+                break;
+            case START_AI_LONG:
+                if (!focusMode) {
+                    try {
+                        String appName;
+                        for (String[] allAppDatum : allAppData) {
+                            appName = allAppDatum[0];
+                            syslog(appName);
+                            if (appName != null && appName.toLowerCase().contains(AI_NAME_STRING.toLowerCase())) {
+                                String pkg = allAppDatum[1];
+                                String cls = allAppDatum[2];
+                                if (startNewTaskActivity(cont, pkg, cls)) {
+                                    startedAndroidApp = true;
+                                }
+                                break;
+                            }
+                        }
+                        if (!startedAndroidApp) {
+                            Intent intent = new Intent(Intent.ACTION_VOICE_COMMAND);
+                            intent.addCategory(Intent.CATEGORY_DEFAULT);
+                            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            cont.startActivity(intent);
+                            startedAndroidApp = true;
+                        }
+                    } catch (Exception e) {
+                        systemMessage(cont.getString(R.string.error_startapp));
+                    }
+                } else {
+                    systemMessage(cont.getString(R.string.focus_mode_message));
                 }
                 break;
             case START_DISCOVERY:
                 startNewTaskActivity(cont, "com.google.android.googlequicksearchbox", "");
                 break;
             case START_MAP:
-                try {
-                    Uri mapUri = Uri.parse("geo:0,0");
-                    Intent mapIntent = new Intent(Intent.ACTION_VIEW, mapUri);
-                    mapIntent.addCategory(Intent.CATEGORY_DEFAULT);
-                    mapIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    cont.startActivity(mapIntent);
-                    startedAndroidApp = true;
-                } catch (Exception e) {
-                    systemMessage(cont.getString(R.string.error_startapp));
+                if (!focusMode) {
+                    try {
+                        Uri mapUri = Uri.parse("geo:0,0");
+                        Intent mapIntent = new Intent(Intent.ACTION_VIEW, mapUri);
+                        mapIntent.addCategory(Intent.CATEGORY_DEFAULT);
+                        mapIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        cont.startActivity(mapIntent);
+                        startedAndroidApp = true;
+                    } catch (Exception e) {
+                        systemMessage(cont.getString(R.string.error_startapp));
+                    }
+                } else {
+                    systemMessage(cont.getString(R.string.focus_mode_message));
                 }
                 break;
             case START_CALENDAR:
-                try {
-                    Intent cal = new Intent(Intent.ACTION_MAIN);
-                    cal.addCategory(Intent.CATEGORY_APP_CALENDAR);
-                    cal.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    cont.startActivity(cal);
-                    startedAndroidApp = true;
-                } catch (Exception e) {
-                    systemMessage(cont.getString(R.string.error_startapp));
+                if (!focusMode) {
+                    try {
+                        Intent cal = new Intent(Intent.ACTION_MAIN);
+                        cal.addCategory(Intent.CATEGORY_APP_CALENDAR);
+                        cal.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        cont.startActivity(cal);
+                        startedAndroidApp = true;
+                    } catch (Exception e) {
+                        systemMessage(cont.getString(R.string.error_startapp));
+                    }
+                } else {
+                    systemMessage(cont.getString(R.string.focus_mode_message));
                 }
                 break;
             case START_CLOCK:
-                try {
-                    Intent cl = new Intent(AlarmClock.ACTION_SHOW_ALARMS);
-                    cl.addCategory(Intent.CATEGORY_DEFAULT);
-                    cl.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    cont.startActivity(cl);
-                    startedAndroidApp = true;
-                } catch (Exception e) {
-                    systemMessage(cont.getString(R.string.error_startapp));
+                if (!focusMode) {
+                    try {
+                        Intent cl = new Intent(AlarmClock.ACTION_SHOW_ALARMS);
+                        cl.addCategory(Intent.CATEGORY_DEFAULT);
+                        cl.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                        cont.startActivity(cl);
+                        startedAndroidApp = true;
+                    } catch (Exception e) {
+                        systemMessage(cont.getString(R.string.error_startapp));
+                    }
+                } else {
+                    systemMessage(cont.getString(R.string.focus_mode_message));
                 }
                 break;
         }

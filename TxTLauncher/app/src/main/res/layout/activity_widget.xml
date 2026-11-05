@@ -137,9 +137,8 @@
                     </TextView>
                 </LinearLayout>
 
-
                 <LinearLayout
-                    android:id="@+id/wwetButtonL"
+                    android:id="@+id/wapplistButtonL"
                     android:layout_weight="1"
                     android:gravity="center"
                     android:layout_width="0dp"
@@ -149,17 +148,17 @@
                     android:orientation="vertical"
                     tools:ignore="UseCompoundDrawables">
                     <ImageView
-                        android:id="@+id/wwetButton"
+                        android:id="@+id/wapplistButton"
                         android:layout_width="40dp"
                         android:layout_height="40dp"
                         android:background="@android:color/transparent"
-                        android:contentDescription="@string/button_mail"
-                        android:onClick="startButtonWeatherSearch"
+                        android:contentDescription="@string/applist_button_desc"
+                        android:onClick="startButtonAppList"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:srcCompat="@drawable/weather" />
+                        app:srcCompat="@drawable/menu" />
                     <TextView
-                        android:id="@+id/wwetButtonTitle"
+                        android:id="@+id/wapplistButtonTitle"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="0dp"
@@ -168,32 +167,33 @@
                         android:maxLines="1"
                         android:ellipsize="end"
                         android:scrollHorizontally="true"
-                        android:text="@string/wbutt_weather"
+                        android:text="@string/wbutt_applist"
                         android:textAlignment="gravity">
                     </TextView>
                 </LinearLayout>
 
                 <LinearLayout
-                    android:id="@+id/whelpButtonL"
+                    android:id="@+id/wfavlistButtonL"
                     android:layout_weight="1"
                     android:gravity="center"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
                     android:orientation="vertical"
                     tools:ignore="UseCompoundDrawables">
                     <ImageView
-                        android:id="@+id/whelpButton"
+                        android:id="@+id/wfavlistButton"
                         android:layout_width="40dp"
                         android:layout_height="40dp"
                         android:background="@android:color/transparent"
-                        android:contentDescription="@string/applist_button_desc"
-                        android:onClick="startButtonAppHelp"
+                        android:contentDescription="@string/favorite_apps"
+                        android:onClick="startButtonAppFav"
                         app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:srcCompat="@drawable/help"
-                        tools:layout_editor_absoluteX="194dp" />
+                        app:layout_constraintStart_toStartOf="@id/dialButton"
+                        app:srcCompat="@drawable/bookmarks" />
                     <TextView
-                        android:id="@+id/whelpButtonTitle"
+                        android:id="@+id/wfavlistButtonTitle"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="0dp"
@@ -202,7 +202,7 @@
                         android:maxLines="1"
                         android:ellipsize="end"
                         android:scrollHorizontally="true"
-                        android:text="@string/wbutt_help"
+                        android:text="@string/wbutt_favlist"
                         android:textAlignment="gravity">
                     </TextView>
                 </LinearLayout>
@@ -289,7 +289,7 @@
                 app:layout_constraintStart_toStartOf="parent">
 
                 <LinearLayout
-                    android:id="@+id/wapplistButtonL"
+                    android:id="@+id/wwetButtonL"
                     android:layout_weight="1"
                     android:gravity="center"
                     android:layout_width="0dp"
@@ -299,17 +299,17 @@
                     android:orientation="vertical"
                     tools:ignore="UseCompoundDrawables">
                     <ImageView
-                        android:id="@+id/wapplistButton"
+                        android:id="@+id/wwetButton"
                         android:layout_width="40dp"
                         android:layout_height="40dp"
                         android:background="@android:color/transparent"
-                        android:contentDescription="@string/applist_button_desc"
-                        android:onClick="startButtonAppList"
+                        android:contentDescription="@string/button_mail"
+                        android:onClick="startButtonWeatherSearch"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:srcCompat="@drawable/menu" />
+                        app:srcCompat="@drawable/weather" />
                     <TextView
-                        android:id="@+id/wapplistButtonTitle"
+                        android:id="@+id/wwetButtonTitle"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="0dp"
@@ -318,33 +318,32 @@
                         android:maxLines="1"
                         android:ellipsize="end"
                         android:scrollHorizontally="true"
-                        android:text="@string/wbutt_applist"
+                        android:text="@string/wbutt_weather"
                         android:textAlignment="gravity">
                     </TextView>
                 </LinearLayout>
 
                 <LinearLayout
-                    android:id="@+id/wfavlistButtonL"
+                    android:id="@+id/whelpButtonL"
                     android:layout_weight="1"
                     android:gravity="center"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
                     android:orientation="vertical"
                     tools:ignore="UseCompoundDrawables">
                     <ImageView
-                        android:id="@+id/wfavlistButton"
+                        android:id="@+id/whelpButton"
                         android:layout_width="40dp"
                         android:layout_height="40dp"
                         android:background="@android:color/transparent"
-                        android:contentDescription="@string/favorite_apps"
-                        android:onClick="startButtonAppFav"
+                        android:contentDescription="@string/applist_button_desc"
+                        android:onClick="startButtonAppHelp"
                         app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintStart_toStartOf="@id/dialButton"
-                        app:srcCompat="@drawable/bookmarks" />
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:srcCompat="@drawable/help"
+                        tools:layout_editor_absoluteX="194dp" />
                     <TextView
-                        android:id="@+id/wfavlistButtonTitle"
+                        android:id="@+id/whelpButtonTitle"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_marginTop="0dp"
@@ -353,7 +352,7 @@
                         android:maxLines="1"
                         android:ellipsize="end"
                         android:scrollHorizontally="true"
-                        android:text="@string/wbutt_favlist"
+                        android:text="@string/wbutt_help"
                         android:textAlignment="gravity">
                     </TextView>
                 </LinearLayout>

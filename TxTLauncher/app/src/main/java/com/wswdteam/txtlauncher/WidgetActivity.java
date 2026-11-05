@@ -1,7 +1,9 @@
 package com.wswdteam.txtlauncher;
 
 import static android.view.View.GONE;
+import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
+import static com.wswdteam.txtlauncher.IconManagement.setIconColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.START_ACT_APPLIST;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.START_ACT_FAVAPP;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.START_ACT_HELP;
@@ -25,7 +27,7 @@ import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultIconColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultPlusFontSizeTitle;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultTextColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.extraTools;
-import static com.wswdteam.txtlauncher.TxTLauncherApp.setIconColor;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.focusMode;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.startInsideFunctionApp;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.startLocalActivity;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.syslog;
@@ -48,6 +50,7 @@ import android.view.Gravity;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.CalendarView;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -323,7 +326,7 @@ public class WidgetActivity extends AppCompatActivity {
             tv.setText(val);
         }
 
-        if (extraTools) {
+        if (extraTools && !focusMode) {
             LinearLayout ll = findViewById(R.id.extraWidget1);
             ll.setVisibility(VISIBLE);
             ll = findViewById(R.id.extraWidget2);
@@ -333,6 +336,18 @@ public class WidgetActivity extends AppCompatActivity {
             ll.setVisibility(GONE);
             ll = findViewById(R.id.extraWidget2);
             ll.setVisibility(GONE);
+        }
+        if (focusMode) {
+            LinearLayout ll = findViewById(R.id.buttonsFrame2);
+            ll.setVisibility(GONE);
+            Button iv = findViewById(R.id.wcalendarbutton);
+            iv.setVisibility(INVISIBLE);
+            ll = findViewById(R.id.wapplistButtonL);
+            ll.setVisibility(INVISIBLE);
+            ll = findViewById(R.id.wfavlistButtonL);
+            ll.setVisibility(INVISIBLE);
+            ll = findViewById(R.id.wbrowserButtonL);
+            ll.setVisibility(INVISIBLE);
         }
 
         ScrollView sv = findViewById(R.id.widgetScrollFrame);

@@ -5,6 +5,7 @@ import static android.view.View.VISIBLE;
 import static com.wswdteam.txtlauncher.IconManagement.getDrawableTxT;
 import static com.wswdteam.txtlauncher.IconManagement.iconMainApp;
 import static com.wswdteam.txtlauncher.IconManagement.imageButtonColorize;
+import static com.wswdteam.txtlauncher.IconManagement.setIconColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.HOME_APP_NUM;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.START_ACT_APPLIST;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.START_ACT_FAVAPP;
@@ -35,7 +36,6 @@ import static com.wswdteam.txtlauncher.TxTLauncherApp.iconCache;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.lockApp;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.packageMan;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.savedBackgroundImage;
-import static com.wswdteam.txtlauncher.TxTLauncherApp.setIconColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.showArrows;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.showMainIcons;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.startInsideFunctionApp;
@@ -84,6 +84,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -155,17 +156,6 @@ public class MainActivity extends AppCompatActivity {
         gestureDetector = GestureManagerMain.create(this, new GestureManagerMain.Callback() {
             @Override
             public void onLongPress() {
-                var settings = TxTLauncherApp.sharedPreferences.edit();
-                //if (focusMode) {
-                //    systemMessage(getString(R.string.focus_mode_message_off));
-                //    focusMode = false;
-                //    settings.putString(TxTLauncherApp.SETTINGS_FOCUS_TAG, "0");
-                //} else {
-                    systemMessage(getString(R.string.focus_mode_message));
-                    focusMode = true;
-                    settings.putString(TxTLauncherApp.SETTINGS_FOCUS_TAG, "1");
-                //}
-                settings.apply();
             }
             @Override
             public void onLeft() {
@@ -239,6 +229,20 @@ public class MainActivity extends AppCompatActivity {
         tv = findViewById(R.id.digitalDate);
         tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, defaultFontSize + (2 * defaultPlusFontSizeTitle));
 
+        FrameLayout ll;
+        ll = findViewById(R.id.mainFullView);
+        ll.setOnLongClickListener(v -> {
+            if (!focusMode) {
+                var set = TxTLauncherApp.sharedPreferences.edit();
+                systemMessage(getString(R.string.focus_mode_message));
+                focusMode = true;
+                set.putString(TxTLauncherApp.SETTINGS_FOCUS_TAG, "1");
+                set.apply();
+                screenPrepare();
+            }
+            return true;
+        });
+
         ImageView iv;
         iv = findViewById(R.id.applistButton);
         iv.setOnLongClickListener(v -> {
@@ -293,10 +297,13 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean dispatchTouchEvent(MotionEvent ev) {
         boolean touchOnIcon;
+        boolean touchOnIcon2;
 
         ImageView micon = findViewById(R.id.menuIconMain);
         touchOnIcon = isTouchOnView(ev, micon);
-        if (!touchOnIcon) {
+        micon = findViewById(R.id.applistButton);
+        touchOnIcon2 = isTouchOnView(ev, micon);
+        if (!touchOnIcon && !touchOnIcon2) {
             gestureDetector.onTouchEvent(ev);
         }
         return super.dispatchTouchEvent(ev);
@@ -337,7 +344,9 @@ public class MainActivity extends AppCompatActivity {
             setColors();
             screenPrepare();
             buttonPrepare();
-            setHomaApp();
+            if (!focusMode) {
+                setHomaApp();
+            }
         }
 
         startedAppAct = false;
@@ -397,23 +406,54 @@ public class MainActivity extends AppCompatActivity {
     //
     private void screenPrepare() {
         LinearLayout ll;
-        ll = findViewById(R.id.lLayoutIcons1);
-        if (showArrows) {
+        ImageView iv;
+        if (showArrows && !focusMode) {
+            ll = findViewById(R.id.lLayoutIcons1);
             ll.setVisibility(VISIBLE);
         } else {
+            ll = findViewById(R.id.lLayoutIcons1);
             ll.setVisibility(INVISIBLE);
         }
-        ll = findViewById(R.id.lLayoutIcons2);
-        if (showMainIcons) {
+        if (showMainIcons && !focusMode) {
+            ll = findViewById(R.id.lLayoutIcons2);
+            ll.setVisibility(VISIBLE);
+            ll = findViewById(R.id.lLayoutDecor);
             ll.setVisibility(VISIBLE);
         } else {
+            ll = findViewById(R.id.lLayoutIcons2);
+            ll.setVisibility(INVISIBLE);
+            ll = findViewById(R.id.lLayoutDecor);
             ll.setVisibility(INVISIBLE);
         }
-        ll = findViewById(R.id.lLayoutDecor);
-        if (extraTools) {
+        if (extraTools && !focusMode) {
+            ll = findViewById(R.id.lLayoutDecor);
             ll.setVisibility(VISIBLE);
         } else {
+            ll = findViewById(R.id.lLayoutDecor);
             ll.setVisibility(INVISIBLE);
+        }
+        if (!focusMode) {
+            ll = findViewById(R.id.lLayoutIcons2);
+            ll.setVisibility(VISIBLE);
+            ll = findViewById(R.id.AppFrame);
+            ll.setVisibility(VISIBLE);
+            iv = findViewById(R.id.mailButton);
+            iv.setVisibility(VISIBLE);
+            iv = findViewById(R.id.browserButton);
+            iv.setVisibility(VISIBLE);
+            iv = findViewById(R.id.applistButton);
+            iv.setVisibility(VISIBLE);
+        } else {
+            ll = findViewById(R.id.lLayoutIcons1);
+            ll.setVisibility(INVISIBLE);
+            ll = findViewById(R.id.AppFrame);
+            ll.setVisibility(INVISIBLE);
+            iv = findViewById(R.id.mailButton);
+            iv.setVisibility(INVISIBLE);
+            iv = findViewById(R.id.browserButton);
+            iv.setVisibility(INVISIBLE);
+            iv = findViewById(R.id.applistButton);
+            iv.setVisibility(INVISIBLE);
         }
     }
 

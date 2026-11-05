@@ -10,6 +10,7 @@ import static com.wswdteam.txtlauncher.TxTLauncherApp.packageMan;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.textColorMode;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ResolveInfo;
@@ -29,11 +30,30 @@ import android.widget.ImageView;
 
 import androidx.core.content.ContextCompat;
 import androidx.core.graphics.ColorUtils;
+import androidx.core.graphics.drawable.DrawableCompat;
 
 import java.util.List;
 
 public class IconManagement {
     private static Boolean mainIcon = false;
+
+
+
+    //
+    //  Fő nézet: alapértelmezett gombok beállítása
+    //
+    public static void setIconColor(Activity act, int id, int color) {
+        ImageView btn;
+        Drawable drw;
+        btn = act.findViewById(id);
+        drw = btn.getDrawable();
+        if (drw != null) {
+            drw = DrawableCompat.wrap(drw).mutate();
+            DrawableCompat.setTint(drw, color);
+            btn.setImageDrawable(drw);
+        }
+    }
+
 
     //
     // Fő képernyő vezérlő alapikonok kezelése
