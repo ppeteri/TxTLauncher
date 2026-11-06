@@ -29,6 +29,7 @@ import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultPlusFontSizeTitle;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultTextColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.extraTools;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.focusMode;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.focusModeChanged;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.homeStartAppIcon;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.homeSysIcon;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.onecolFavorites;
@@ -302,6 +303,7 @@ public class SettingsActivity extends AppCompatActivity {
             settings.apply();
         });
         c10.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            focusModeChanged = true;
             var settings = TxTLauncherApp.sharedPreferences.edit();
             if (isChecked) {
                 settings.putString(SETTINGS_FOCUS_TAG, "1");

@@ -31,6 +31,7 @@ import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultBackGroundColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultIcons;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.extraTools;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.focusMode;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.focusModeChanged;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.getSettingsAppList;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.iconCache;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.lockApp;
@@ -337,6 +338,12 @@ public class MainActivity extends AppCompatActivity {
                 getSettingsAppList();
             }
             getSettingsMain(this);
+            if (focusModeChanged) {
+                if (!backgroundChanged) {
+                    backgroundPrepare();
+                }
+                focusModeChanged = false;
+            }
             if (backgroundChanged) {
                 setupBackground();
                 backgroundChanged = false;
@@ -454,6 +461,11 @@ public class MainActivity extends AppCompatActivity {
             iv.setVisibility(INVISIBLE);
             iv = findViewById(R.id.applistButton);
             iv.setVisibility(INVISIBLE);
+        }
+        // background
+        if (focusMode) {
+            View view = findViewById(R.id.mainView);
+            view.setBackground(null);
         }
     }
 

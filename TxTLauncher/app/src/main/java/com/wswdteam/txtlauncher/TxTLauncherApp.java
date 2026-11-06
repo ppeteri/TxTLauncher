@@ -120,6 +120,7 @@ public class TxTLauncherApp extends android.app.Application {
     public static String backgroundImageOrig = "";
     public static String savedBackgroundImage = "";
     public static Boolean backgroundChanged = false;
+    public static Boolean focusModeChanged = false;
 
     // rendszer változók
     public static SharedPreferences sharedPreferences;
@@ -707,7 +708,12 @@ public class TxTLauncherApp extends android.app.Application {
                 break;
             case START_CAMERA:
                 try {
-                    Intent camIn = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                    // ha egy kép kell nekem
+                    // Intent camIn = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+                    // camIn.putExtra(MediaStore.EXTRA_OUTPUT, photoURI);
+                    // camIn.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                    // Kamera app indítása launcher-ből
+                    Intent camIn = new Intent(MediaStore.INTENT_ACTION_STILL_IMAGE_CAMERA);
                     camIn.addCategory(Intent.CATEGORY_DEFAULT);
                     camIn.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                     cont.startActivity(camIn);
