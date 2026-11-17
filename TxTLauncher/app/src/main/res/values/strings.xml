@@ -18,7 +18,7 @@
     <string name="button_search">Search app</string>
     <string name="setting_addapp">Add app to home screen</string>
     <string name="setting_sysicon">Home screen use sys app icon</string>
-    <string name="setting_starticon">Home screen use apps icon</string>
+    <string name="setting_starticon">All apps use icon</string>
     <string name="settings_title">Settings</string>
     <string name="started_activity">Started activity</string>
     <string name="stopped_activty">Stopped activity</string>
@@ -51,9 +51,9 @@
     <string name="button_next">Next</string>
     <string name="help_title">Help</string>
     <string name="news_firstrun_title">First start</string>
-    <string name="news_firstrun">Initializing...</string>
-    <string name="help_text_2">Usage:\n\n- Swipe right: Tools\n- Swipe left: Discover\n- Swipe up: List of apps\n- Swipe down: Favorite apps\n- Double-tap on an empty area: lock screen\n- Long-press on an empty area: favorite apps\n- Long-press on the settings icon: Android system settings\n- Long-press on the browser icon: open the browser in private mode\n- Long-press on the search icon: open the browser in private mode \n</string>
-    <string name="help_text_3">Settings:\n\n- Select apps for the home screen\n- Select favorite apps\n- Enable icon display\n    - System icons\n    - App icons\n    - Adaptive icons\n    - Adaptive icon color\n- Configure AI link (custom AI launchable from the browser)\n- Set web search engine (URL)\n- Set weather lURL or word\n- Wallpaper (file name; if successfully loaded from the Downloads folder, the system will save it)\n- Delete saved wallpaper\n- Reset text settings to default values\n- Re-scan apps (if the app list is incorrect after an update, installation, or deletion)</string>
+    <string name="news_firstrun">Initializing...\nDefault settings...</string>
+    <string name="help_text_2">"Usage:    - Swipe right: Tools   - Swipe left: Discover   - Swipe up: List of apps   - Swipe down: Favorite apps   - Double-tap on an empty area: lock screen   - Long-press on an empty area: focus mode (if enabled)  - Long-press on the settings icon: Android system settings   - Long-press on the browser icon: open the browser in private mode   - Long-press on the search icon: open the browser in private mode  "</string>
+    <string name="help_text_3">Settings:  \n\n- Select apps for the home screen \n- Select favorite apps\n- Enable/disable focus mode \n- Enable icon display     \n    - System icons     \n    - App icons    \n    - Adaptive icons     \n    - Adaptive icon color \n- Configure AI link (custom AI launchable from the browser) \n- Set web search engine (URL) \n- Set weather lURL or word \n- Wallpaper (file name; if successfully loaded from the Downloads folder, the system will save it) \n- Delete saved wallpaper \n- Reset text settings to default values \n- Re-scan apps (if the app list is incorrect after an update, installation, or deletion)</string>
     <string name="help_text_1">A simple control app for Android. It does not interact with Android’s internal system or use external access, so it is energy-efficient and fast.\n\nIt supports the display of app icons and the use of adaptive icons.\n\nIt can also use a home screen wallpaper, which can be set in the Settings tab. (You must specify the image name; the image must be in the Downloads folder.) If it can open the specified image, it will save it.\n\nThe home screen features icons for various functions: search, weather, settings, and the default Android AI app. The basic functions are displayed at the bottom: calls, messages, app list, browser, and camera. These functions launch the default Android apps.</string>
     <string name="help_text_4">A new version is available for download on the website.\nLicence: GPLv3</string>
     <string name="licence">GPLv3</string>
@@ -81,7 +81,7 @@
     <string name="wbutt_map">Map</string>
     <string name="error_lock">Please enable accessibility right</string>
     <string name="settings_adapticon">Use adaptive icons</string>
-    <string name="settings_onecolfav">One column favorites</string>
+    <string name="settings_onecolfav">Favorite icons in one column</string>
     <string name="settings_resetbackground_title">Delete saved background image (before change)</string>
     <string name="settings_backround_image_placeholder">Background image file name</string>
     <string name="settings_resetbackground">Delete</string>
@@ -101,5 +101,6 @@
     <string name="settings_focus_mode">Focus mode</string>
     <string name="focus_mode_message">Focus mode activated</string>
     <string name="focus_mode_message_off">Focus mode deactivated</string>
+    <string name="settings_onecolmain">Main icons in one column</string>
 
 </resources>

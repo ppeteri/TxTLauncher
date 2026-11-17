@@ -156,6 +156,24 @@
                 tools:ignore="UseSwitchCompatOrMaterialXml" />
 
             <Switch
+                android:id="@+id/onecolMain"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="16dp"
+                android:background="@android:color/transparent"
+                android:checkable="true"
+                android:gravity="start"
+                android:text="@string/settings_onecolmain"
+                android:textAlignment="viewStart"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body1"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/onecolFavorites"
+                tools:ignore="UseSwitchCompatOrMaterialXml" />
+
+            <Switch
                 android:id="@+id/adaptiveIcon"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -170,7 +188,7 @@
                 android:textAppearance="@style/TextAppearance.AppCompat.Body1"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/sysIconCheck"
+                app:layout_constraintTop_toBottomOf="@+id/onecolMain"
                 tools:ignore="UseSwitchCompatOrMaterialXml" />
 
             <RadioGroup

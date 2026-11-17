@@ -4,6 +4,7 @@ import static com.wswdteam.txtlauncher.IconManagement.getDrawableTxT;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.adaptiveIconColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.allAppData;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.allApplicationsList;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.appIconCache;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultBackGroundColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultFontSize;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultLetterColor;
@@ -11,7 +12,6 @@ import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultPlusFontSize;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultTextColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.hideKeyboard;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.homeStartAppIcon;
-import static com.wswdteam.txtlauncher.TxTLauncherApp.iconCache;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.iconSize;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.packageMan;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.startNewTaskActivity;
@@ -100,20 +100,6 @@ public class AppListActivity extends AppCompatActivity {
 
         // teljes háttér színe
         getWindow().getDecorView().setBackgroundColor(defaultBackGroundColor);
-        // vissza gomb szine
-        ImageView imv = findViewById(R.id.quitAllAppListButton);
-        imv.setColorFilter(defaultTextColor);
-
-        @SuppressLint("UseCompatLoadingForDrawables") Drawable appI = getDrawable(R.drawable.arrow_back);
-        if (appI != null) {
-            appI.setBounds(0, 0, (int) defaultFontSize, (int) defaultFontSize);
-            appI.setTint(defaultTextColor);
-            //ImageView iv = findViewById(R.id.quitAllAppListButton);
-            ViewGroup.LayoutParams layoutParams = imv.getLayoutParams();
-            layoutParams.width = layoutParams.width + (int) defaultPlusFontSize;
-            layoutParams.height = layoutParams.height + (int) defaultPlusFontSize;
-            imv.setLayoutParams(layoutParams);
-        }
     }
 
     @Override
@@ -155,12 +141,36 @@ public class AppListActivity extends AppCompatActivity {
     }
 
 
+
     //
     // App lista leállítása
     //
     @Override
     public void onStop() {
         super.onStop();
+    }
+
+
+    //
+    // App lista leállítása
+    //
+    @Override
+    public void onResume() {
+        super.onResume();
+        // vissza gomb szine
+        ImageView imv = findViewById(R.id.quitAllAppListButton);
+        imv.setColorFilter(defaultTextColor);
+
+        @SuppressLint("UseCompatLoadingForDrawables") Drawable appI = getDrawable(R.drawable.arrow_back);
+        if (appI != null) {
+            appI.setBounds(0, 0, (int) defaultFontSize, (int) defaultFontSize);
+            appI.setTint(defaultTextColor);
+            //ImageView iv = findViewById(R.id.quitAllAppListButton);
+            ViewGroup.LayoutParams layoutParams = imv.getLayoutParams();
+            layoutParams.width = layoutParams.width + (int) defaultPlusFontSize;
+            layoutParams.height = layoutParams.height + (int) defaultPlusFontSize;
+            imv.setLayoutParams(layoutParams);
+        }
     }
 
 
@@ -214,13 +224,13 @@ public class AppListActivity extends AppCompatActivity {
 
                                     // Gyorsítótár kulcs generálása a csomagnév alapján
                                     String cacheKey = info.activityInfo.packageName;
-                                    Drawable ic = iconCache.get(cacheKey);
+                                    Drawable ic = appIconCache.get(cacheKey);
 
                                     if (ic == null) {
                                         // Ha még nincs a memóriában, legyártjuk és elmentjük a cache-be
                                         Drawable appI = info.loadIcon(packageMan);
                                         ic = getDrawableTxT(row, appI, iconSize);
-                                        iconCache.put(cacheKey, ic);
+                                        appIconCache.put(cacheKey, ic);
                                     }
 
                                     tvt.setCompoundDrawablesRelative(ic, null, null, null);

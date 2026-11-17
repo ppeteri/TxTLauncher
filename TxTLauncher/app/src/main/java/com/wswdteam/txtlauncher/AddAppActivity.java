@@ -6,13 +6,13 @@ import static com.wswdteam.txtlauncher.TxTLauncherApp.SETTINGS_APP_TAG;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.adaptiveIconColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.allAppData;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.allApplicationsList;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.appIconCache;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultBackGroundColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultFontSize;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultIconColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultPlusFontSizeTitle;
-import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultSelectColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultTextColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.homeStartAppIcon;
-import static com.wswdteam.txtlauncher.TxTLauncherApp.iconCache;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.iconSize;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.packageMan;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.sharedPreferences;
@@ -91,19 +91,6 @@ public class AddAppActivity extends AppCompatActivity {
 
         // teljes háttér színe
         getWindow().getDecorView().setBackgroundColor(defaultBackGroundColor);
-
-        TextView tv = findViewById(R.id.addappTitle);
-        tv.setTextColor(defaultTextColor);
-        tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, defaultFontSize + defaultPlusFontSizeTitle);
-        @SuppressLint("UseCompatLoadingForDrawables") Drawable appI = getDrawable(R.drawable.arrow_back);
-        if (appI != null) {
-            int ts = (int) defaultFontSize + (int) defaultPlusFontSizeTitle;
-            appI.setBounds(0, 0, ts, ts);
-            appI.setTint(defaultTextColor);
-            tv.setCompoundDrawables(appI, null, null, null);
-            tv.setGravity(Gravity.CENTER_VERTICAL);
-            tv.setCompoundDrawables(appI, null, null, null);
-        }
     }
 
     @Override
@@ -119,8 +106,34 @@ public class AddAppActivity extends AppCompatActivity {
     public void onStart() {
         overrideActivityTransition(OVERRIDE_TRANSITION_OPEN, R.anim.enter_from_right, R.anim.exit_to_left);
         //overrideActivityTransition(OVERRIDE_TRANSITION_CLOSE, R.anim.enter_from_left, R.anim.exit_to_right);
+
+        startedAppSelect = false;
+
         super.onStart();
 
+        syslog(getString(R.string.started_activity) + ": "+ this.getClass().getSimpleName());
+    }
+
+
+
+    //
+    // App választás leállítása
+    //
+    @Override
+    public void onResume() {
+        super.onResume();
+        TextView tv = findViewById(R.id.addappTitle);
+        tv.setTextColor(defaultTextColor);
+        tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, defaultFontSize + defaultPlusFontSizeTitle);
+        @SuppressLint("UseCompatLoadingForDrawables") Drawable appI = getDrawable(R.drawable.arrow_back);
+        if (appI != null) {
+            int ts = (int) defaultFontSize + (int) defaultPlusFontSizeTitle;
+            appI.setBounds(0, 0, ts, ts);
+            appI.setTint(defaultTextColor);
+            tv.setCompoundDrawables(appI, null, null, null);
+            tv.setGravity(Gravity.CENTER_VERTICAL);
+            tv.setCompoundDrawables(appI, null, null, null);
+        }
         selApp.clear();
         String tag;
         String val;
@@ -133,15 +146,16 @@ public class AddAppActivity extends AppCompatActivity {
         }
         startedAppSelect = true;
         appListSelect();
-        syslog(getString(R.string.started_activity) + ": "+ this.getClass().getSimpleName());
     }
+
 
 
     //
     // App választás leállítása
     //
     @Override
-    public void onStop() {
+    public void onPause() {
+        super.onPause();
         var settings = sharedPreferences.edit();
         String tag;
         sort(selApp);
@@ -155,7 +169,15 @@ public class AddAppActivity extends AppCompatActivity {
             }
         }
         settings.apply();
+    }
 
+
+
+    //
+    // App választás leállítása
+    //
+    @Override
+    public void onStop() {
         super.onStop();
     }
 
@@ -192,13 +214,13 @@ public class AddAppActivity extends AppCompatActivity {
                             if (info != null && info.activityInfo != null) {
                                 // Gyorsítótár kulcs generálása a csomagnév alapján
                                 String cacheKey = info.activityInfo.packageName;
-                                Drawable ic = iconCache.get(cacheKey);
+                                Drawable ic = appIconCache.get(cacheKey);
 
                                 if (ic == null) {
                                     // Ha nincs a cache-ben, legyártjuk és eltároljuk
                                     Drawable appI = info.loadIcon(packageMan);
                                     ic = getDrawableTxT(row, appI, iconSize);
-                                    iconCache.put(cacheKey, ic);
+                                    appIconCache.put(cacheKey, ic);
                                 }
 
                                 tvt.setCompoundDrawablesRelative(ic, null, null, null);
@@ -206,11 +228,9 @@ public class AddAppActivity extends AppCompatActivity {
                             }
                         }
                     }
-
                     if (selApp.contains(appN)) {
-                        tvt.setBackgroundColor(defaultSelectColor);
-                    } else {
-                        tvt.setBackgroundColor(defaultBackGroundColor);
+                        //tvt.setBackgroundColor(defaultSelectColor);
+                        tvt.setTextColor(getColor(R.color.yellow));
                     }
                 }
                 return row;
@@ -243,13 +263,20 @@ public class AddAppActivity extends AppCompatActivity {
                     del = true;
                 }
             }
+            TextView it = (TextView) view;
             if (del) {
                 selApp.remove(pos);
-                view.setBackgroundColor(defaultBackGroundColor);
+                //view.setBackgroundColor(defaultBackGroundColor);
+                if (textColorMode) {
+                    it.setTextColor(adaptiveIconColor);
+                } else {
+                    it.setTextColor(defaultIconColor);
+                }
                 selectedAppNum--;
             } else {
                 selApp.add(iname);
-                view.setBackgroundColor(defaultSelectColor);
+                //view.setBackgroundColor(defaultSelectColor);
+                it.setTextColor(getColor(R.color.yellow));
                 selectedAppNum++;
             }
             TextView tv = findViewById(R.id.addappInfo);

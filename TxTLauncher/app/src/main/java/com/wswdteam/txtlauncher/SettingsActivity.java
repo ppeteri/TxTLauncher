@@ -3,6 +3,7 @@ package com.wswdteam.txtlauncher;
 import static android.view.WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.SETTINGS_EXTRA_TOOLS_TAG;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.SETTINGS_FOCUS_TAG;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.SETTINGS_ONE_COLUMN_MAIN_TAG;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.SETTINGS_SHOW_MAIN_CONTROL_ICONS_TAG;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.START_ACT_APPLIST_SEL;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.START_ACT_FAVAPP_SEL;
@@ -32,7 +33,9 @@ import static com.wswdteam.txtlauncher.TxTLauncherApp.focusMode;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.focusModeChanged;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.homeStartAppIcon;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.homeSysIcon;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.iconViewChanged;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.onecolFavorites;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.onecolMain;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.packageUpdateTime;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.privateAIUrlOrig;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.privateSearchUrlOrig;
@@ -119,18 +122,6 @@ public class SettingsActivity extends AppCompatActivity {
         // teljes háttér színe
         getWindow().getDecorView().setBackgroundColor(defaultBackGroundColor);
 
-        TextView tv = findViewById(R.id.settingsViewTitle);
-        tv.setTextColor(defaultTextColor);
-        tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, TxTLauncherApp.defaultFontSize + defaultPlusFontSizeTitle);
-        @SuppressLint("UseCompatLoadingForDrawables") Drawable appI = getDrawable(R.drawable.arrow_back);
-        if (appI != null) {
-            int ts = (int) defaultFontSize + (int) defaultPlusFontSizeTitle;
-            appI.setBounds(0, 0, ts, ts);
-            appI.setTint(defaultTextColor);
-            tv.setCompoundDrawables(appI, null, null, null);
-            tv.setGravity(Gravity.CENTER_VERTICAL);
-            tv.setCompoundDrawables(appI, null, null, null);
-        }
     }
 
     @Override
@@ -148,6 +139,21 @@ public class SettingsActivity extends AppCompatActivity {
         //overrideActivityTransition(OVERRIDE_TRANSITION_CLOSE, R.anim.enter_from_left, R.anim.exit_to_right);
         super.onStart();
 
+        iconViewChanged = false;
+
+        TextView tv = findViewById(R.id.settingsViewTitle);
+        tv.setTextColor(defaultTextColor);
+        tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, TxTLauncherApp.defaultFontSize + defaultPlusFontSizeTitle);
+        @SuppressLint("UseCompatLoadingForDrawables") Drawable appI = getDrawable(R.drawable.arrow_back);
+        if (appI != null) {
+            int ts = (int) defaultFontSize + (int) defaultPlusFontSizeTitle;
+            appI.setBounds(0, 0, ts, ts);
+            appI.setTint(defaultTextColor);
+            tv.setCompoundDrawables(appI, null, null, null);
+            tv.setGravity(Gravity.CENTER_VERTICAL);
+            tv.setCompoundDrawables(appI, null, null, null);
+        }
+
         String val;
         @SuppressLint("UseSwitchCompatOrMaterialCode") Switch c1 = findViewById(R.id.sysIconCheck);
         @SuppressLint("UseSwitchCompatOrMaterialCode") Switch c2 = findViewById(R.id.appIconCheck);
@@ -159,6 +165,7 @@ public class SettingsActivity extends AppCompatActivity {
         @SuppressLint("UseSwitchCompatOrMaterialCode") Switch c8 = findViewById(R.id.showMainIcons);
         @SuppressLint("UseSwitchCompatOrMaterialCode") Switch c9 = findViewById(R.id.extraTools);
         @SuppressLint("UseSwitchCompatOrMaterialCode") Switch c10 = findViewById(R.id.focusModeCheck);
+        @SuppressLint("UseSwitchCompatOrMaterialCode") Switch c11 = findViewById(R.id.onecolMain);
 
         val = TxTLauncherApp.sharedPreferences.getString(SETTINGS_SYS_ICON_TAG, "");
         if (!val.isEmpty()) {
@@ -220,8 +227,15 @@ public class SettingsActivity extends AppCompatActivity {
         } else {
             c10.setChecked(focusMode);
         }
+        val = TxTLauncherApp.sharedPreferences.getString(SETTINGS_ONE_COLUMN_MAIN_TAG, "");
+        if (!val.isEmpty()) {
+            c11.setChecked(!val.equals("0"));
+        } else {
+            c11.setChecked(onecolMain);
+        }
 
         c1.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            iconViewChanged = true;
             var settings = TxTLauncherApp.sharedPreferences.edit();
             if (isChecked) {
                 settings.putString(SETTINGS_SYS_ICON_TAG, "1");
@@ -231,6 +245,7 @@ public class SettingsActivity extends AppCompatActivity {
             settings.apply();
         });
         c2.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            iconViewChanged = true;
             var settings = TxTLauncherApp.sharedPreferences.edit();
             if (isChecked) {
                 settings.putString(SETTINGS_HOME_ICON_TAG, "1");
@@ -240,6 +255,7 @@ public class SettingsActivity extends AppCompatActivity {
             settings.apply();
         });
         c3.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            iconViewChanged = true;
             var settings = TxTLauncherApp.sharedPreferences.edit();
             if (isChecked) {
                 settings.putString(SETTINGS_ADAPTIVE_ICON_TAG, "1");
@@ -249,6 +265,7 @@ public class SettingsActivity extends AppCompatActivity {
             settings.apply();
         });
         c4.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            iconViewChanged = true;
             var settings = TxTLauncherApp.sharedPreferences.edit();
             if (isChecked) {
                 settings.putString(SETTINGS_ONE_COLUMN_FAVORITES_TAG, "1");
@@ -258,6 +275,7 @@ public class SettingsActivity extends AppCompatActivity {
             settings.apply();
         });
         c5.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            iconViewChanged = true;
             var settings = TxTLauncherApp.sharedPreferences.edit();
             if (isChecked) {
                 settings.putString(SETTINGS_TEXT_COLOR_MODE_TAG, "1");
@@ -267,6 +285,7 @@ public class SettingsActivity extends AppCompatActivity {
             settings.apply();
         });
         c6.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            iconViewChanged = true;
             var settings = TxTLauncherApp.sharedPreferences.edit();
             if (isChecked) {
                 settings.putString(SETTINGS_DARK_MODE_TAG, "1");
@@ -276,6 +295,7 @@ public class SettingsActivity extends AppCompatActivity {
             settings.apply();
         });
         c7.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            iconViewChanged = true;
             var settings = TxTLauncherApp.sharedPreferences.edit();
             if (isChecked) {
                 settings.putString(SETTINGS_SHOW_ARROWS_TAG, "1");
@@ -285,6 +305,7 @@ public class SettingsActivity extends AppCompatActivity {
             settings.apply();
         });
         c8.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            iconViewChanged = true;
             var settings = TxTLauncherApp.sharedPreferences.edit();
             if (isChecked) {
                 settings.putString(SETTINGS_SHOW_MAIN_CONTROL_ICONS_TAG, "1");
@@ -294,6 +315,7 @@ public class SettingsActivity extends AppCompatActivity {
             settings.apply();
         });
         c9.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            iconViewChanged = true;
             var settings = TxTLauncherApp.sharedPreferences.edit();
             if (isChecked) {
                 settings.putString(SETTINGS_EXTRA_TOOLS_TAG, "1");
@@ -303,12 +325,22 @@ public class SettingsActivity extends AppCompatActivity {
             settings.apply();
         });
         c10.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            iconViewChanged = true;
             focusModeChanged = true;
             var settings = TxTLauncherApp.sharedPreferences.edit();
             if (isChecked) {
                 settings.putString(SETTINGS_FOCUS_TAG, "1");
             } else {
                 settings.putString(SETTINGS_FOCUS_TAG, "0");
+            }
+            settings.apply();
+        });
+        c11.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            var settings = TxTLauncherApp.sharedPreferences.edit();
+            if (isChecked) {
+                settings.putString(SETTINGS_ONE_COLUMN_MAIN_TAG, "1");
+            } else {
+                settings.putString(SETTINGS_ONE_COLUMN_MAIN_TAG, "0");
             }
             settings.apply();
         });
@@ -373,9 +405,9 @@ public class SettingsActivity extends AppCompatActivity {
             }
         });
 
-
         syslog(getString(R.string.started_activity) + ": "+ this.getClass().getSimpleName());
     }
+
 
 
     //

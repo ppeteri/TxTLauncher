@@ -1,5 +1,6 @@
 package com.wswdteam.txtlauncher;
 
+import static android.view.View.GONE;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static com.wswdteam.txtlauncher.IconManagement.getDrawableTxT;
@@ -26,15 +27,19 @@ import static com.wswdteam.txtlauncher.TxTLauncherApp.START_SETTINGS_LONG;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.START_WEATHER;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.adaptiveIconColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.allApplicationsList;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.appIconCache;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.backgroundChanged;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultBackGroundColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultIcons;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.extraTools;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.favIconCache;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.focusMode;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.focusModeChanged;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.getSettingsAppList;
-import static com.wswdteam.txtlauncher.TxTLauncherApp.iconCache;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.iconViewChanged;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.lockApp;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.mainIconCache;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.onecolMain;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.packageMan;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.savedBackgroundImage;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.showArrows;
@@ -76,8 +81,11 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
 import android.provider.MediaStore;
 import android.text.TextUtils;
+import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.GestureDetector;
 import android.view.Gravity;
@@ -123,13 +131,17 @@ public class MainActivity extends AppCompatActivity {
     public static boolean startedHelpAct = false;
     public static boolean startedAppSelect = false;
     public static boolean touchOnIconObject = false;
+    public static boolean firstStart = true;
     private GestureDetector gestureDetector;
+    private final Handler longPressHandler = new Handler(Looper.getMainLooper());
+    private Runnable longPressRunnable;
+
 
 
     //
     //  Fő nézet létrehozása
     //
-    @SuppressLint({"PrivateResource", "CutPasteId", "MissingInflatedId"})
+    @SuppressLint({"PrivateResource", "CutPasteId", "MissingInflatedId", "ClickableViewAccessibility"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -156,8 +168,7 @@ public class MainActivity extends AppCompatActivity {
         // globális érintés figyelés
         gestureDetector = GestureManagerMain.create(this, new GestureManagerMain.Callback() {
             @Override
-            public void onLongPress() {
-            }
+            public void onLongPress() { }
             @Override
             public void onLeft() {
                 openGoogleDiscovery();
@@ -167,10 +178,7 @@ public class MainActivity extends AppCompatActivity {
                 openWidgetActivity();
             }
             @Override
-            public void onUp() {
-                // fel
-                openAppListActivity();
-            }
+            public void onUp() { openAppListActivity(); }
             @Override
             public void onDown() {
                 openFavActivity();
@@ -225,23 +233,44 @@ public class MainActivity extends AppCompatActivity {
         // @float defaultTextSize = 14f;
         // - méretezetten: defaultPlusFontSize = (defaultFontSize * scaledDensity) - defaultFontSize + defaultPlusFontSize;
         // - méretezetten: defaultPlusFontSizeTitle = (defaultFontSize * scaledDensity) - defaultFontSize + defaultPlusFontSizeTitle;
+
         tv = findViewById(R.id.digitalClock);
         tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, defaultFontSize + (2 * defaultPlusFontSizeTitle));
         tv = findViewById(R.id.digitalDate);
         tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, defaultFontSize + (2 * defaultPlusFontSizeTitle));
 
-        FrameLayout ll;
-        ll = findViewById(R.id.mainFullView);
-        ll.setOnLongClickListener(v -> {
-            if (!focusMode) {
-                var set = TxTLauncherApp.sharedPreferences.edit();
-                systemMessage(getString(R.string.focus_mode_message));
-                focusMode = true;
-                set.putString(TxTLauncherApp.SETTINGS_FOCUS_TAG, "1");
-                set.apply();
-                screenPrepare();
+        FrameLayout linl = findViewById(R.id.mainFullView);
+        linl.setOnTouchListener((v, event) -> {
+            switch (event.getAction()) {
+                case MotionEvent.ACTION_DOWN:
+                    longPressRunnable = () -> {
+                        if (!focusMode) {
+                            systemMessage(getString(R.string.focus_mode_message));
+                            focusMode = true;
+                            var set = TxTLauncherApp.sharedPreferences.edit();
+                            set.putString(TxTLauncherApp.SETTINGS_FOCUS_TAG, "1");
+                            set.apply();
+                            screenPrepare();
+                        } else {
+                            systemMessage(getString(R.string.focus_mode_message_off));
+                            focusMode = false;
+                            var set = TxTLauncherApp.sharedPreferences.edit();
+                            set.putString(TxTLauncherApp.SETTINGS_FOCUS_TAG, "0");
+                            set.apply();
+                            screenPrepare();
+                            backgroundPrepare();
+                        }
+                    };
+                    longPressHandler.postDelayed(longPressRunnable, 5000);
+                    return true;
+                case MotionEvent.ACTION_UP:
+                case MotionEvent.ACTION_CANCEL:
+                    if (longPressRunnable != null) {
+                        longPressHandler.removeCallbacks(longPressRunnable);
+                    }
+                    return true;
             }
-            return true;
+            return false;
         });
 
         ImageView iv;
@@ -277,17 +306,6 @@ public class MainActivity extends AppCompatActivity {
 
         // új telepítés vagy frissítési üzenet
         verMessage(this);
-
-        // első indulás
-        generateAppList();
-        getSettingsMain(this);
-        getSettingsAppList();
-        saveButtonImages();
-        backgroundPrepare();
-        setColors();
-        screenPrepare();
-        buttonPrepare();
-        setHomaApp();
     }
 
 
@@ -329,14 +347,52 @@ public class MainActivity extends AppCompatActivity {
 
         super.onStart();
 
-        generateAppList();
+        syslog(getString(R.string.started_activity) + ": " + this.getClass().getSimpleName());
+    }
+
+
+    //
+    //  Fő nézet leállítása
+    //
+    @Override
+    public void onStop() {
+        super.onStop();
+        stopClock();
+    }
+
+
+    //
+    //  Fő nézet visszaállítása
+    //
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (firstStart) {
+            // első indulás
+            generateAppList();
+            getSettingsMain(this);
+            getSettingsAppList();
+            saveButtonImages();
+            backgroundPrepare();
+            setColors();
+            screenPrepare();
+            buttonPrepare();
+            setHomaApp();
+            firstStart = false;
+        }
+        if (generateAppList() || startedAppSelect){
+            getSettingsAppList();
+        }
+        if (iconViewChanged) {
+            iconViewChanged = false;
+            mainIconCache.evictAll();
+            appIconCache.evictAll();
+            favIconCache.evictAll();
+        }
+
         startClock();
 
         if (startedSettingsAct) {
-            iconCache.evictAll();
-            if (startedAppSelect) {
-                getSettingsAppList();
-            }
             getSettingsMain(this);
             if (focusModeChanged) {
                 if (!backgroundChanged) {
@@ -362,28 +418,6 @@ public class MainActivity extends AppCompatActivity {
         startedFavAct = false;
         startedHelpAct = false;
         startedAndroidApp = false;
-
-        syslog(getString(R.string.started_activity) + ": " + this.getClass().getSimpleName());
-    }
-
-
-    //
-    //  Fő nézet leállítása
-    //
-    @Override
-    public void onStop() {
-        super.onStop();
-        stopClock();
-    }
-
-
-    //
-    //  Fő nézet visszaállítása
-    //
-    @Override
-    protected void onResume() {
-        super.onResume();
-        //startClock();
     }
 
 
@@ -440,8 +474,6 @@ public class MainActivity extends AppCompatActivity {
             ll.setVisibility(INVISIBLE);
         }
         if (!focusMode) {
-            ll = findViewById(R.id.lLayoutIcons2);
-            ll.setVisibility(VISIBLE);
             ll = findViewById(R.id.AppFrame);
             ll.setVisibility(VISIBLE);
             iv = findViewById(R.id.mailButton);
@@ -451,8 +483,6 @@ public class MainActivity extends AppCompatActivity {
             iv = findViewById(R.id.applistButton);
             iv.setVisibility(VISIBLE);
         } else {
-            ll = findViewById(R.id.lLayoutIcons1);
-            ll.setVisibility(INVISIBLE);
             ll = findViewById(R.id.AppFrame);
             ll.setVisibility(INVISIBLE);
             iv = findViewById(R.id.mailButton);
@@ -674,15 +704,14 @@ public class MainActivity extends AppCompatActivity {
 
                             // Gyorsítótár ellenőrzése a csomagnév alapján
                             String cacheKey = app.activityInfo.packageName;
-                            Drawable iconToDisplay = iconCache.get(cacheKey);
+                            Drawable iconToDisplay = mainIconCache.get(cacheKey);
 
                             if (iconToDisplay == null) {
                                 // Ha nincs a cache-ben, legyártjuk és eltároljuk
                                 Drawable appI = app.loadIcon(packageMan);
                                 iconToDisplay = getDrawableTxT(row, appI, iconSize);
-                                iconCache.put(cacheKey, iconToDisplay);
+                                mainIconCache.put(cacheKey, iconToDisplay);
                             }
-
                             tvt.setCompoundDrawablesRelative(iconToDisplay, null, null, null);
                             tvt.setCompoundDrawablePadding(padding);
                         } else {
@@ -726,13 +755,13 @@ public class MainActivity extends AppCompatActivity {
 
                             // Gyorsítótár ellenőrzése a csomagnév alapján
                             String cacheKey = app.activityInfo.packageName;
-                            Drawable iconToDisplay = iconCache.get(cacheKey);
+                            Drawable iconToDisplay = mainIconCache.get(cacheKey);
 
                             if (iconToDisplay == null) {
                                 // Ha nincs a cache-ben, legyártjuk és eltároljuk
                                 Drawable appI = app.loadIcon(packageMan);
                                 iconToDisplay = getDrawableTxT(row, appI, iconSize);
-                                iconCache.put(cacheKey, iconToDisplay);
+                                mainIconCache.put(cacheKey, iconToDisplay);
                             }
 
                             tvt.setCompoundDrawablesRelative(iconToDisplay, null, null, null);
@@ -757,29 +786,56 @@ public class MainActivity extends AppCompatActivity {
             }
         };
 
-        double anum = Math.min(homeAppName.size(),  HOME_APP_NUM);
-        double an = anum / 2;
-        long halfA = round(an);
-        int halfApp = (int) halfA;
-        for (var i = 0; i < halfApp; i++) {
-            if (homeAppName.size() > i) {
-                if (!homeAppName.get(i).isEmpty()) {
-                    appHList1.add(homeAppName.get(i));
+        if (!onecolMain) {
+            ListView ll1 = findViewById(R.id.homeAppList1);
+            ll1.setPadding(0,0,0,0);
+            ListView ll2 = findViewById(R.id.homeAppList2);
+            ll2.setVisibility(VISIBLE);
+            double anum = Math.min(homeAppName.size(), HOME_APP_NUM);
+            double an = anum / 2;
+            long halfA = round(an);
+            int halfApp = (int) halfA;
+            for (var i = 0; i < halfApp; i++) {
+                if (homeAppName.size() > i) {
+                    if (!homeAppName.get(i).isEmpty()) {
+                        appHList1.add(homeAppName.get(i));
+                    }
                 }
             }
-        }
-        for (var i = halfApp; i <  HOME_APP_NUM; i++) {
-            if (homeAppName.size() > i) {
-                if (!homeAppName.get(i).isEmpty()) {
-                    appHList2.add(homeAppName.get(i));
+            for (var i = halfApp; i < HOME_APP_NUM; i++) {
+                if (homeAppName.size() > i) {
+                    if (!homeAppName.get(i).isEmpty()) {
+                        appHList2.add(homeAppName.get(i));
+                    }
                 }
             }
+            homeTable1.setAdapter(adapter1);
+            adapter1.notifyDataSetChanged();
+            homeTable2.setAdapter(adapter2);
+            adapter2.notifyDataSetChanged();
+        } else {
+            ListView ll1 = findViewById(R.id.homeAppList1);
+            ListView ll2 = findViewById(R.id.homeAppList2);
+            ll2.setVisibility(INVISIBLE);
+            ll2.setVisibility(GONE);
+            if (homeStartAppIcon) {
+                DisplayMetrics displayMetrics = ll1.getResources().getDisplayMetrics();
+                int sw = displayMetrics.widthPixels;
+                int p = (int) (sw * 0.20);
+                ll1.setPadding(p, 0, 0, 0);
+            } else {
+                ll1.setPadding(0, 0, 0, 0);
+            }
+            for (var i = 0; i < HOME_APP_NUM; i++) {
+                if (homeAppName.size() > i) {
+                    if (!homeAppName.get(i).isEmpty()) {
+                        appHList1.add(homeAppName.get(i));
+                    }
+                }
+            }
+            homeTable1.setAdapter(adapter1);
+            adapter1.notifyDataSetChanged();
         }
-
-        homeTable1.setAdapter(adapter1);
-        adapter1.notifyDataSetChanged();
-        homeTable2.setAdapter(adapter2);
-        adapter2.notifyDataSetChanged();
 
         homeTable1.setOnItemClickListener((parent, view, position, id) -> {
             String selectedP = (String) (homeTable1.getItemAtPosition(position));

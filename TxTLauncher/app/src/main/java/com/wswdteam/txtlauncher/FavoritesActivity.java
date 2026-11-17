@@ -16,8 +16,8 @@ import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultIconColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultPlusFontSizeTitle;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultTextColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.extraTools;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.favIconCache;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.homeStartAppIcon;
-import static com.wswdteam.txtlauncher.TxTLauncherApp.iconCache;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.iconSize;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.onecolFavorites;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.packageMan;
@@ -29,10 +29,10 @@ import static com.wswdteam.txtlauncher.TxTLauncherApp.startedAndroidApp;
 
 import android.annotation.SuppressLint;
 import android.content.pm.ResolveInfo;
-import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.text.TextUtils;
+import android.util.DisplayMetrics;
 import android.util.TypedValue;
 import android.view.GestureDetector;
 import android.view.Gravity;
@@ -61,6 +61,7 @@ import java.util.List;
 public class FavoritesActivity extends AppCompatActivity {
     public static List<String> favAppName = new ArrayList<>();
     private GestureDetector gestureDetector;
+    private GestureDetector gestureDetector2;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,10 +100,85 @@ public class FavoritesActivity extends AppCompatActivity {
                 finish();
             }
         });
+        gestureDetector2 = GestureManagerMain.create(this, new GestureManagerMain.Callback() {
+            @Override
+            public void onLeft() {
+                finish();
+            }
+            @Override
+            public void onRight() { finish(); }
+            @Override
+            public void onUp() { }
+            @Override
+            public void onDown() { }
+            @Override
+            public void onDoubleTap() {
+                finish();
+            }
+            @Override
+            public void onLongPress() {
+                finish();
+            }
+        });
 
         // teljes háttér színe
         getWindow().getDecorView().setBackgroundColor(defaultBackGroundColor);
+    }
 
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent event) {
+        ListView micon = findViewById(R.id.favAppList1);
+        boolean touchOnIcon = isTouchOnView(event, micon);
+        boolean isScrollable = micon.canScrollVertically(1) || micon.canScrollVertically(-1);
+        if (!touchOnIcon || !isScrollable) {
+        }
+        if (!isScrollable) {
+            gestureDetector.onTouchEvent(event);
+        } else {
+            gestureDetector2.onTouchEvent(event);
+        }
+        return super.dispatchTouchEvent(event);
+    }
+    private boolean isTouchOnView(MotionEvent event, View view) {
+        int[] loc = new int[2];
+        view.getLocationOnScreen(loc);
+        float x = event.getRawX();
+        float y = event.getRawY();
+        return x >= loc[0] && x <= loc[0] + view.getWidth() && y >= loc[1] && y <= loc[1] + view.getHeight();
+    }
+
+
+
+    //
+    // Kedvenc app lista előkészítés
+    //
+    @Override
+    public void onStart() {
+        overrideActivityTransition(OVERRIDE_TRANSITION_OPEN, R.anim.enter_from_top, R.anim.exit_to_bottom);
+        overrideActivityTransition(OVERRIDE_TRANSITION_CLOSE, R.anim.enter_from_bottom, R.anim.exit_to_top);
+        super.onStart();
+
+        syslog(getString(R.string.started_activity) + ": "+ this.getClass().getSimpleName());
+    }
+
+
+
+    //
+    // Kedvenc app lista leállítása
+    //
+    @Override
+    public void onStop() {
+        super.onStop();
+    }
+
+
+
+    //
+    // Kedvenc app lista leállítása
+    //
+    @Override
+    public void onResume() {
+        super.onResume();
         TextView tv = findViewById(R.id.favTitle);
         tv.setTextColor(defaultTextColor);
         tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, defaultFontSize + defaultPlusFontSizeTitle);
@@ -128,35 +204,10 @@ public class FavoritesActivity extends AppCompatActivity {
         } else {
             setIconColor(this, R.id.menuIconF, defaultIconColor);
         }
-    }
-
-    @Override
-    public boolean dispatchTouchEvent(MotionEvent event) {
-        gestureDetector.onTouchEvent(event);
-        return super.dispatchTouchEvent(event);
-    }
-
-    //
-    // Kedvenc app lista előkészítés
-    //
-    @Override
-    public void onStart() {
-        overrideActivityTransition(OVERRIDE_TRANSITION_OPEN, R.anim.enter_from_top, R.anim.exit_to_bottom);
-        overrideActivityTransition(OVERRIDE_TRANSITION_CLOSE, R.anim.enter_from_bottom, R.anim.exit_to_top);
-        super.onStart();
 
         setFavApp();
-        syslog(getString(R.string.started_activity) + ": "+ this.getClass().getSimpleName());
     }
 
-
-    //
-    // Kedvenc app lista leállítása
-    //
-    @Override
-    public void onStop() {
-        super.onStop();
-    }
 
 
     //
@@ -194,13 +245,13 @@ public class FavoritesActivity extends AppCompatActivity {
 
                             // Gyorsítótár ellenőrzése a csomagnév alapján
                             String cacheKey = app.activityInfo.packageName;
-                            Drawable iconToDisplay = iconCache.get(cacheKey);
+                            Drawable iconToDisplay = favIconCache.get(cacheKey);
 
                             if (iconToDisplay == null) {
                                 // Ha nincs a cache-ben, legyártjuk és eltároljuk
                                 Drawable appI = app.loadIcon(packageMan);
                                 iconToDisplay = getDrawableTxT(row, appI, iconSize);
-                                iconCache.put(cacheKey, iconToDisplay);
+                                favIconCache.put(cacheKey, iconToDisplay);
                             }
 
                             tvt.setCompoundDrawablesRelative(iconToDisplay, null, null, null);
@@ -243,13 +294,13 @@ public class FavoritesActivity extends AppCompatActivity {
 
                             // Gyorsítótár ellenőrzése a csomagnév alapján
                             String cacheKey = app.activityInfo.packageName;
-                            Drawable iconToDisplay = iconCache.get(cacheKey);
+                            Drawable iconToDisplay = favIconCache.get(cacheKey);
 
                             if (iconToDisplay == null) {
                                 // Ha nincs a cache-ben, legyártjuk és eltároljuk
                                 Drawable appI = app.loadIcon(packageMan);
                                 iconToDisplay = getDrawableTxT(row, appI, iconSize);
-                                iconCache.put(cacheKey, iconToDisplay);
+                                favIconCache.put(cacheKey, iconToDisplay);
                             }
 
                             tvt.setCompoundDrawablesRelative(iconToDisplay, null, null, null);
@@ -276,10 +327,10 @@ public class FavoritesActivity extends AppCompatActivity {
         };
 
         if (!onecolFavorites) {
-            ListView tx1 = findViewById(R.id.favAppList2);
-            tx1.setVisibility(View.VISIBLE);
-            ListView tx2 = findViewById(R.id.favAppList1);
-            tx2.setPadding(0, 0, 0, 0);
+            ListView ll1 = findViewById(R.id.favAppList1);
+            ll1.setPadding(0, 0, 0, 0);
+            ListView ll2 = findViewById(R.id.favAppList2);
+            ll2.setVisibility(View.VISIBLE);
             double anum = Math.min(favAppName.size(), FAV_APP_NUM);
             double an = anum / 2;
             long halfA = Math.round(an);
@@ -298,12 +349,18 @@ public class FavoritesActivity extends AppCompatActivity {
                 appFList2.add("");
             }
         } else {
-            int dp = 30;
-            int pixeldp = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, dp, Resources.getSystem().getDisplayMetrics());
-            favTable1.setPadding(pixeldp, 0, 0, 0);
-            ListView t2 = findViewById(R.id.favAppList2);
-            t2.setVisibility(INVISIBLE);
-            t2.setVisibility(GONE);
+            ListView ll2 = findViewById(R.id.favAppList2);
+            ll2.setVisibility(INVISIBLE);
+            ll2.setVisibility(GONE);
+            ListView ll1 = findViewById(R.id.favAppList1);
+            if (homeStartAppIcon) {
+                DisplayMetrics displayMetrics = ll1.getResources().getDisplayMetrics();
+                int sw = displayMetrics.widthPixels;
+                int p = (int) (sw * 0.20);
+                ll1.setPadding(p, 0, 0, 0);
+            } else {
+                ll1.setPadding(0, 0, 0, 0);
+            }
             for (var i = 0; i < FAV_APP_NUM; i++) {
                 if (favAppName.size() > i && !favAppName.get(i).isEmpty()) {
                     appFList1.add(favAppName.get(i));

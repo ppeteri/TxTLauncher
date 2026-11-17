@@ -40,7 +40,6 @@ import android.content.Context;
 import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.GradientDrawable;
 import android.icu.util.Calendar;
 import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
@@ -90,20 +89,25 @@ public class WidgetActivity extends AppCompatActivity {
             public void onLeft() {
                 finish();
             }
+
             @Override
             public void onRight() {
                 finish();
             }
+
             @Override
             public void onUp() {
             }
+
             @Override
             public void onDown() {
             }
+
             @Override
             public void onDoubleTap() {
                 finish();
             }
+
             @Override
             public void onLongPress() {
                 finish();
@@ -112,22 +116,77 @@ public class WidgetActivity extends AppCompatActivity {
 
         // teljes háttér színe
         getWindow().getDecorView().setBackgroundColor(defaultBackGroundColor);
+    }
 
-        TextView tv = findViewById(R.id.widgetTitle);
-        tv.setTextColor(defaultTextColor);
-        tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, TxTLauncherApp.defaultFontSize + defaultPlusFontSizeTitle);
-        @SuppressLint("UseCompatLoadingForDrawables") Drawable appI = getDrawable(R.drawable.arrow_back);
-        if (appI != null) {
-            int ts = (int) defaultFontSize + (int) defaultPlusFontSizeTitle;
-            appI.setBounds(0, 0, ts, ts);
-            appI.setTint(defaultTextColor);
-            tv.setCompoundDrawables(appI, null, null, null);
-            tv.setGravity(Gravity.CENTER_VERTICAL);
-            tv.setCompoundDrawables(appI, null, null, null);
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent event) {
+        boolean touchOnIcon;
+        boolean touchOnIcon2;
+
+        CalendarView cv = findViewById(R.id.widgetCalendar);
+        touchOnIcon = isTouchOnView(event, cv);
+        EditText text = findViewById(R.id.widgetTextNote);
+        touchOnIcon2 = isTouchOnView(event, text);
+        if (!touchOnIcon && !touchOnIcon2) {
+            gestureDetector.onTouchEvent(event);
         }
+        return super.dispatchTouchEvent(event);
+    }
+    private boolean isTouchOnView(MotionEvent event, View view) {
+        int[] loc = new int[2];
+        view.getLocationOnScreen(loc);
+        float x = event.getRawX();
+        float y = event.getRawY();
+        return x >= loc[0] && x <= loc[0] + view.getWidth() && y >= loc[1] && y <= loc[1] + view.getHeight();
+    }
+
+
+
+    //
+    // Widget nézet indítása
+    //
+    @SuppressLint({"ClickableViewAccessibility", "SetTextI18n"})
+    @Override
+    public void onStart(){
+        overrideActivityTransition(OVERRIDE_TRANSITION_OPEN, R.anim.enter_from_left, R.anim.exit_to_right);
+        overrideActivityTransition(OVERRIDE_TRANSITION_CLOSE, R.anim.enter_from_right, R.anim.exit_to_left);
+
+        super.onStart();
+        ImageView iv;
+        iv = findViewById(R.id.waiButton);
+        iv.setOnLongClickListener(v -> {
+            startInsideFunctionApp(this, START_AI_LONG);
+            this.finish();
+            return true;
+        });
+
+        iv = findViewById(R.id.wapplistButton);
+        iv.setOnLongClickListener(v -> {
+            startFavApp(v);
+            this.finish();
+            return true;
+        });
+
+        iv = findViewById(R.id.wbrowserButton);
+        iv.setOnLongClickListener(v -> {
+            startButtonAppBrowserLong();
+            this.finish();
+            return true;
+        });
+
+        iv = findViewById(R.id.menuIconW);
+        iv.setOnLongClickListener(v -> {
+            this.finish();
+            return true;
+        });
 
         EditText editText = findViewById(R.id.widgetTextNote);
-        editText.setBackgroundTintList(ColorStateList.valueOf(Color.DKGRAY));
+        iv.setOnClickListener(v -> this.finish());
+        String val = TxTLauncherApp.sharedPreferences.getString(SETTINGS_NOTE_TAG, "");
+        if (!val.isEmpty()) {
+            editText.setText(val);
+        }
+
         editText.setMovementMethod(new ScrollingMovementMethod());
         editText.setOnTouchListener((v, event) -> {
             if (editText.hasFocus()) {
@@ -172,6 +231,57 @@ public class WidgetActivity extends AppCompatActivity {
                 imm.showSoftInput(editText, InputMethodManager.SHOW_IMPLICIT);
             }
         });
+
+        iv = findViewById(R.id.extraSearchBar);
+        iv.setOnClickListener(v -> {
+            startInsideFunctionApp(this, START_SEARCH);
+            this.finish();
+        });
+
+        iv = findViewById(R.id.wsettingsButton);
+        iv.setOnLongClickListener(v -> {
+            startButtonSystemSettings(v);
+            this.finish();
+            return true;
+        });
+
+
+        syslog(getString(R.string.started_activity) + ": "+ this.getClass().getSimpleName());
+    }
+
+
+
+    //
+    // Widget nézet leállítása
+    //
+    @Override
+    public void onStop() {
+        super.onStop();
+    }
+
+
+
+    //
+    // Widget nézet leállítása
+    //
+    @Override
+    public void onResume () {
+        super.onResume();
+        TextView tv = findViewById(R.id.widgetTitle);
+        tv.setTextColor(defaultTextColor);
+        tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, TxTLauncherApp.defaultFontSize + defaultPlusFontSizeTitle);
+        @SuppressLint("UseCompatLoadingForDrawables") Drawable appI = getDrawable(R.drawable.arrow_back);
+        if (appI != null) {
+            int ts = (int) defaultFontSize + (int) defaultPlusFontSizeTitle;
+            appI.setBounds(0, 0, ts, ts);
+            appI.setTint(defaultTextColor);
+            tv.setCompoundDrawables(appI, null, null, null);
+            tv.setGravity(Gravity.CENTER_VERTICAL);
+            tv.setCompoundDrawables(appI, null, null, null);
+        }
+
+        EditText editText = findViewById(R.id.widgetTextNote);
+        editText.setBackgroundTintList(ColorStateList.valueOf(Color.DKGRAY));
 
         if (textColorMode) {
             setIconColor(this, R.id.wsettingsButton, adaptiveIconColor);
@@ -240,91 +350,13 @@ public class WidgetActivity extends AppCompatActivity {
         tvx = findViewById(R.id.widgetNoteTitle);
         tvx.setTextColor(textColor);
 
+        setIconColor(this, R.id.menuIconW, iconColor);
+
         ImageView iv = findViewById(R.id.extraSearchBar);
-        setIconColor(this, R.id.extraSearchBar, iconColor);
-        GradientDrawable bg = (GradientDrawable) iv.getBackground();
-        bg.setStroke(2, iconColor);
         iv.setOnClickListener(v -> {
             startInsideFunctionApp(this, START_SEARCH);
             this.finish();
         });
-
-        iv = findViewById(R.id.wsettingsButton);
-        iv.setOnLongClickListener(v -> {
-            startButtonSystemSettings(v);
-            this.finish();
-            return true;
-        });
-
-        iv = findViewById(R.id.waiButton);
-        iv.setOnLongClickListener(v -> {
-            startInsideFunctionApp(this, START_AI_LONG);
-            this.finish();
-            return true;
-        });
-
-        iv = findViewById(R.id.wapplistButton);
-        iv.setOnLongClickListener(v -> {
-            startFavApp(v);
-            this.finish();
-            return true;
-        });
-
-        iv = findViewById(R.id.wbrowserButton);
-        iv.setOnLongClickListener(v -> {
-            startButtonAppBrowserLong();
-            this.finish();
-            return true;
-        });
-
-        setIconColor(this, R.id.menuIconW, iconColor);
-        iv = findViewById(R.id.menuIconW);
-        iv.setOnLongClickListener(v -> {
-            this.finish();
-            return true;
-        });
-        iv.setOnClickListener(v -> this.finish());
-    }
-
-    @Override
-    public boolean dispatchTouchEvent(MotionEvent event) {
-        boolean touchOnIcon;
-        boolean touchOnIcon2;
-
-        CalendarView cv = findViewById(R.id.widgetCalendar);
-        touchOnIcon = isTouchOnView(event, cv);
-        EditText text = findViewById(R.id.widgetTextNote);
-        touchOnIcon2 = isTouchOnView(event, text);
-        if (!touchOnIcon && !touchOnIcon2) {
-            gestureDetector.onTouchEvent(event);
-        }
-        return super.dispatchTouchEvent(event);
-    }
-    private boolean isTouchOnView(MotionEvent event, View view) {
-        int[] loc = new int[2];
-        view.getLocationOnScreen(loc);
-        float x = event.getRawX();
-        float y = event.getRawY();
-        return x >= loc[0] && x <= loc[0] + view.getWidth() && y >= loc[1] && y <= loc[1] + view.getHeight();
-    }
-
-
-
-    //
-    // Widget nézet indítása
-    //
-    @Override
-    public void onStart(){
-        overrideActivityTransition(OVERRIDE_TRANSITION_OPEN, R.anim.enter_from_left, R.anim.exit_to_right);
-        overrideActivityTransition(OVERRIDE_TRANSITION_CLOSE, R.anim.enter_from_right, R.anim.exit_to_left);
-
-        super.onStart();
-
-        String val = TxTLauncherApp.sharedPreferences.getString(SETTINGS_NOTE_TAG, "");
-        if (!val.isEmpty()) {
-            EditText tv = findViewById(R.id.widgetTextNote);
-            tv.setText(val);
-        }
 
         if (extraTools && !focusMode) {
             LinearLayout ll = findViewById(R.id.extraWidget1);
@@ -340,8 +372,8 @@ public class WidgetActivity extends AppCompatActivity {
         if (focusMode) {
             LinearLayout ll = findViewById(R.id.buttonsFrame2);
             ll.setVisibility(GONE);
-            Button iv = findViewById(R.id.wcalendarbutton);
-            iv.setVisibility(INVISIBLE);
+            Button ib = findViewById(R.id.wcalendarbutton);
+            ib.setVisibility(INVISIBLE);
             ll = findViewById(R.id.wapplistButtonL);
             ll.setVisibility(INVISIBLE);
             ll = findViewById(R.id.wfavlistButtonL);
@@ -356,18 +388,6 @@ public class WidgetActivity extends AppCompatActivity {
                 hideKeyboard(this);
             }
         });
-
-        syslog(getString(R.string.started_activity) + ": "+ this.getClass().getSimpleName());
-    }
-
-
-    //
-    // Widget nézet leállítása
-    //
-    @Override
-    public void onStop(){
-        super.onStop();
-        //appWidgetHost.stopListening();
     }
 
 

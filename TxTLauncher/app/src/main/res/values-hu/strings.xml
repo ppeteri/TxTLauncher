@@ -18,7 +18,7 @@
     <string name="button_search">Kereső app</string>
     <string name="setting_addapp">Applikáció hozzáadása a kezdőképernyőhöz</string>
     <string name="setting_sysicon">Rendszer applikációk ikon használata</string>
-    <string name="setting_starticon">Választott applikációk ikon használata</string>
+    <string name="setting_starticon">Ikon használata minden applikációnál</string>
     <string name="settings_title">Beállítások</string>
     <string name="started_activity">Nézet elindult</string>
     <string name="stopped_activty">Nézet leállt</string>
@@ -52,8 +52,8 @@
     <string name="help_title">Leírás</string>
     <string name="news_firstrun_title">Első indítás</string>
     <string name="news_firstrun">Előkészítés\nBeállítások mentése</string>
-    <string name="help_text_2">"Használat:\n\n- jobbra húzás: eszközök\n- balra húzás: felfedezés\n- felfelé húzás: applikációk listája\n- lefelé húzás: kedvenc applikációk\n- dupla érintés üres területen: zárolás\n- hosszú érintés üres területen: kedvenc applikációk\n- hosszú érintés beállítások ikonon: Android rendszer beállítások\n- hosszú érintés böngésző ikonon: böngésző privát kereső betöltésével\n- hosszú érintés keresés ikonon: böngésző privát kereső betöltésével "</string>
-    <string name="help_text_3">Beállítások:\n\n- fő képenyőre applikációk választása\n- kedvenc applikációk választása\n- ikonok megjelenítésének bekapcsolása\n    - rendszer ikonok\n    - applikációk ikonjai\n    - adaptív ikonok\n    - adaptív ikonok színe\n- AI link beállítása (böngészőből indítható egyedi AI)\n- web kereső beállítása (URL)\n- időjárás link vagy szó, ami böngészőből kereshető\n-  háttérkép (fájlnév, a Letöltések mappából, ha sikerül betölteni, tárolja a rendszer)\n- tárolt háttérkép törlése\n- szöveges beállítások visszaállítás alapértékekre\n- appikációk újraolvasása (frissítés, telepítés vagy törlés esetén ha hibás az applikációk listája)</string>
+    <string name="help_text_2">"Használat:\n\n- jobbra húzás: eszközök\n- balra húzás: felfedezés\n- felfelé húzás: applikációk listája\n- lefelé húzás: kedvenc applikációk\n- dupla érintés üres területen: zárolás\n- hosszú érintés üres területen: fókusz mód (ha engedélyezve van)\n- hosszú érintés beállítások ikonon: Android rendszer beállítások\n- hosszú érintés böngésző ikonon: böngésző privát kereső betöltésével\n- hosszú érintés keresés ikonon: böngésző privát kereső betöltésével "</string>
+    <string name="help_text_3">Beállítások:\n\n- fő képenyőre applikációk választása\n- kedvenc applikációk választása\n- fókusz mód be- és kikapcsolása (app indítás letiltása)\n- ikonok megjelenítésének bekapcsolása\n    - rendszer ikonok\n    - applikációk ikonjai\n    - adaptív ikonok\n    - adaptív ikonok színe\n- AI link beállítása (böngészőből indítható egyedi AI)\n- web kereső beállítása (URL)\n- időjárás link vagy szó, ami böngészőből kereshető\n-  háttérkép (fájlnév, a Letöltések mappából, ha sikerül betölteni, tárolja a rendszer)\n- tárolt háttérkép törlése\n- szöveges beállítások visszaállítás alapértékekre\n- appikációk újraolvasása (frissítés, telepítés vagy törlés esetén ha hibás az applikációk listája)</string>
     <string name="help_text_4">Új verzió letölthető a weboldalról.\nLicenc: GPLv3</string>
     <string name="licence">GPLv3</string>
     <string name="help_text_1">Egyszerű vezérlő Android rendszerhez. Nem kapcsolódik az Android belső rendszeréhez, nem használ külső eléréseket, így energiatakarékos és gyors.\n\nTámogatja az applikáció ikonok megjelenítését és az adaptív ikonok használatát.\n\nA főoldal háttérképet is tud használni, ami beállítható a Beállítások lapon. (A kép nevét kell megadni, a képnek a Letöltések mappában kell lennie.) A beállított képet, ha meg tudja nyitni, eltárolja,\n\nA főoldalon a funkciók ikonjai találhatók, keresés, időjárás, beállítások és az Android alapértelmezett AI applikációja. Lent láthatók az alapfunkciók: hívás, levelezés, applikációk listája, böngésző és kamera. Ezek a funkciók az Android alapértelmezett applikációit indítják.</string>
@@ -81,7 +81,7 @@
     <string name="wbutt_map">Térkép</string>
     <string name="error_lock">Kérlek engedélyezd az alkalmazást a kisegítő lehetőségek között.</string>
     <string name="settings_adapticon">Adaptiv ikonok használata</string>
-    <string name="settings_onecolfav">Egy oszlopos kedvencek</string>
+    <string name="settings_onecolfav">Kedvencek egy oszlopban</string>
     <string name="settings_resetbackground_title">Mentett háttérkép törlése (új használata előtt)</string>
     <string name="settings_backround_image_placeholder">Háttérkép</string>
     <string name="settings_resetbackground">Törlés</string>
@@ -101,4 +101,5 @@
     <string name="settings_focus_mode">Fókusz mód</string>
     <string name="focus_mode_message">Fókusz mód bekapcsolva</string>
     <string name="focus_mode_message_off">Fókusz mód kikapcsolva</string>
+    <string name="settings_onecolmain">Ikonok fő képernyőn egy oszlopban</string>
 </resources>

@@ -28,6 +28,7 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.core.content.ContextCompat;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
@@ -100,7 +101,8 @@ public class TxTLauncherApp extends android.app.Application {
     public static String SETTINGS_SHOW_ARROWS_TAG = "ShowArrows";
     public static String SETTINGS_SHOW_MAIN_CONTROL_ICONS_TAG = "ShowMainIcons";
     public static String SETTINGS_EXTRA_TOOLS_TAG = "ExtraTools";
-    public static String SETTINGS_ONE_COLUMN_FAVORITES_TAG = "oneColFavorites";
+    public static String SETTINGS_ONE_COLUMN_FAVORITES_TAG = "OneColFavorites";
+    public static String SETTINGS_ONE_COLUMN_MAIN_TAG = "OneColMain";
     public static String SETTINGS_URL_PRIVATEAI_TAG = "PrivateAI";
     public static String SETTINGS_URL_SEARCH_TAG = "Search";
     public static String SETTINGS_WEATHER_URL_TAG = "Weather";
@@ -121,6 +123,7 @@ public class TxTLauncherApp extends android.app.Application {
     public static String savedBackgroundImage = "";
     public static Boolean backgroundChanged = false;
     public static Boolean focusModeChanged = false;
+    public static Boolean iconViewChanged = false;
 
     // rendszer változók
     public static SharedPreferences sharedPreferences;
@@ -133,6 +136,7 @@ public class TxTLauncherApp extends android.app.Application {
     public static boolean homeStartAppIcon = false;
     public static boolean adaptiveIcon = false;
     public static boolean onecolFavorites = false;
+    public static boolean onecolMain = false;
     public static boolean textColorMode = false;
     public static boolean darkMode = true;
     public static boolean showArrows = false;
@@ -164,6 +168,12 @@ public class TxTLauncherApp extends android.app.Application {
     public static int iconPaddingDP = 2;
     public static boolean startedAndroidApp = true;
 
+    // Gyorsítótár az ikonoknak
+    public static final LruCache<String, Drawable> appIconCache = new LruCache<>(150);
+    public static final LruCache<String, Drawable> mainIconCache = new LruCache<>(HOME_APP_NUM);
+    public static final LruCache<String, Drawable> favIconCache = new LruCache<>(FAV_APP_NUM);
+
+
 
     @Override
     public void onCreate() {
@@ -176,6 +186,7 @@ public class TxTLauncherApp extends android.app.Application {
         sharedPreferences = getSharedPreferences(PRIVATE_SETTINGS_TAG, MODE_PRIVATE);
         //saveSettings();
         packageMan = getPackageManager();
+        //appChangeReceiver = new AppChangeReceiver();
 
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES);
 
@@ -194,22 +205,12 @@ public class TxTLauncherApp extends android.app.Application {
         syslog(getString(R.string.started_activity) + ": " + this.getClass().getSimpleName());
     }
 
-    // Gyorsítótár az ikonoknak, hogy ne kelljen újra és újra kiszámolni őket scrollozáskor (Max 150 ikon)
-    public static final LruCache<String, Drawable> iconCache = new LruCache<>(150);
-
-
     //
     //  Fő nézet: telepített app-ok bellvasása
     //
-    public static void generateAppList() {
-        // másodperc
-        // long currentTime = System.currentTimeMillis() / 1000;
-        // 5 perc és újra olvas
-        // - if ((currentTime - packageUpdateTime) > 300) {
-        // -    startedAndroidApp = true;
-        // - }
-        //packageUpdateTime = currentTime;
-        if (startedAndroidApp) {
+    public static boolean generateAppList() {
+        String[][] allAppDataBackup = allAppData;
+        //if (startedAndroidApp) {
             startedAndroidApp = false;
             allApplicationsList.clear();
             Intent intent = new Intent(Intent.ACTION_MAIN, null);
@@ -284,12 +285,16 @@ public class TxTLauncherApp extends android.app.Application {
                 allAppData[i][1] = info.activityInfo.packageName;
                 allAppData[i][2] = info.activityInfo.name;
             }
-            // végrehajtási idő
-            // currentTime = (System.currentTimeMillis() / 1000) - currentTime;
-            //syslog(String.valueOf(currentTime));
-            // ! kiírás:  systemMessage(String.valueOf(currentTime));
+        //}
+        if (Arrays.deepEquals(allAppData, allAppDataBackup)) {
+            return false;
+        } else {
+            appIconCache.evictAll();
+            return true;
         }
     }
+
+
 
     //
     //  Fő nézet: beállítások betöltése
@@ -298,6 +303,7 @@ public class TxTLauncherApp extends android.app.Application {
         String tag;
         String val;
         String appName;
+        mainIconCache.evictAll();
         homeAppName.clear();
         for (var i = 0; i < HOME_APP_NUM; i++) {
             tag = SETTINGS_APP_TAG + i;
@@ -313,6 +319,7 @@ public class TxTLauncherApp extends android.app.Application {
                 }
             }
         }
+        favIconCache.evictAll();
         favAppName.clear();
         for (var i = 0; i < FAV_APP_NUM; i++) {
             tag = SETTINGS_FAV_APP_TAG + i;
@@ -327,7 +334,6 @@ public class TxTLauncherApp extends android.app.Application {
                     }
                 }
             }
-
         }
     }
 
@@ -454,6 +460,13 @@ public class TxTLauncherApp extends android.app.Application {
             val = sharedPreferences.getString(SETTINGS_ONE_COLUMN_FAVORITES_TAG, null);
             if (val != null) {
                 onecolFavorites = !val.equals("0");
+            }
+        }
+
+        if (sharedPreferences.contains(SETTINGS_ONE_COLUMN_MAIN_TAG)) {
+            val = sharedPreferences.getString(SETTINGS_ONE_COLUMN_MAIN_TAG, null);
+            if (val != null) {
+                onecolMain = !val.equals("0");
             }
         }
 
