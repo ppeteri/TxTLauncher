@@ -9,11 +9,11 @@ Amire nekem szükségem van.
 (HUN/ENG)
 </p>
 <p>
-- választott app-ok a kezdőképernyőre
-- kedvenc app-ok
-- jegyzet
-- indítóikonok android funkciókhoz
-- háttérkép
+- választott app-ok a kezdőképernyőre<br />
+- kedvenc app-ok<br />
+- jegyzet<br />
+- indítóikonok android funkciókhoz<br />
+- háttérkép<br />
 </p>
 
 <br /><br />
@@ -21,11 +21,13 @@ Amire nekem szükségem van.
 <br /><br />
 
 <p align=center>
-  <kbd><br /><img width=25% src="./img/k1.png"><br /><br /></kbd>
+  <kbd><br /><img width=40% src="./img/screen1.png"><br /><br /></kbd>
   <br /><br />
-  <kbd><br /><img width=25% src="./img/k2.png"><br /><br /></kbd>
+  <kbd><br /><img width=40% src="./img/screen2.png"><br /><br /></kbd>
   <br /><br />
-  <kbd><br /><img width=25% src="./img/k3.png"><br /><br /></kbd>
+  <kbd><br /><img width=40% src="./img/screen3.png"><br /><br /></kbd>
+  <br /><br />
+  <kbd><br /><img width=40% src="./img/screen4.png"><br /><br /></kbd>
   <br /><br />
 </p>
 
