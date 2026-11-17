@@ -304,6 +304,7 @@ public class MainActivity extends AppCompatActivity {
             return true;
         });
 
+        firstStart = true;
         // új telepítés vagy frissítési üzenet
         verMessage(this);
     }
