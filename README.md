@@ -1,11 +1,11 @@
 # TxTLauncher - Android launcher
 
 <p>
-Indító app - nekem
+Indító app - nekem<br />
 Minimalista, gyors.
 </p>
 <p>
-Amire nekem szükségem van.
+Amire nekem szükségem van.<br />
 (HUN/ENG)
 </p>
 <p>
@@ -21,13 +21,13 @@ Amire nekem szükségem van.
 <br /><br />
 
 <p align=center>
-  <kbd><br /><img width=40% src="./img/screen1.png"><br /><br /></kbd>
+  <kbd><br /><img width=50% src="./img/screen1.png"><br /><br /></kbd>
   <br /><br />
-  <kbd><br /><img width=40% src="./img/screen2.png"><br /><br /></kbd>
+  <kbd><br /><img width=50% src="./img/screen2.png"><br /><br /></kbd>
   <br /><br />
-  <kbd><br /><img width=40% src="./img/screen3.png"><br /><br /></kbd>
+  <kbd><br /><img width=50% src="./img/screen3.png"><br /><br /></kbd>
   <br /><br />
-  <kbd><br /><img width=40% src="./img/screen4.png"><br /><br /></kbd>
+  <kbd><br /><img width=50% src="./img/screen4.png"><br /><br /></kbd>
   <br /><br />
 </p>
 
