@@ -4,6 +4,7 @@ import static android.view.View.GONE;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static com.wswdteam.txtlauncher.IconManagement.getDrawableTxT;
+import static com.wswdteam.txtlauncher.IconManagement.iconFrame;
 import static com.wswdteam.txtlauncher.IconManagement.iconMainApp;
 import static com.wswdteam.txtlauncher.IconManagement.imageButtonColorize;
 import static com.wswdteam.txtlauncher.IconManagement.setIconColor;
@@ -601,47 +602,42 @@ public class MainActivity extends AppCompatActivity {
         // teljes háttér színe
         getWindow().getDecorView().setBackgroundColor(defaultBackGroundColor);
 
+        int iconColor;
         if (textColorMode) {
-            setIconColor(this, R.id.applistButton, adaptiveIconColor);
-            setIconColor(this, R.id.searchButton, adaptiveIconColor);
-            setIconColor(this, R.id.weatherButton, adaptiveIconColor);
-            setIconColor(this, R.id.settingsButton, adaptiveIconColor);
-            setIconColor(this, R.id.aiButton, adaptiveIconColor);
-            setIconColor(this, R.id.arrowDown, adaptiveIconColor);
-            setIconColor(this, R.id.arrowLeft, adaptiveIconColor);
-            setIconColor(this, R.id.arrowRight, adaptiveIconColor);
-            setIconColor(this, R.id.arrowUp, adaptiveIconColor);
-            setIconColor(this, R.id.applistButton, adaptiveIconColor);
-            setIconColor(this, R.id.dialButton, adaptiveIconColor);
-            setIconColor(this, R.id.mailButton, adaptiveIconColor);
-            setIconColor(this, R.id.applistButton, adaptiveIconColor);
-            setIconColor(this, R.id.browserButton, adaptiveIconColor);
-            setIconColor(this, R.id.cameraButton, adaptiveIconColor);
-            setIconColor(this, R.id.menuIconMain, adaptiveIconColor);
+            iconColor = adaptiveIconColor;
         } else {
-            setIconColor(this, R.id.applistButton, defaultIconColor);
-            setIconColor(this, R.id.searchButton, defaultIconColor);
-            setIconColor(this, R.id.weatherButton, defaultIconColor);
-            setIconColor(this, R.id.settingsButton, defaultIconColor);
-            setIconColor(this, R.id.aiButton, defaultIconColor);
-            setIconColor(this, R.id.arrowDown, defaultIconColor);
-            setIconColor(this, R.id.arrowLeft, defaultIconColor);
-            setIconColor(this, R.id.arrowRight, defaultIconColor);
-            setIconColor(this, R.id.arrowUp, defaultIconColor);
-            setIconColor(this, R.id.applistButton, defaultIconColor);
-            setIconColor(this, R.id.dialButton, defaultIconColor);
-            setIconColor(this, R.id.mailButton, defaultIconColor);
-            setIconColor(this, R.id.applistButton, defaultIconColor);
-            setIconColor(this, R.id.browserButton, defaultIconColor);
-            setIconColor(this, R.id.cameraButton, defaultIconColor);
-            setIconColor(this, R.id.menuIconMain, defaultIconColor);
+            iconColor = defaultIconColor;
         }
-
-       TextView tw = findViewById(R.id.digitalClock);
-       tw.setTextColor(defaultTextColor);
-       TextView tdw = findViewById(R.id.digitalDate);
-       tdw.setTextColor(defaultTextColor);
-
+        setIconColor(this, R.id.applistButton, iconColor);
+        setIconColor(this, R.id.searchButton, iconColor);
+        setIconColor(this, R.id.weatherButton, iconColor);
+        setIconColor(this, R.id.settingsButton, iconColor);
+        setIconColor(this, R.id.aiButton, iconColor);
+        setIconColor(this, R.id.arrowDown, iconColor);
+        setIconColor(this, R.id.arrowLeft, iconColor);
+        setIconColor(this, R.id.arrowRight, iconColor);
+        setIconColor(this, R.id.arrowUp, iconColor);
+        setIconColor(this, R.id.applistButton, iconColor);
+        setIconColor(this, R.id.dialButton, iconColor);
+        setIconColor(this, R.id.mailButton, iconColor);
+        setIconColor(this, R.id.applistButton, iconColor);
+        setIconColor(this, R.id.browserButton, iconColor);
+        setIconColor(this, R.id.cameraButton, iconColor);
+        setIconColor(this, R.id.menuIconMain, iconColor);
+        if (firstStart) {
+            iconFrame(this, R.id.arrowLeft, iconColor);
+            iconFrame(this, R.id.arrowUp, iconColor);
+            iconFrame(this, R.id.arrowDown, iconColor);
+            iconFrame(this, R.id.arrowRight, iconColor);
+            iconFrame(this, R.id.searchButton, iconColor);
+            iconFrame(this, R.id.weatherButton, iconColor);
+            iconFrame(this, R.id.settingsButton, iconColor);
+            iconFrame(this, R.id.aiButton, iconColor);
+        }
+        TextView tw = findViewById(R.id.digitalClock);
+        tw.setTextColor(defaultTextColor);
+        TextView tdw = findViewById(R.id.digitalDate);
+        tdw.setTextColor(defaultTextColor);
     }
 
 

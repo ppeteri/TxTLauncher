@@ -55,10 +55,45 @@ public class IconManagement {
     }
 
 
-    //
-    // Fő képernyő vezérlő alapikonok kezelése
-    //
 
+    //
+    // másodlagos vezérlő (nyíl) ikonok kezelése
+    //
+    public static void iconFrame(Activity act, int id, int color) {
+        ImageView iv = act.findViewById(id);
+        if (iv == null) return;
+        Drawable dr = iv.getDrawable();
+        if (dr != null) {
+            try {
+                int alphaColor = (color & 0x00FFFFFF) | (0x7F << 24);
+                int iconWidth = dr.getIntrinsicWidth();
+                int iconHeight = dr.getIntrinsicHeight();
+                int padding = (int) (10 * act.getResources().getDisplayMetrics().density);
+                int miniWidth = iconWidth - (2 * padding);
+                int miniHeight = iconHeight - (2 * padding);
+                GradientDrawable circleBorder = new GradientDrawable();
+                circleBorder.setShape(GradientDrawable.OVAL);
+                circleBorder.setColor(Color.TRANSPARENT);
+                int strokeWidth = (int) (3 * act.getResources().getDisplayMetrics().density);
+                circleBorder.setStroke(strokeWidth, alphaColor);
+                Drawable[] layers = new Drawable[]{circleBorder, dr};
+                LayerDrawable layerDrawable = new LayerDrawable(layers);
+                layerDrawable.setLayerSize(0, iconWidth, iconHeight);
+                layerDrawable.setLayerSize(1, miniWidth, miniHeight);
+                layerDrawable.setLayerGravity(1, android.view.Gravity.CENTER);
+                //layerDrawable.setLayerInset(1, padding, padding, padding, padding);
+                iv.setImageDrawable(layerDrawable);
+            } catch (Exception e) {
+                // hiba
+            }
+        }
+    }
+
+
+
+    //
+    // applist ikon kirajzolása, szinezése
+    //
     public static void iconMainApp(View view) {
         ImageView appF = view.findViewById(R.id.applistButton);
         Drawable mIcon = defaultIcons.get(2);
@@ -91,7 +126,7 @@ public class IconManagement {
 
 
 
-    // fő ikonok kirajzolása
+    // fő vezérlő ikonok kirajzolása
     private static Drawable mainDrawable(View view, Drawable appI, Drawable drI) {
         Drawable iconToDisplay;
         int iSize = appI.getIntrinsicHeight();
