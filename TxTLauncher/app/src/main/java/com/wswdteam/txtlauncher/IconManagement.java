@@ -214,10 +214,6 @@ public class IconManagement {
 
 
     //
-    // Ikon lista: ikonok kezelése
-    //
-
-    //
     // ikonok kiszedése és szinezáse
     //
     static Drawable getDrawableTxT(View view, Drawable appI, int iconSize) {
@@ -253,6 +249,8 @@ public class IconManagement {
         return iconToDisplay;
     }
 
+
+
     // alapértelmezett app ikon
     private static Drawable getDefaultIconAsLayer(View view, int iconSize) {
         try {
@@ -272,6 +270,8 @@ public class IconManagement {
         }
         return null;
     }
+
+
 
     // mono app ikon
     public static Drawable getDefaultMonoIcon(View view, Drawable monoIcon, int mIconSize) {

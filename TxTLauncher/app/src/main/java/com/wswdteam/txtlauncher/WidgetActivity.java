@@ -3,6 +3,7 @@ package com.wswdteam.txtlauncher;
 import static android.view.View.GONE;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
+import static com.wswdteam.txtlauncher.IconManagement.iconFrame;
 import static com.wswdteam.txtlauncher.IconManagement.setIconColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.START_ACT_APPLIST;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.START_ACT_FAVAPP;
@@ -25,6 +26,7 @@ import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultBackGroundColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultFontSize;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultIconColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultPlusFontSizeTitle;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultScreenIcons;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultTextColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.extraTools;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.focusMode;
@@ -71,6 +73,8 @@ import java.text.DateFormat;
 //
 public class WidgetActivity extends AppCompatActivity {
     private GestureDetector gestureDetector;
+    public boolean widgetIconChanged = false;
+    public boolean widgetFirstStart = true;
 
     @SuppressLint({"SetJavaScriptEnabled", "ClickableViewAccessibility", "SetTextI18n", "MissingInflatedId"})
     @Override
@@ -116,6 +120,9 @@ public class WidgetActivity extends AppCompatActivity {
 
         // teljes háttér színe
         getWindow().getDecorView().setBackgroundColor(defaultBackGroundColor);
+
+        widgetIconChanged = false;
+        widgetFirstStart = true;
     }
 
     @Override
@@ -245,6 +252,29 @@ public class WidgetActivity extends AppCompatActivity {
             return true;
         });
 
+        if (widgetFirstStart) {
+            //ImageView iv;
+            iv = findViewById(R.id.wsettingsButton);
+            defaultScreenIcons.add(iv.getDrawable());
+            iv = findViewById(R.id.wapplistButton);
+            defaultScreenIcons.add(iv.getDrawable());
+            iv = findViewById(R.id.wfavlistButton);
+            defaultScreenIcons.add(iv.getDrawable());
+            iv = findViewById(R.id.wbrowserButton);
+            defaultScreenIcons.add(iv.getDrawable());
+            iv = findViewById(R.id.wcameraButton);
+            defaultScreenIcons.add(iv.getDrawable());
+            iv = findViewById(R.id.wwetButton);
+            defaultScreenIcons.add(iv.getDrawable());
+            iv = findViewById(R.id.whelpButton);
+            defaultScreenIcons.add(iv.getDrawable());
+            iv = findViewById(R.id.waiButton);
+            defaultScreenIcons.add(iv.getDrawable());
+            iv = findViewById(R.id.wdiscoveryButton);
+            defaultScreenIcons.add(iv.getDrawable());
+            iv = findViewById(R.id.wmapButton);
+            defaultScreenIcons.add(iv.getDrawable());
+        }
 
         syslog(getString(R.string.started_activity) + ": "+ this.getClass().getSimpleName());
     }
@@ -267,6 +297,71 @@ public class WidgetActivity extends AppCompatActivity {
     @Override
     public void onResume () {
         super.onResume();
+
+        int textColor;
+        int iconColor;
+        if (textColorMode) {
+            textColor = adaptiveIconColor;
+            iconColor = adaptiveIconColor;
+        } else {
+            textColor = defaultTextColor;
+            iconColor = defaultIconColor;
+        }
+
+        if (widgetFirstStart && extraTools) {
+            iconFrame(this, R.id.wsettingsButton, iconColor);
+            iconFrame(this, R.id.wapplistButton, iconColor);
+            iconFrame(this, R.id.wfavlistButton, iconColor);
+            iconFrame(this, R.id.wbrowserButton, iconColor);
+            iconFrame(this, R.id.wcameraButton, iconColor);
+            iconFrame(this, R.id.wwetButton, iconColor);
+            iconFrame(this, R.id.whelpButton, iconColor);
+            iconFrame(this, R.id.waiButton, iconColor);
+            iconFrame(this, R.id.wdiscoveryButton, iconColor);
+            iconFrame(this, R.id.wmapButton, iconColor);
+            widgetIconChanged = true;
+        }
+        if (extraTools) {
+            if (!widgetIconChanged) {
+                iconFrame(this, R.id.wsettingsButton, iconColor);
+                iconFrame(this, R.id.wapplistButton, iconColor);
+                iconFrame(this, R.id.wfavlistButton, iconColor);
+                iconFrame(this, R.id.wbrowserButton, iconColor);
+                iconFrame(this, R.id.wcameraButton, iconColor);
+                iconFrame(this, R.id.wwetButton, iconColor);
+                iconFrame(this, R.id.whelpButton, iconColor);
+                iconFrame(this, R.id.waiButton, iconColor);
+                iconFrame(this, R.id.wdiscoveryButton, iconColor);
+                iconFrame(this, R.id.wmapButton, iconColor);
+                widgetIconChanged = true;
+            }
+        } else {
+            if (widgetIconChanged) {
+                ImageView ivone;
+                ivone = findViewById(R.id.wsettingsButton);
+                ivone.setImageDrawable(defaultScreenIcons.get(0));
+                ivone = findViewById(R.id.wapplistButton);
+                ivone.setImageDrawable(defaultScreenIcons.get(1));
+                ivone = findViewById(R.id.wfavlistButton);
+                ivone.setImageDrawable(defaultScreenIcons.get(2));
+                ivone = findViewById(R.id.wbrowserButton);
+                ivone.setImageDrawable(defaultScreenIcons.get(3));
+                ivone = findViewById(R.id.wcameraButton);
+                ivone.setImageDrawable(defaultScreenIcons.get(4));
+                ivone = findViewById(R.id.wwetButton);
+                ivone.setImageDrawable(defaultScreenIcons.get(5));
+                ivone = findViewById(R.id.whelpButton);
+                ivone.setImageDrawable(defaultScreenIcons.get(6));
+                ivone = findViewById(R.id.waiButton);
+                ivone.setImageDrawable(defaultScreenIcons.get(7));
+                ivone = findViewById(R.id.wdiscoveryButton);
+                ivone.setImageDrawable(defaultScreenIcons.get(8));
+                ivone = findViewById(R.id.wmapButton);
+                ivone.setImageDrawable(defaultScreenIcons.get(9));
+                widgetIconChanged = false;
+            }
+        }
+
         TextView tv = findViewById(R.id.widgetTitle);
         tv.setTextColor(defaultTextColor);
         tv.setTextSize(TypedValue.COMPLEX_UNIT_PX, TxTLauncherApp.defaultFontSize + defaultPlusFontSizeTitle);
@@ -283,39 +378,17 @@ public class WidgetActivity extends AppCompatActivity {
         EditText editText = findViewById(R.id.widgetTextNote);
         editText.setBackgroundTintList(ColorStateList.valueOf(Color.DKGRAY));
 
-        if (textColorMode) {
-            setIconColor(this, R.id.wsettingsButton, adaptiveIconColor);
-            setIconColor(this, R.id.wwetButton, adaptiveIconColor);
-            setIconColor(this, R.id.whelpButton, adaptiveIconColor);
-            setIconColor(this, R.id.wbrowserButton, adaptiveIconColor);
-            setIconColor(this, R.id.wcameraButton, adaptiveIconColor);
-            setIconColor(this, R.id.wapplistButton, adaptiveIconColor);
-            setIconColor(this, R.id.wfavlistButton, adaptiveIconColor);
-            setIconColor(this, R.id.waiButton, adaptiveIconColor);
-            setIconColor(this, R.id.wdiscoveryButton, adaptiveIconColor);
-            setIconColor(this, R.id.wmapButton, adaptiveIconColor);
-        } else {
-            setIconColor(this, R.id.wsettingsButton, defaultIconColor);
-            setIconColor(this, R.id.wwetButton, defaultIconColor);
-            setIconColor(this, R.id.whelpButton, defaultIconColor);
-            setIconColor(this, R.id.wbrowserButton, defaultIconColor);
-            setIconColor(this, R.id.wcameraButton, defaultIconColor);
-            setIconColor(this, R.id.wapplistButton, defaultIconColor);
-            setIconColor(this, R.id.wfavlistButton, defaultIconColor);
-            setIconColor(this, R.id.waiButton, defaultIconColor);
-            setIconColor(this, R.id.wdiscoveryButton, defaultIconColor);
-            setIconColor(this, R.id.wmapButton, defaultIconColor);
-        }
+        setIconColor(this, R.id.wsettingsButton, iconColor);
+        setIconColor(this, R.id.wwetButton, iconColor);
+        setIconColor(this, R.id.whelpButton, iconColor);
+        setIconColor(this, R.id.wbrowserButton, iconColor);
+        setIconColor(this, R.id.wcameraButton, iconColor);
+        setIconColor(this, R.id.wapplistButton, iconColor);
+        setIconColor(this, R.id.wfavlistButton, iconColor);
+        setIconColor(this, R.id.waiButton, iconColor);
+        setIconColor(this, R.id.wdiscoveryButton, iconColor);
+        setIconColor(this, R.id.wmapButton, iconColor);
 
-        int textColor;
-        int iconColor;
-        if (textColorMode) {
-            textColor = adaptiveIconColor;
-            iconColor = adaptiveIconColor;
-        } else {
-            textColor = defaultTextColor;
-            iconColor = defaultTextColor;
-        }
         TextView tvx;
         setIconColor(this, R.id.wsettingsButton, iconColor);
         tvx = findViewById(R.id.wsettingsButtonTitle);
@@ -388,6 +461,8 @@ public class WidgetActivity extends AppCompatActivity {
                 hideKeyboard(this);
             }
         });
+
+        widgetFirstStart = false;
     }
 
 

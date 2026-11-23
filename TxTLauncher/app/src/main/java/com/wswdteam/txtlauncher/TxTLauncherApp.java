@@ -150,6 +150,7 @@ public class TxTLauncherApp extends android.app.Application {
     public static ArrayList<ResolveInfo> allApplicationsList = new ArrayList<>();
     public static List<String> homeAppName = new ArrayList<>();
     public static List<Drawable> defaultIcons = new ArrayList<>();
+    public static List<Drawable> defaultScreenIcons = new ArrayList<>();
     public static Context AppContext;
     public static long packageUpdateTime;
     public static String[][] allAppData;

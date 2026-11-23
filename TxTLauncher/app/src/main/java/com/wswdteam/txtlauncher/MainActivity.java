@@ -26,17 +26,20 @@ import static com.wswdteam.txtlauncher.TxTLauncherApp.START_SEARCH;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.START_SEARCH_LONG;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.START_SETTINGS_LONG;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.START_WEATHER;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.adaptiveIcon;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.adaptiveIconColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.allApplicationsList;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.appIconCache;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.backgroundChanged;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultBackGroundColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultIcons;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultScreenIcons;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.extraTools;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.favIconCache;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.focusMode;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.focusModeChanged;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.getSettingsAppList;
+import static com.wswdteam.txtlauncher.TxTLauncherApp.homeSysIcon;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.iconViewChanged;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.lockApp;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.mainIconCache;
@@ -133,6 +136,7 @@ public class MainActivity extends AppCompatActivity {
     public static boolean startedAppSelect = false;
     public static boolean touchOnIconObject = false;
     public static boolean firstStart = true;
+    public static boolean mainIconChanged = false;
     private GestureDetector gestureDetector;
     private final Handler longPressHandler = new Handler(Looper.getMainLooper());
     private Runnable longPressRunnable;
@@ -242,34 +246,36 @@ public class MainActivity extends AppCompatActivity {
 
         FrameLayout linl = findViewById(R.id.mainFullView);
         linl.setOnTouchListener((v, event) -> {
-            switch (event.getAction()) {
-                case MotionEvent.ACTION_DOWN:
-                    longPressRunnable = () -> {
-                        if (!focusMode) {
-                            systemMessage(getString(R.string.focus_mode_message));
-                            focusMode = true;
-                            var set = TxTLauncherApp.sharedPreferences.edit();
-                            set.putString(TxTLauncherApp.SETTINGS_FOCUS_TAG, "1");
-                            set.apply();
-                            screenPrepare();
-                        } else {
-                            systemMessage(getString(R.string.focus_mode_message_off));
-                            focusMode = false;
-                            var set = TxTLauncherApp.sharedPreferences.edit();
-                            set.putString(TxTLauncherApp.SETTINGS_FOCUS_TAG, "0");
-                            set.apply();
-                            screenPrepare();
-                            backgroundPrepare();
+            if (extraTools) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        longPressRunnable = () -> {
+                            if (!focusMode) {
+                                systemMessage(getString(R.string.focus_mode_message));
+                                focusMode = true;
+                                var set = TxTLauncherApp.sharedPreferences.edit();
+                                set.putString(TxTLauncherApp.SETTINGS_FOCUS_TAG, "1");
+                                set.apply();
+                                screenPrepare();
+                            } else {
+                                systemMessage(getString(R.string.focus_mode_message_off));
+                                focusMode = false;
+                                var set = TxTLauncherApp.sharedPreferences.edit();
+                                set.putString(TxTLauncherApp.SETTINGS_FOCUS_TAG, "0");
+                                set.apply();
+                                screenPrepare();
+                                backgroundPrepare();
+                            }
+                        };
+                        longPressHandler.postDelayed(longPressRunnable, 5000);
+                        return true;
+                    case MotionEvent.ACTION_UP:
+                    case MotionEvent.ACTION_CANCEL:
+                        if (longPressRunnable != null) {
+                            longPressHandler.removeCallbacks(longPressRunnable);
                         }
-                    };
-                    longPressHandler.postDelayed(longPressRunnable, 5000);
-                    return true;
-                case MotionEvent.ACTION_UP:
-                case MotionEvent.ACTION_CANCEL:
-                    if (longPressRunnable != null) {
-                        longPressHandler.removeCallbacks(longPressRunnable);
-                    }
-                    return true;
+                        return true;
+                }
             }
             return false;
         });
@@ -306,6 +312,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         firstStart = true;
+        mainIconChanged = false;
         // új telepítés vagy frissítési üzenet
         verMessage(this);
     }
@@ -608,6 +615,54 @@ public class MainActivity extends AppCompatActivity {
         } else {
             iconColor = defaultIconColor;
         }
+
+        if (firstStart && extraTools) {
+            iconFrame(this, R.id.arrowLeft, iconColor);
+            iconFrame(this, R.id.arrowUp, iconColor);
+            iconFrame(this, R.id.arrowDown, iconColor);
+            iconFrame(this, R.id.arrowRight, iconColor);
+            iconFrame(this, R.id.searchButton, iconColor);
+            iconFrame(this, R.id.weatherButton, iconColor);
+            iconFrame(this, R.id.settingsButton, iconColor);
+            iconFrame(this, R.id.aiButton, iconColor);
+            mainIconChanged = true;
+        }
+
+        if (extraTools) {
+            if (!mainIconChanged) {
+                iconFrame(this, R.id.arrowLeft, iconColor);
+                iconFrame(this, R.id.arrowUp, iconColor);
+                iconFrame(this, R.id.arrowDown, iconColor);
+                iconFrame(this, R.id.arrowRight, iconColor);
+                iconFrame(this, R.id.searchButton, iconColor);
+                iconFrame(this, R.id.weatherButton, iconColor);
+                iconFrame(this, R.id.settingsButton, iconColor);
+                iconFrame(this, R.id.aiButton, iconColor);
+                mainIconChanged = true;
+            }
+        } else {
+            if (mainIconChanged) {
+                ImageView ivone;
+                ivone = findViewById(R.id.arrowLeft);
+                ivone.setImageDrawable(defaultScreenIcons.get(0));
+                ivone = findViewById(R.id.arrowUp);
+                ivone.setImageDrawable(defaultScreenIcons.get(1));
+                ivone = findViewById(R.id.arrowDown);
+                ivone.setImageDrawable(defaultScreenIcons.get(2));
+                ivone = findViewById(R.id.arrowRight);
+                ivone.setImageDrawable(defaultScreenIcons.get(3));
+                ivone = findViewById(R.id.searchButton);
+                ivone.setImageDrawable(defaultScreenIcons.get(4));
+                ivone = findViewById(R.id.weatherButton);
+                ivone.setImageDrawable(defaultScreenIcons.get(5));
+                ivone = findViewById(R.id.settingsButton);
+                ivone.setImageDrawable(defaultScreenIcons.get(6));
+                ivone = findViewById(R.id.aiButton);
+                ivone.setImageDrawable(defaultScreenIcons.get(7));
+                mainIconChanged = false;
+            }
+        }
+
         setIconColor(this, R.id.applistButton, iconColor);
         setIconColor(this, R.id.searchButton, iconColor);
         setIconColor(this, R.id.weatherButton, iconColor);
@@ -624,16 +679,7 @@ public class MainActivity extends AppCompatActivity {
         setIconColor(this, R.id.browserButton, iconColor);
         setIconColor(this, R.id.cameraButton, iconColor);
         setIconColor(this, R.id.menuIconMain, iconColor);
-        if (firstStart) {
-            iconFrame(this, R.id.arrowLeft, iconColor);
-            iconFrame(this, R.id.arrowUp, iconColor);
-            iconFrame(this, R.id.arrowDown, iconColor);
-            iconFrame(this, R.id.arrowRight, iconColor);
-            iconFrame(this, R.id.searchButton, iconColor);
-            iconFrame(this, R.id.weatherButton, iconColor);
-            iconFrame(this, R.id.settingsButton, iconColor);
-            iconFrame(this, R.id.aiButton, iconColor);
-        }
+
         TextView tw = findViewById(R.id.digitalClock);
         tw.setTextColor(defaultTextColor);
         TextView tdw = findViewById(R.id.digitalDate);
@@ -657,6 +703,23 @@ public class MainActivity extends AppCompatActivity {
         defaultIcons.add(ivone.getDrawable());
         ivone = findViewById(R.id.cameraButton);
         defaultIcons.add(ivone.getDrawable());
+
+        ivone = findViewById(R.id.arrowLeft);
+        defaultScreenIcons.add(ivone.getDrawable());
+        ivone = findViewById(R.id.arrowUp);
+        defaultScreenIcons.add(ivone.getDrawable());
+        ivone = findViewById(R.id.arrowDown);
+        defaultScreenIcons.add(ivone.getDrawable());
+        ivone = findViewById(R.id.arrowRight);
+        defaultScreenIcons.add(ivone.getDrawable());
+        ivone = findViewById(R.id.searchButton);
+        defaultScreenIcons.add(ivone.getDrawable());
+        ivone = findViewById(R.id.weatherButton);
+        defaultScreenIcons.add(ivone.getDrawable());
+        ivone = findViewById(R.id.settingsButton);
+        defaultScreenIcons.add(ivone.getDrawable());
+        ivone = findViewById(R.id.aiButton);
+        defaultScreenIcons.add(ivone.getDrawable());
     }
 
 
@@ -882,6 +945,11 @@ public class MainActivity extends AppCompatActivity {
         ImageView iv = findViewById(R.id.dialButton);
         Drawable dr = getDrawable(R.drawable.call);
         imageButtonColorize(cont, view, intent, iv, dr, 0);
+        if (extraTools) {
+            if (adaptiveIcon || !homeSysIcon) {
+                iconFrame(this, R.id.dialButton, adaptiveIconColor);
+            }
+        }
 
         // mail
         intent = new Intent(Intent.ACTION_MAIN, null);
@@ -889,21 +957,41 @@ public class MainActivity extends AppCompatActivity {
         iv = findViewById(R.id.mailButton);
         dr = getDrawable(R.drawable.email);
         imageButtonColorize(cont, view, intent, iv, dr, 1);
+        if (extraTools) {
+            if (adaptiveIcon || !homeSysIcon) {
+                iconFrame(this, R.id.mailButton, adaptiveIconColor);
+            }
+        }
 
         // app list icon
         iconMainApp(view);
+        if (extraTools) {
+            if (adaptiveIcon || !homeSysIcon) {
+                iconFrame(this, R.id.applistButton, adaptiveIconColor);
+            }
+        }
 
         // browser
         intent = new Intent(Intent.ACTION_VIEW, Uri.parse("https://"));
         iv = findViewById(R.id.browserButton);
         dr = getDrawable(R.drawable.internet);
         imageButtonColorize(cont, view, intent, iv, dr, 3);
+        if (extraTools) {
+            if (adaptiveIcon || !homeSysIcon) {
+                iconFrame(this, R.id.browserButton, adaptiveIconColor);
+            }
+        }
 
         // camera
         intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
         iv = findViewById(R.id.cameraButton);
         dr = getDrawable(R.drawable.photo);
         imageButtonColorize(cont, view, intent, iv, dr, 4);
+        if (extraTools) {
+            if (adaptiveIcon || !homeSysIcon) {
+                iconFrame(this, R.id.cameraButton, adaptiveIconColor);
+            }
+        }
     }
 
 
