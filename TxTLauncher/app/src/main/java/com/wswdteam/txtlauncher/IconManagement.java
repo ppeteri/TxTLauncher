@@ -1,5 +1,6 @@
 package com.wswdteam.txtlauncher;
 
+import static com.wswdteam.txtlauncher.MainActivity.emptyIcon;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.adaptiveIcon;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.adaptiveIconColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultIconColor;
@@ -57,7 +58,7 @@ public class IconManagement {
 
 
     //
-    // másodlagos vezérlő (nyíl) ikonok kezelése
+    // vezérlő ikonok kezelése
     //
     public static void iconFrame(Activity act, int id, int color) {
         ImageView iv = act.findViewById(id);
@@ -69,20 +70,26 @@ public class IconManagement {
                 int iconWidth = dr.getIntrinsicWidth();
                 int iconHeight = dr.getIntrinsicHeight();
                 int padding = (int) (10 * act.getResources().getDisplayMetrics().density);
-                int miniWidth = iconWidth - (2 * padding);
-                int miniHeight = iconHeight - (2 * padding);
+                int miniWidth = Math.max(1, iconWidth - (2 * padding));
+                int miniHeight = Math.max(1, iconHeight - (2 * padding));
                 GradientDrawable circleBorder = new GradientDrawable();
                 circleBorder.setShape(GradientDrawable.OVAL);
                 circleBorder.setColor(Color.TRANSPARENT);
                 int strokeWidth = (int) (3 * act.getResources().getDisplayMetrics().density);
                 circleBorder.setStroke(strokeWidth, alphaColor);
-                Drawable[] layers = new Drawable[]{circleBorder, dr};
-                LayerDrawable layerDrawable = new LayerDrawable(layers);
-                layerDrawable.setLayerSize(0, iconWidth, iconHeight);
-                layerDrawable.setLayerSize(1, miniWidth, miniHeight);
-                layerDrawable.setLayerGravity(1, android.view.Gravity.CENTER);
-                //layerDrawable.setLayerInset(1, padding, padding, padding, padding);
-                iv.setImageDrawable(layerDrawable);
+                if (!emptyIcon) {
+                    Drawable[] layers = new Drawable[]{circleBorder, dr};
+                    LayerDrawable layerDrawable = new LayerDrawable(layers);
+                    layerDrawable.setLayerSize(0, iconWidth, iconHeight);
+                    layerDrawable.setLayerSize(1, miniWidth, miniHeight);
+                    layerDrawable.setLayerGravity(1, android.view.Gravity.CENTER);
+                    layerDrawable.setLayerInset(1, padding, padding, padding, padding);
+                    iv.setImageDrawable(layerDrawable);
+                } else {
+                    LayerDrawable layerDrawable = new LayerDrawable(new Drawable[]{circleBorder});
+                    layerDrawable.setLayerSize(0, iconWidth, iconHeight);
+                    iv.setImageDrawable(layerDrawable);
+                }
             } catch (Exception e) {
                 // hiba
             }

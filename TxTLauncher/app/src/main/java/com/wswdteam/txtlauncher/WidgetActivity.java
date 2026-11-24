@@ -274,6 +274,8 @@ public class WidgetActivity extends AppCompatActivity {
             defaultScreenIcons.add(iv.getDrawable());
             iv = findViewById(R.id.wmapButton);
             defaultScreenIcons.add(iv.getDrawable());
+            iv = findViewById(R.id.menuIconW);
+            defaultScreenIcons.add(iv.getDrawable());
         }
 
         syslog(getString(R.string.started_activity) + ": "+ this.getClass().getSimpleName());
@@ -319,6 +321,9 @@ public class WidgetActivity extends AppCompatActivity {
             iconFrame(this, R.id.waiButton, iconColor);
             iconFrame(this, R.id.wdiscoveryButton, iconColor);
             iconFrame(this, R.id.wmapButton, iconColor);
+            MainActivity.emptyIcon = true;
+            iconFrame(this, R.id.menuIconW, iconColor);
+            MainActivity.emptyIcon = false;
             widgetIconChanged = true;
         }
         if (extraTools) {
@@ -333,6 +338,9 @@ public class WidgetActivity extends AppCompatActivity {
                 iconFrame(this, R.id.waiButton, iconColor);
                 iconFrame(this, R.id.wdiscoveryButton, iconColor);
                 iconFrame(this, R.id.wmapButton, iconColor);
+                MainActivity.emptyIcon = true;
+                iconFrame(this, R.id.menuIconW, iconColor);
+                MainActivity.emptyIcon = false;
                 widgetIconChanged = true;
             }
         } else {
@@ -358,6 +366,8 @@ public class WidgetActivity extends AppCompatActivity {
                 ivone.setImageDrawable(defaultScreenIcons.get(8));
                 ivone = findViewById(R.id.wmapButton);
                 ivone.setImageDrawable(defaultScreenIcons.get(9));
+                ivone = findViewById(R.id.menuIconW);
+                ivone.setImageDrawable(defaultScreenIcons.get(10));
                 widgetIconChanged = false;
             }
         }

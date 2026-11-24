@@ -4,6 +4,7 @@ import static android.view.View.GONE;
 import static android.view.View.INVISIBLE;
 import static android.view.View.VISIBLE;
 import static com.wswdteam.txtlauncher.IconManagement.getDrawableTxT;
+import static com.wswdteam.txtlauncher.IconManagement.iconFrame;
 import static com.wswdteam.txtlauncher.IconManagement.setIconColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.START_ACT_APPLIST;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.FAV_APP_NUM;
@@ -128,23 +129,13 @@ public class FavoritesActivity extends AppCompatActivity {
     @Override
     public boolean dispatchTouchEvent(MotionEvent event) {
         ListView micon = findViewById(R.id.favAppList1);
-        boolean touchOnIcon = isTouchOnView(event, micon);
         boolean isScrollable = micon.canScrollVertically(1) || micon.canScrollVertically(-1);
-        if (!touchOnIcon || !isScrollable) {
-        }
         if (!isScrollable) {
             gestureDetector.onTouchEvent(event);
         } else {
             gestureDetector2.onTouchEvent(event);
         }
         return super.dispatchTouchEvent(event);
-    }
-    private boolean isTouchOnView(MotionEvent event, View view) {
-        int[] loc = new int[2];
-        view.getLocationOnScreen(loc);
-        float x = event.getRawX();
-        float y = event.getRawY();
-        return x >= loc[0] && x <= loc[0] + view.getWidth() && y >= loc[1] && y <= loc[1] + view.getHeight();
     }
 
 
@@ -199,11 +190,16 @@ public class FavoritesActivity extends AppCompatActivity {
             ll.setVisibility(INVISIBLE);
         }
 
+        int iconColor;
         if (textColorMode) {
-            setIconColor(this, R.id.menuIconF, adaptiveIconColor);
+            iconColor = adaptiveIconColor;
         } else {
-            setIconColor(this, R.id.menuIconF, defaultIconColor);
+            iconColor = defaultIconColor;
         }
+        setIconColor(this, R.id.menuIconF, iconColor);
+        MainActivity.emptyIcon = true;
+        iconFrame(this, R.id.menuIconF, iconColor);
+        MainActivity.emptyIcon = false;
 
         setFavApp();
     }
