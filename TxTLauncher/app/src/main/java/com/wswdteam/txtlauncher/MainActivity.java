@@ -137,7 +137,6 @@ public class MainActivity extends AppCompatActivity {
     public static boolean touchOnIconObject = false;
     public static boolean firstStart = true;
     public static boolean mainIconChanged = false;
-    public static boolean emptyIcon = false;
     private GestureDetector gestureDetector;
     private final Handler longPressHandler = new Handler(Looper.getMainLooper());
     private Runnable longPressRunnable;
@@ -680,9 +679,7 @@ public class MainActivity extends AppCompatActivity {
         setIconColor(this, R.id.browserButton, iconColor);
         setIconColor(this, R.id.cameraButton, iconColor);
         setIconColor(this, R.id.menuIconMain, iconColor);
-        emptyIcon = true;
         iconFrame(this, R.id.menuIconMain, iconColor);
-        emptyIcon = false;
 
         TextView tw = findViewById(R.id.digitalClock);
         tw.setTextColor(defaultTextColor);

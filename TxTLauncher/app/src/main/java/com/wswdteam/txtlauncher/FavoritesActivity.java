@@ -197,9 +197,7 @@ public class FavoritesActivity extends AppCompatActivity {
             iconColor = defaultIconColor;
         }
         setIconColor(this, R.id.menuIconF, iconColor);
-        MainActivity.emptyIcon = true;
         iconFrame(this, R.id.menuIconF, iconColor);
-        MainActivity.emptyIcon = false;
 
         setFavApp();
     }

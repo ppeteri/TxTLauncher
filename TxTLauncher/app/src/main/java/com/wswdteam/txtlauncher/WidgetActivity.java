@@ -321,9 +321,7 @@ public class WidgetActivity extends AppCompatActivity {
             iconFrame(this, R.id.waiButton, iconColor);
             iconFrame(this, R.id.wdiscoveryButton, iconColor);
             iconFrame(this, R.id.wmapButton, iconColor);
-            MainActivity.emptyIcon = true;
             iconFrame(this, R.id.menuIconW, iconColor);
-            MainActivity.emptyIcon = false;
             widgetIconChanged = true;
         }
         if (extraTools) {
@@ -338,9 +336,7 @@ public class WidgetActivity extends AppCompatActivity {
                 iconFrame(this, R.id.waiButton, iconColor);
                 iconFrame(this, R.id.wdiscoveryButton, iconColor);
                 iconFrame(this, R.id.wmapButton, iconColor);
-                MainActivity.emptyIcon = true;
                 iconFrame(this, R.id.menuIconW, iconColor);
-                MainActivity.emptyIcon = false;
                 widgetIconChanged = true;
             }
         } else {

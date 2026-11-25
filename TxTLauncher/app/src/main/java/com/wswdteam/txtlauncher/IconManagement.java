@@ -1,6 +1,5 @@
 package com.wswdteam.txtlauncher;
 
-import static com.wswdteam.txtlauncher.MainActivity.emptyIcon;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.adaptiveIcon;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.adaptiveIconColor;
 import static com.wswdteam.txtlauncher.TxTLauncherApp.defaultIconColor;
@@ -77,19 +76,21 @@ public class IconManagement {
                 circleBorder.setColor(Color.TRANSPARENT);
                 int strokeWidth = (int) (3 * act.getResources().getDisplayMetrics().density);
                 circleBorder.setStroke(strokeWidth, alphaColor);
-                if (!emptyIcon) {
-                    Drawable[] layers = new Drawable[]{circleBorder, dr};
-                    LayerDrawable layerDrawable = new LayerDrawable(layers);
-                    layerDrawable.setLayerSize(0, iconWidth, iconHeight);
-                    layerDrawable.setLayerSize(1, miniWidth, miniHeight);
-                    layerDrawable.setLayerGravity(1, android.view.Gravity.CENTER);
-                    layerDrawable.setLayerInset(1, padding, padding, padding, padding);
-                    iv.setImageDrawable(layerDrawable);
-                } else {
-                    LayerDrawable layerDrawable = new LayerDrawable(new Drawable[]{circleBorder});
-                    layerDrawable.setLayerSize(0, iconWidth, iconHeight);
-                    iv.setImageDrawable(layerDrawable);
-                }
+                // van benne ikon
+                // if (!emptyIcon) {
+                Drawable[] layers = new Drawable[]{circleBorder, dr};
+                LayerDrawable layerDrawable = new LayerDrawable(layers);
+                layerDrawable.setLayerSize(0, iconWidth, iconHeight);
+                layerDrawable.setLayerSize(1, miniWidth, miniHeight);
+                layerDrawable.setLayerGravity(1, android.view.Gravity.CENTER);
+                layerDrawable.setLayerInset(1, padding, padding, padding, padding);
+                iv.setImageDrawable(layerDrawable);
+                // } else {
+                // nincs benne ikon
+                // - x LayerDrawable layerDrawable = new LayerDrawable(new Drawable[]{circleBorder});
+                // - x layerDrawable.setLayerSize(0, iconWidth, iconHeight);
+                // - x iv.setImageDrawable(layerDrawable);
+                // }
             } catch (Exception e) {
                 // hiba
             }

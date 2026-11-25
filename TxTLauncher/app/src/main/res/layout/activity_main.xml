@@ -273,7 +273,7 @@
                 android:contentDescription="@string/app_name"
                 android:onClick="startButtonAppFav"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:srcCompat="@drawable/trip"
+                app:srcCompat="@drawable/open"
                 tools:layout_editor_absoluteX="194dp" />
 
     </LinearLayout>
