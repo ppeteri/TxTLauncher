@@ -625,6 +625,7 @@ public class MainActivity extends AppCompatActivity {
             iconFrame(this, R.id.weatherButton, iconColor);
             iconFrame(this, R.id.settingsButton, iconColor);
             iconFrame(this, R.id.aiButton, iconColor);
+            iconFrame(this, R.id.menuIconMain, iconColor);
             mainIconChanged = true;
         }
 
@@ -679,7 +680,6 @@ public class MainActivity extends AppCompatActivity {
         setIconColor(this, R.id.browserButton, iconColor);
         setIconColor(this, R.id.cameraButton, iconColor);
         setIconColor(this, R.id.menuIconMain, iconColor);
-        iconFrame(this, R.id.menuIconMain, iconColor);
 
         TextView tw = findViewById(R.id.digitalClock);
         tw.setTextColor(defaultTextColor);

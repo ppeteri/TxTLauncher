@@ -688,8 +688,10 @@ public class TxTLauncherApp extends android.app.Application {
             case START_BROWSER:
                 if (!focusMode) {
                     try {
-                        Intent broIn = new Intent(Intent.ACTION_VIEW, Uri.parse("https://"));
-                        broIn.addCategory(Intent.CATEGORY_DEFAULT);
+                        Intent broIn = new Intent(Intent.ACTION_MAIN);
+                        broIn.addCategory(Intent.CATEGORY_APP_BROWSER);
+                        //Intent broIn = new Intent(Intent.ACTION_VIEW, Uri.parse("https://"));
+                        //broIn.addCategory(Intent.CATEGORY_DEFAULT);
                         broIn.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                         cont.startActivity(broIn);
                         startedAndroidApp = true;
